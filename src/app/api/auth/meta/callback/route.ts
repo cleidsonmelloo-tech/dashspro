@@ -66,15 +66,31 @@ export async function GET(request: NextRequest) {
   const accountsData = await accountsRes.json()
   const accounts: { id: string; name: string; account_id: string }[] = accountsData.data || []
 
+  // Busca info do usuário para usar como fallback
+  const meRes = await fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`)
+  const meData = await meRes.json()
+
   const supabase = await createClient()
 
-  // Salva cada conta no banco
-  for (const account of accounts) {
+  if (accounts.length > 0) {
+    for (const account of accounts) {
+      await supabase.from("ad_accounts").upsert({
+        workspace_id: state.workspace_id,
+        platform: "meta",
+        account_id: account.account_id || account.id.replace("act_", ""),
+        account_name: account.name,
+        access_token: finalToken,
+        token_expires_at: expiresAt,
+        is_active: true,
+      }, { onConflict: "workspace_id,platform,account_id" })
+    }
+  } else {
+    // Salva conexão mesmo sem contas de anúncio vinculadas
     await supabase.from("ad_accounts").upsert({
       workspace_id: state.workspace_id,
       platform: "meta",
-      account_id: account.account_id || account.id.replace("act_", ""),
-      account_name: account.name,
+      account_id: meData.id || "personal",
+      account_name: meData.name || "Conta Meta conectada",
       access_token: finalToken,
       token_expires_at: expiresAt,
       is_active: true,
