@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const params = new URLSearchParams({
     client_id: META_APP_ID,
     redirect_uri: REDIRECT_URI,
-    scope: "ads_read,ads_management,business_management,read_insights",
+    scope: "ads_read,ads_management,business_management",
     response_type: "code",
     state,
   })
