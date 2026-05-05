@@ -75,10 +75,12 @@ export default function ConfiguracoesPage() {
           }
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
           setTimeout(() => setFeedback(null), 5000)
-        } catch (err) {
-          console.error("Meta save error:", err)
-          setFeedback({ type: "error", msg: "Erro ao salvar conexão Meta. Tente novamente." })
-          setTimeout(() => setFeedback(null), 5000)
+        } catch (err: unknown) {
+          const msg = err && typeof err === "object" && "message" in err
+            ? String((err as { message: unknown }).message)
+            : String(err)
+          setFeedback({ type: "error", msg: `Erro Meta: ${msg}` })
+          setTimeout(() => setFeedback(null), 10000)
         }
       }
       saveMetaConnection()
