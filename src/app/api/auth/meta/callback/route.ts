@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
 
 const META_APP_ID = process.env.META_APP_ID!
 const META_APP_SECRET = process.env.META_APP_SECRET!
@@ -56,46 +55,50 @@ export async function GET(request: NextRequest) {
 
   const longTokenData = await longTokenRes.json()
   const finalToken = longTokenData.access_token || access_token
-  const expiresIn = longTokenData.expires_in || 5184000 // 60 dias padrão
+  const expiresIn = longTokenData.expires_in || 5184000
   const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
-  // Busca as contas de anúncio disponíveis
-  const accountsRes = await fetch(
-    `https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id,currency,account_status&access_token=${finalToken}`
-  )
+  // Busca contas de anúncio e info do usuário
+  const [accountsRes, meRes] = await Promise.all([
+    fetch(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id&access_token=${finalToken}`),
+    fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`),
+  ])
+
   const accountsData = await accountsRes.json()
+  const meData = await meRes.json()
   const accounts: { id: string; name: string; account_id: string }[] = accountsData.data || []
 
-  // Busca info do usuário para usar como fallback
-  const meRes = await fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`)
-  const meData = await meRes.json()
-
-  const supabase = await createClient()
-
-  if (accounts.length > 0) {
-    for (const account of accounts) {
-      await supabase.from("ad_accounts").upsert({
+  // Monta payload para salvar via cookie (a sessão do usuário está no browser)
+  const payload = accounts.length > 0
+    ? accounts.map((a) => ({
         workspace_id: state.workspace_id,
         platform: "meta",
-        account_id: account.account_id || account.id.replace("act_", ""),
-        account_name: account.name,
+        account_id: a.account_id || a.id.replace("act_", ""),
+        account_name: a.name,
         access_token: finalToken,
         token_expires_at: expiresAt,
         is_active: true,
-      }, { onConflict: "workspace_id,platform,account_id" })
-    }
-  } else {
-    // Salva conexão mesmo sem contas de anúncio vinculadas
-    await supabase.from("ad_accounts").upsert({
-      workspace_id: state.workspace_id,
-      platform: "meta",
-      account_id: meData.id || "personal",
-      account_name: meData.name || "Conta Meta conectada",
-      access_token: finalToken,
-      token_expires_at: expiresAt,
-      is_active: true,
-    }, { onConflict: "workspace_id,platform,account_id" })
-  }
+      }))
+    : [{
+        workspace_id: state.workspace_id,
+        platform: "meta",
+        account_id: meData.id || "personal",
+        account_name: meData.name || "Conta Meta conectada",
+        access_token: finalToken,
+        token_expires_at: expiresAt,
+        is_active: true,
+      }]
 
-  return NextResponse.redirect(new URL("/dashboard/configuracoes?success=meta_connected", request.url))
+  // Salva via cookie para o client-side persistir com a sessão autenticada
+  const cookieValue = Buffer.from(JSON.stringify(payload)).toString("base64")
+  const response = NextResponse.redirect(new URL("/dashboard/configuracoes?meta_pending=1", request.url))
+  response.cookies.set("meta_oauth_pending", cookieValue, {
+    httpOnly: false, // precisa ser lido pelo client-side
+    secure: true,
+    sameSite: "lax",
+    maxAge: 300, // 5 minutos
+    path: "/",
+  })
+
+  return response
 }
