@@ -89,16 +89,7 @@ export async function GET(request: NextRequest) {
         is_active: true,
       }]
 
-  // Salva via cookie para o client-side persistir com a sessão autenticada
-  const cookieValue = Buffer.from(JSON.stringify(payload)).toString("base64")
-  const response = NextResponse.redirect(new URL("/dashboard/configuracoes?meta_pending=1", request.url))
-  response.cookies.set("meta_oauth_pending", cookieValue, {
-    httpOnly: false, // precisa ser lido pelo client-side
-    secure: true,
-    sameSite: "lax",
-    maxAge: 300, // 5 minutos
-    path: "/",
-  })
-
-  return response
+  // Passa dados via URL para o client-side salvar com a sessão autenticada
+  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url")
+  return NextResponse.redirect(new URL(`/dashboard/configuracoes?meta_data=${encoded}`, request.url))
 }

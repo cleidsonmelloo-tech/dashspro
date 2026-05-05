@@ -59,31 +59,15 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     const successParam = searchParams.get("success")
     const errorParam = searchParams.get("error")
-    const metaPending = searchParams.get("meta_pending")
-
-    if (metaPending === "1") {
-      // Lê o cookie e salva no Supabase com a sessão autenticada do browser
+    const metaData = searchParams.get("meta_data")
+    if (metaData) {
       async function saveMetaConnection() {
         try {
-          const cookieValue = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("meta_oauth_pending="))
-            ?.split("=")[1]
-
-          if (!cookieValue) {
-            setFeedback({ type: "error", msg: "Dados de conexão Meta não encontrados. Tente novamente." })
-            return
-          }
-
-          const payload = JSON.parse(Buffer.from(decodeURIComponent(cookieValue), "base64").toString())
+          const payload = JSON.parse(Buffer.from(metaData!, "base64url").toString())
           const supabase = createClient()
-
           for (const item of payload) {
             await supabase.from("ad_accounts").upsert(item, { onConflict: "workspace_id,platform,account_id" })
           }
-
-          // Limpa o cookie
-          document.cookie = "meta_oauth_pending=; max-age=0; path=/"
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
         } catch {
           setFeedback({ type: "error", msg: "Erro ao salvar conexão Meta. Tente novamente." })
