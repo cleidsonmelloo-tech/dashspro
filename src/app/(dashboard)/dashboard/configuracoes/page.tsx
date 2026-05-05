@@ -63,14 +63,22 @@ export default function ConfiguracoesPage() {
     if (metaData) {
       async function saveMetaConnection() {
         try {
-          const payload = JSON.parse(Buffer.from(metaData!, "base64url").toString())
+          const base64 = metaData!.replace(/-/g, "+").replace(/_/g, "/")
+          const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=")
+          const payload = JSON.parse(atob(padded))
           const supabase = createClient()
           for (const item of payload) {
-            await supabase.from("ad_accounts").upsert(item, { onConflict: "workspace_id,platform,account_id" })
+            const { error } = await supabase
+              .from("ad_accounts")
+              .upsert(item, { onConflict: "workspace_id,platform,account_id" })
+            if (error) throw error
           }
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
-        } catch {
+          setTimeout(() => setFeedback(null), 5000)
+        } catch (err) {
+          console.error("Meta save error:", err)
           setFeedback({ type: "error", msg: "Erro ao salvar conexão Meta. Tente novamente." })
+          setTimeout(() => setFeedback(null), 5000)
         }
       }
       saveMetaConnection()
