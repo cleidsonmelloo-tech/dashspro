@@ -68,9 +68,15 @@ export default function ConfiguracoesPage() {
           const payload = JSON.parse(atob(padded))
           const supabase = createClient()
           for (const item of payload) {
-            const { error } = await supabase
-              .from("ad_accounts")
-              .upsert(item, { onConflict: "workspace_id,platform,account_id" })
+            const { error } = await supabase.rpc("upsert_ad_account", {
+              p_workspace_id: item.workspace_id,
+              p_platform: item.platform,
+              p_account_id: item.account_id,
+              p_account_name: item.account_name,
+              p_access_token: item.access_token,
+              p_token_expires_at: item.token_expires_at,
+              p_is_active: item.is_active,
+            })
             if (error) throw error
           }
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
