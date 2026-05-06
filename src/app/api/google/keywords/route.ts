@@ -40,8 +40,9 @@ export async function GET(request: NextRequest) {
   for (const account of filteredAccounts) {
     let token = account.access_token
 
-    if (isTokenExpired(account.token_expires_at) && account.refresh_token) {
-      token = await refreshGoogleToken(account.id, account.refresh_token, supabase)
+    const rt = account.refresh_token
+    if (isTokenExpired(account.token_expires_at) && rt) {
+      token = await refreshGoogleToken(account.id, rt, supabase)
       if (!token) continue
     }
 

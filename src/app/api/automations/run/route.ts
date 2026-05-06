@@ -118,8 +118,9 @@ async function fetchCurrentMetrics(
 
   for (const acc of accounts.filter((a) => a.platform === "google")) {
     let token = acc.access_token
-    if (isTokenExpired(acc.token_expires_at) && acc.refresh_token) {
-      token = await refreshGoogleToken(acc.id, acc.refresh_token, supabase) ?? token
+    const rt = acc.refresh_token
+    if (isTokenExpired(acc.token_expires_at) && rt) {
+      token = await refreshGoogleToken(acc.id, rt, supabase) ?? token
     }
     const res = await fetch(
       `https://googleads.googleapis.com/v17/customers/${acc.account_id}/googleAds:search`,
