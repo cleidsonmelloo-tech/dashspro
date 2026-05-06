@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
 import { PlatformPills, matchesPlatform } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
@@ -26,20 +27,6 @@ const MOCK_CREATIVES: Creative[] = [
   { id: "5", name: "AD05 - Urgência Black [IMG]", platform: "meta", status: "active", impressions: 18900, clicks: 720, ctr: 3.81, cpc: 1.36, spend: 980, conversions: 65, cpa: 15.08 },
   { id: "6", name: "Search - Comprar [KW]", platform: "google", status: "active", impressions: 12400, clicks: 680, ctr: 5.48, cpc: 1.76, spend: 1200, conversions: 100, cpa: 12.00 },
 ]
-
-const PERIOD_OPTIONS = [
-  { label: "Últimos 7 dias", value: "7d" },
-  { label: "Últimos 30 dias", value: "30d" },
-  { label: "Este mês", value: "this_month" },
-]
-
-function getDateRange(period: string) {
-  const today = new Date()
-  const until = today.toISOString().split("T")[0]
-  if (period === "7d") { const d = new Date(today); d.setDate(d.getDate() - 7); return { since: d.toISOString().split("T")[0], until } }
-  if (period === "this_month") return { since: `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`, until }
-  const d = new Date(today); d.setDate(d.getDate() - 30); return { since: d.toISOString().split("T")[0], until }
-}
 
 function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: number; loading?: boolean }) {
   const isGood = creative.ctr >= 3.0
@@ -134,7 +121,11 @@ export default function CriativosPage() {
   const [search, setSearch] = useState("")
   const [platform, setPlatform] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<"ctr" | "conversions" | "spend">("ctr")
-  const [period, setPeriod] = useState("30d")
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const d = new Date(); const until = d.toISOString().split("T")[0]
+    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
+    return { since, until }
+  })
   const [creatives, setCreatives] = useState<Creative[]>(MOCK_CREATIVES)
   const [loading, setLoading] = useState(false)
   const [isRealData, setIsRealData] = useState(false)
@@ -142,7 +133,7 @@ export default function CriativosPage() {
   const fetchCreatives = useCallback(async () => {
     setLoading(true)
     try {
-      const { since, until } = getDateRange(period)
+      const { since, until } = dateRange
       const res = await fetch(`/api/meta/creatives?since=${since}&until=${until}${filterParam}`)
       const data = res.ok ? await res.json() : { creatives: [], connected: false }
       if (data.connected && data.creatives?.length > 0) {
@@ -158,7 +149,7 @@ export default function CriativosPage() {
     } finally {
       setLoading(false)
     }
-  }, [period, filterParam])
+  }, [dateRange, filterParam])
 
   useEffect(() => { fetchCreatives() }, [fetchCreatives])
 
@@ -195,10 +186,7 @@ export default function CriativosPage() {
           </button>
 
           {/* Period */}
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
-            {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
 import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
@@ -50,26 +51,16 @@ function QualityScore({ score }: { score: number }) {
   )
 }
 
-const PERIOD_OPTIONS = [
-  { label: "Últimos 7 dias", value: "7d" },
-  { label: "Últimos 30 dias", value: "30d" },
-  { label: "Este mês", value: "this_month" },
-]
-
-function getDateRange(period: string) {
-  const today = new Date()
-  const until = today.toISOString().split("T")[0]
-  if (period === "7d") { const d = new Date(today); d.setDate(d.getDate() - 7); return { since: d.toISOString().split("T")[0], until } }
-  if (period === "this_month") return { since: `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`, until }
-  const d = new Date(today); d.setDate(d.getDate() - 30); return { since: d.toISOString().split("T")[0], until }
-}
-
 export default function KeywordsPage() {
   const { filterParam } = useFilter()
   const [search, setSearch] = useState("")
   const [matchFilter, setMatchFilter] = useState<"all" | "EXACT" | "PHRASE" | "BROAD">("all")
   const [sortBy, setSortBy] = useState<"conversions" | "ctr" | "spend" | "cpa">("conversions")
-  const [period, setPeriod] = useState("30d")
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const d = new Date(); const until = d.toISOString().split("T")[0]
+    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
+    return { since, until }
+  })
   const [keywords, setKeywords] = useState<Keyword[]>(MOCK_KEYWORDS)
   const [loading, setLoading] = useState(false)
   const [isRealData, setIsRealData] = useState(false)
@@ -77,7 +68,7 @@ export default function KeywordsPage() {
   const fetchKeywords = useCallback(async () => {
     setLoading(true)
     try {
-      const { since, until } = getDateRange(period)
+      const { since, until } = dateRange
       const res = await fetch(`/api/google/keywords?since=${since}&until=${until}${filterParam}`)
       const data = res.ok ? await res.json() : { keywords: [], connected: false }
       if (data.connected && data.keywords?.length > 0) {
@@ -93,7 +84,7 @@ export default function KeywordsPage() {
     } finally {
       setLoading(false)
     }
-  }, [period, filterParam])
+  }, [dateRange, filterParam])
 
   useEffect(() => { fetchKeywords() }, [fetchKeywords])
 
@@ -127,10 +118,7 @@ export default function KeywordsPage() {
           <button onClick={fetchKeywords} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
-            {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
         </div>
       </div>
 

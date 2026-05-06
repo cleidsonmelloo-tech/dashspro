@@ -7,14 +7,8 @@ import { PerformanceChart } from "@/components/dashboard/performance-chart"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 import { PlatformPills } from "@/components/ui/platform-pills"
+import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
 import { useFilter } from "@/lib/filter-context"
-
-const PERIOD_OPTIONS = [
-  { label: "Hoje", value: "today" },
-  { label: "Últimos 7 dias", value: "7d" },
-  { label: "Últimos 30 dias", value: "30d" },
-  { label: "Este mês", value: "this_month" },
-]
 
 interface DashMetrics {
   spend: number; impressions: number; clicks: number; conversions: number
@@ -212,7 +206,11 @@ const DEMO_CAMPAIGNS = [
 export default function DashboardPage() {
   const { filterParam } = useFilter()
   const [platformFilter, setPlatformFilter] = useState<string[]>([])
-  const [period, setPeriod] = useState("30d")
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const d = new Date(); const until = d.toISOString().split("T")[0]
+    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
+    return { since, until }
+  })
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
   const [metrics, setMetrics] = useState<DashMetrics | null>(null)
@@ -234,7 +232,7 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const { since, until } = getDateRange(period)
+      const { since, until } = dateRange
       const [metricsRes, compareRes, campaignsResM, campaignsResG] = await Promise.all([
         fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`),
         fetch(`/api/dashboard/compare?since=${since}&until=${until}${filterParam}`),
@@ -271,7 +269,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [period, filterParam])
+  }, [dateRange, filterParam])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -326,10 +324,7 @@ export default function DashboardPage() {
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
-            {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
         </div>
       </div>
 

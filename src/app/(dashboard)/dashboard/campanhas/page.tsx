@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
 import { PlatformPills, matchesPlatform } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
@@ -40,27 +41,17 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
   account_issue: { label: "Conta pausada", variant: "danger" },
 }
 
-const PERIOD_OPTIONS = [
-  { label: "Últimos 7 dias", value: "7d" },
-  { label: "Últimos 30 dias", value: "30d" },
-  { label: "Este mês", value: "this_month" },
-]
-
-function getDateRange(period: string) {
-  const today = new Date()
-  const until = today.toISOString().split("T")[0]
-  if (period === "7d") { const d = new Date(today); d.setDate(d.getDate() - 7); return { since: d.toISOString().split("T")[0], until } }
-  if (period === "this_month") return { since: `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`, until }
-  const d = new Date(today); d.setDate(d.getDate() - 30); return { since: d.toISOString().split("T")[0], until }
-}
-
 export default function CampanhasPage() {
   const { filterParam, selectedCampaignIds } = useFilter()
   const [search, setSearch] = useState("")
   const [platform, setPlatform] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<"spend" | "conversions" | "ctr" | "cpa">("spend")
   const [selectedBM, setSelectedBM] = useState<string>("all")
-  const [period, setPeriod] = useState("30d")
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const d = new Date(); const until = d.toISOString().split("T")[0]
+    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
+    return { since, until }
+  })
   const [campaigns, setCampaigns] = useState<Campaign[]>(MOCK_CAMPAIGNS)
   const [loading, setLoading] = useState(false)
   const [isRealData, setIsRealData] = useState(false)
@@ -68,7 +59,7 @@ export default function CampanhasPage() {
   const fetchCampaigns = useCallback(async () => {
     setLoading(true)
     try {
-      const { since, until } = getDateRange(period)
+      const { since, until } = dateRange
       const [metaRes, googleRes] = await Promise.all([
         fetch(`/api/meta/campaigns?since=${since}&until=${until}${filterParam}`),
         fetch(`/api/google/campaigns?since=${since}&until=${until}${filterParam}`),
@@ -89,7 +80,7 @@ export default function CampanhasPage() {
     } finally {
       setLoading(false)
     }
-  }, [period, filterParam])
+  }, [dateRange, filterParam])
 
   useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
 
@@ -136,10 +127,7 @@ export default function CampanhasPage() {
           <button onClick={fetchCampaigns} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
-            {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
         </div>
       </div>
 
