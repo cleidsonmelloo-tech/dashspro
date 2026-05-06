@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
   // Busca contas de anúncio pessoais + via Business Manager + info do usuário
   const [personalAccountsRes, businessesRes, meRes] = await Promise.all([
     fetch(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`),
-    fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id,name,owned_ad_accounts{id,name,account_id}&limit=50&access_token=${finalToken}`),
+    fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id,name&limit=50&access_token=${finalToken}`),
     fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`),
   ])
 
@@ -71,12 +71,32 @@ export async function GET(request: NextRequest) {
   const businessesData = await businessesRes.json()
   const meData = await meRes.json()
 
-  // Combina contas pessoais + contas das BMs
+  console.log("[meta/callback] personal accounts:", JSON.stringify(personalData?.data?.map((a: {id:string;name:string}) => ({id:a.id,name:a.name}))))
+  console.log("[meta/callback] businesses:", JSON.stringify(businessesData?.data?.map((b: {id:string;name:string}) => ({id:b.id,name:b.name}))))
+
+  // Combina contas pessoais + contas das BMs (busca separada por business)
   let allAccounts: { id: string; name: string; account_id: string }[] = personalData.data || []
+
   for (const biz of (businessesData.data || [])) {
-    const bizAccounts: { id: string; name: string; account_id: string }[] = biz.owned_ad_accounts?.data || []
+    // Busca owned_ad_accounts para cada BM separadamente
+    const bizAccountsRes = await fetch(
+      `https://graph.facebook.com/v21.0/${biz.id}/owned_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`
+    )
+    const bizAccountsData = await bizAccountsRes.json()
+    console.log(`[meta/callback] BM ${biz.id} (${biz.name}) accounts:`, JSON.stringify(bizAccountsData?.data?.map((a: {id:string;name:string}) => ({id:a.id,name:a.name}))))
+    const bizAccounts: { id: string; name: string; account_id: string }[] = bizAccountsData.data || []
     allAccounts = [...allAccounts, ...bizAccounts]
+
+    // Também tenta client_ad_accounts (contas que a BM gerencia mas não é dona)
+    const clientAccountsRes = await fetch(
+      `https://graph.facebook.com/v21.0/${biz.id}/client_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`
+    )
+    const clientAccountsData = await clientAccountsRes.json()
+    const clientAccounts: { id: string; name: string; account_id: string }[] = clientAccountsData.data || []
+    allAccounts = [...allAccounts, ...clientAccounts]
   }
+
+  console.log("[meta/callback] total accounts before dedup:", allAccounts.length)
 
   // Remove duplicatas pelo account_id
   const seen = new Set<string>()
@@ -86,6 +106,8 @@ export async function GET(request: NextRequest) {
     seen.add(id)
     return true
   })
+
+  console.log("[meta/callback] final unique accounts:", accounts.map(a => ({ id: a.account_id || a.id, name: a.name })))
 
   // Monta payload para salvar via cookie (a sessão do usuário está no browser)
   const payload = accounts.length > 0
