@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 interface Creative {
@@ -170,11 +171,6 @@ export default function CriativosPage() {
   const avgCTR = filtered.reduce((s, c) => s + c.ctr, 0) / (filtered.length || 1)
   const totalConversions = filtered.reduce((s, c) => s + c.conversions, 0)
 
-  const PLATFORM_OPTIONS = [
-    { value: "meta",   label: "Meta Ads",   color: "#1877f2" },
-    { value: "google", label: "Google Ads", color: "#34a853" },
-  ]
-
   return (
     <div className="flex flex-col gap-6">
       {/* ── Header ── */}
@@ -190,28 +186,7 @@ export default function CriativosPage() {
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
 
-          {/* Platform pill toggles */}
-          {PLATFORM_OPTIONS.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setPlatform(prev => prev === opt.value ? "all" : opt.value as "meta" | "google")}
-              className={cn(
-                "flex items-center gap-1.5 px-3 h-8 rounded-full border text-xs font-medium transition-all cursor-pointer",
-                platform === opt.value
-                  ? "border-transparent text-white"
-                  : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white"
-              )}
-              style={platform === opt.value
-                ? { backgroundColor: `${opt.color}25`, borderColor: `${opt.color}60`, color: opt.color }
-                : {}}
-            >
-              <span className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: platform === opt.value ? opt.color : "#52525b" }} />
-              {opt.label}
-            </button>
-          ))}
-
-          {/* BM / Account / Campaign filter */}
+          <PlatformPills value={platform} onChange={setPlatform} />
           <BmCampaignFilter />
 
           {/* Refresh */}

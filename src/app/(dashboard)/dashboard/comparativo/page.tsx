@@ -9,6 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatCurrency, formatNumber, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -116,6 +117,7 @@ function CompareBar({ valA, valB, higherIsBetter }: { valA: number; valB: number
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ComparativoPage() {
   const { filterParam } = useFilter()
+  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
   const [preset, setPreset]       = useState(0)
   const [useCustom, setUseCustom] = useState(false)
   const [customA, setCustomA]     = useState({ since: "", until: "" })
@@ -218,6 +220,7 @@ export default function ComparativoPage() {
               {connected ? "Dados reais" : "Demo"}
             </span>
           </div>
+          <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
           <button onClick={run}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">

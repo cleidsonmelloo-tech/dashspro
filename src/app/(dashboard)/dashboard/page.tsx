@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { PerformanceChart } from "@/components/dashboard/performance-chart"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 const PERIOD_OPTIONS = [
@@ -93,6 +94,7 @@ const DEMO_CAMPAIGNS = [
 
 export default function DashboardPage() {
   const { filterParam } = useFilter()
+  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
@@ -166,6 +168,7 @@ export default function DashboardPage() {
               {connected ? "Dados reais" : "Demo"}
             </span>
           </div>
+          <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
           <button onClick={fetchData}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">

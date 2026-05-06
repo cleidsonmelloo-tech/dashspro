@@ -5,6 +5,7 @@ import { ArrowRight, TrendingDown, DollarSign, Users, ShoppingCart, MessageCircl
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 type FunnelType = "ecommerce" | "mensagens" | "infoproduto" | "cadastro" | "delivery"
@@ -139,6 +140,7 @@ function getDateRange(period: string) {
 
 export default function FunilPage() {
   const { filterParam } = useFilter()
+  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("ecommerce")
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(false)
@@ -215,6 +217,7 @@ export default function FunilPage() {
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+          <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
           <button onClick={fetchMetrics} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
