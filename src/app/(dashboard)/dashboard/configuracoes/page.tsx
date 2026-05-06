@@ -16,6 +16,7 @@ interface AdAccount {
   platform: "meta" | "google"
   account_id: string
   account_name: string
+  access_token?: string
   is_active: boolean
   token_expires_at: string | null
   created_at: string

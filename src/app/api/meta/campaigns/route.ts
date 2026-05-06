@@ -4,23 +4,21 @@ import { createClient } from "@/lib/supabase/server"
 // GET /api/meta/campaigns?since=...&until=...
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
-  const { data: workspace } = await supabase
+  const { data: workspaceList } = await supabase
     .from("workspaces")
     .select("id")
     .eq("owner_id", user.id)
-    .single()
+    .order("created_at", { ascending: true })
+  const workspace = workspaceList?.[0]
 
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("account_id, access_token, token_expires_at, account_name")
-    .eq("workspace_id", workspace.id)
-    .eq("platform", "meta")
-    .eq("is_active", true)
+  const { data: allAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspace.id })
+  const accounts = (allAccounts || []).filter((a: AdAccountRow) => a.platform === "meta" && a.is_active)
 
   if (!accounts || accounts.length === 0) {
     return NextResponse.json({ campaigns: [], connected: false })
@@ -86,6 +84,10 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ campaigns: allCampaigns, connected: true })
 }
 
+interface AdAccountRow {
+  account_id: string; account_name: string; access_token: string
+  platform: string; is_active: boolean; token_expires_at: string | null
+}
 interface MetaAction { action_type: string; value: string }
 interface MetaCampaignInsight {
   campaign_name: string; spend: string; impressions: string; clicks: string
