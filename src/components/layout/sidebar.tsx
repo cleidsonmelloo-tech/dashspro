@@ -82,23 +82,22 @@ function SidebarContent({
               href={item.href}
               onClick={onClose}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all group relative",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group relative",
                 isActive
-                  ? "bg-[#FF5F1A]/15 text-white"
-                  : "text-[#71717a] hover:bg-[#1a1410] hover:text-[#f4f4f5]",
+                  ? "bg-gradient-to-r from-[#FF5F1A] to-[#E54E0B] text-white shadow-lg shadow-[#FF5F1A]/30"
+                  : "text-[#a1a1aa] hover:bg-[#1a1410] hover:text-[#f4f4f5]",
                 collapsed && "justify-center px-0"
               )}
             >
               <item.icon className={cn(
                 "w-4 h-4 flex-shrink-0",
-                isActive ? "text-[#FF8C42]" : "text-current"
+                isActive ? "text-white" : "text-current"
               )} />
               {!collapsed && <span className="truncate">{item.label}</span>}
 
               {isActive && (
                 <div
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r"
-                  style={{ backgroundColor: brandColor }}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r bg-white"
                 />
               )}
 
