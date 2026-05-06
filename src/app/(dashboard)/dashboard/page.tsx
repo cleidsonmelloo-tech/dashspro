@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { BarChart3, TrendingUp, TrendingDown, DollarSign, MousePointer, Eye, Target, RefreshCw, Settings2, Check, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PerformanceChart } from "@/components/dashboard/performance-chart"
+import { FunnelCone, FunnelType } from "@/components/dashboard/funnel-cone"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 import { PlatformPills } from "@/components/ui/platform-pills"
@@ -208,8 +209,17 @@ const DEMO_CAMPAIGNS = [
   { name: "Search - Preço Frase", spend: 1680, roas: 3.2, platform: "google" },
 ]
 
+const FUNNEL_TYPES: { value: FunnelType; label: string; emoji: string }[] = [
+  { value: "ecommerce",   label: "E-commerce",       emoji: "🛒" },
+  { value: "mensagens",   label: "Mensagens",        emoji: "💬" },
+  { value: "infoproduto", label: "Infoproduto",      emoji: "🎓" },
+  { value: "cadastro",    label: "Captação Leads",   emoji: "📋" },
+  { value: "delivery",    label: "Delivery / Local", emoji: "🍕" },
+]
+
 export default function DashboardPage() {
   const { filterParam, dateRange, setDateRange, platformFilter, setPlatformFilter } = useFilter()
+  const [activeFunnel, setActiveFunnel] = useState<FunnelType>("ecommerce")
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
   const [metrics, setMetrics] = useState<DashMetrics | null>(null)
@@ -365,6 +375,43 @@ export default function DashboardPage() {
         <CardHeader><CardTitle>Performance ao Longo do Tempo</CardTitle></CardHeader>
         <CardContent>
           <PerformanceChart externalData={dailyData.length > 0 ? dailyData : undefined} />
+        </CardContent>
+      </Card>
+
+      {/* Funil de Conversão */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <CardTitle>Funil de Conversão</CardTitle>
+              <p className="text-xs text-[#71717a] mt-1">Da impressão até o resultado final — calculado com seus dados reais</p>
+            </div>
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-[#1a1410] border border-[var(--border)]">
+              {FUNNEL_TYPES.map((t) => (
+                <button
+                  key={t.value}
+                  onClick={() => setActiveFunnel(t.value)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+                    activeFunnel === t.value
+                      ? "bg-gradient-to-r from-[#FF5F1A] to-[#E54E0B] text-white shadow"
+                      : "text-[#71717a] hover:text-white"
+                  }`}
+                >
+                  <span>{t.emoji}</span>
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <FunnelCone
+            type={activeFunnel}
+            impressions={m.impressions}
+            clicks={m.clicks}
+            conversions={m.conversions}
+            spend={m.spend}
+          />
         </CardContent>
       </Card>
 
