@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { Search, Plus, CheckCircle2, XCircle, Loader2, Trash2, Share2, Settings, Palette, BarChart3, AlertTriangle } from "lucide-react"
+import { Search, Plus, CheckCircle2, XCircle, Loader2, Trash2, Share2, Settings, Palette, BarChart3, AlertTriangle, Briefcase, Building2 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,7 @@ interface AdAccount {
   is_active: boolean
   token_expires_at: string | null
   created_at: string
+  business_manager_name?: string | null
 }
 
 interface WorkspaceData {
@@ -187,8 +188,26 @@ export default function ConfiguracoesPage() {
     })
   }
 
-  const metaAccounts = accounts.filter((a) => a.platform === "meta")
+  const metaAccounts   = accounts.filter((a) => a.platform === "meta")
   const googleAccounts = accounts.filter((a) => a.platform === "google")
+
+  // Group meta accounts by business_manager_name
+  function groupByBM(accs: AdAccount[]) {
+    const map = new Map<string, AdAccount[]>()
+    for (const acc of accs) {
+      const key = acc.business_manager_name || "Conta Pessoal"
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(acc)
+    }
+    return Array.from(map.entries())
+      .sort(([a], [b]) => {
+        if (a === "Conta Pessoal") return 1
+        if (b === "Conta Pessoal") return -1
+        return a.localeCompare(b)
+      })
+  }
+  const metaGroups   = groupByBM(metaAccounts)
+  const googleGroups = groupByBM(googleAccounts)
 
   function isTokenExpired(expiresAt: string | null) {
     if (!expiresAt) return false
@@ -274,36 +293,49 @@ export default function ConfiguracoesPage() {
                   <p className="text-xs text-[#52525b] mt-1">Clique em "Conectar conta" para adicionar suas contas.</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  {metaAccounts.map((acc) => {
-                    const expired = isTokenExpired(acc.token_expires_at)
-                    return (
-                      <div key={acc.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0d14] border border-[var(--border)]">
-                        <div className="flex items-center gap-3">
-                          <div className={cn("w-2 h-2 rounded-full", expired ? "bg-amber-400" : "bg-emerald-400")} />
-                          <div>
-                            <p className="text-sm font-medium text-white">{acc.account_name}</p>
-                            <p className="text-xs text-[#52525b]">ID: {acc.account_id}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {expired && (
-                            <Badge className="text-amber-400 border-amber-400/30 bg-amber-400/10 text-xs">Token expirado</Badge>
-                          )}
-                          <Badge className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10 text-xs">Ativo</Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-2"
-                            onClick={() => handleDisconnect(acc.id)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
+                <div className="flex flex-col gap-3">
+                  {metaGroups.map(([bmName, accs]) => (
+                    <div key={bmName} className="rounded-xl border border-[var(--border)] overflow-hidden">
+                      {/* Portfolio / Conta header */}
+                      <div className="flex items-center gap-2 px-3 py-2 bg-[#0a0a12] border-b border-[var(--border)]">
+                        <Briefcase className="w-3.5 h-3.5 text-[#1877f2] flex-shrink-0" />
+                        <span className="text-xs font-bold text-[#e4e4e7]">{bmName}</span>
+                        <span className="ml-auto text-[10px] text-[#52525b]">{accs.length} BM{accs.length !== 1 ? "s" : ""}</span>
                       </div>
-                    )
-                  })}
+                      {/* Ad accounts inside */}
+                      <div className="flex flex-col divide-y divide-[var(--border)]">
+                        {accs.map((acc) => {
+                          const expired = isTokenExpired(acc.token_expires_at)
+                          return (
+                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0d0d14] hover:bg-[#111118] transition-colors">
+                              <div className="flex items-center gap-2.5">
+                                <Building2 className="w-3 h-3 text-[#1877f2]/60 flex-shrink-0" />
+                                <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", expired ? "bg-amber-400" : "bg-emerald-400")} />
+                                <div>
+                                  <p className="text-sm font-medium text-white leading-tight">{acc.account_name}</p>
+                                  <p className="text-[10px] text-[#52525b]">ID: {acc.account_id}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {expired
+                                  ? <Badge className="text-amber-400 border-amber-400/30 bg-amber-400/10 text-xs">Token expirado</Badge>
+                                  : <Badge className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10 text-xs">Ativo</Badge>
+                                }
+                                <Button
+                                  variant="ghost" size="sm"
+                                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-2"
+                                  onClick={() => handleDisconnect(acc.id)}
+                                  disabled={isPending}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -342,36 +374,47 @@ export default function ConfiguracoesPage() {
                   <p className="text-xs text-[#52525b] mt-1">Clique em "Conectar conta" para adicionar suas contas.</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  {googleAccounts.map((acc) => {
-                    const expired = isTokenExpired(acc.token_expires_at)
-                    return (
-                      <div key={acc.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0d14] border border-[var(--border)]">
-                        <div className="flex items-center gap-3">
-                          <div className={cn("w-2 h-2 rounded-full", expired ? "bg-amber-400" : "bg-emerald-400")} />
-                          <div>
-                            <p className="text-sm font-medium text-white">{acc.account_name}</p>
-                            <p className="text-xs text-[#52525b]">ID: {acc.account_id}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {expired && (
-                            <Badge className="text-amber-400 border-amber-400/30 bg-amber-400/10 text-xs">Token expirado</Badge>
-                          )}
-                          <Badge className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10 text-xs">Ativo</Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-2"
-                            onClick={() => handleDisconnect(acc.id)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
+                <div className="flex flex-col gap-3">
+                  {googleGroups.map(([bmName, accs]) => (
+                    <div key={bmName} className="rounded-xl border border-[var(--border)] overflow-hidden">
+                      <div className="flex items-center gap-2 px-3 py-2 bg-[#0a0a12] border-b border-[var(--border)]">
+                        <Briefcase className="w-3.5 h-3.5 text-[#34a853] flex-shrink-0" />
+                        <span className="text-xs font-bold text-[#e4e4e7]">{bmName}</span>
+                        <span className="ml-auto text-[10px] text-[#52525b]">{accs.length} conta{accs.length !== 1 ? "s" : ""}</span>
                       </div>
-                    )
-                  })}
+                      <div className="flex flex-col divide-y divide-[var(--border)]">
+                        {accs.map((acc) => {
+                          const expired = isTokenExpired(acc.token_expires_at)
+                          return (
+                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0d0d14] hover:bg-[#111118] transition-colors">
+                              <div className="flex items-center gap-2.5">
+                                <Building2 className="w-3 h-3 text-[#34a853]/60 flex-shrink-0" />
+                                <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", expired ? "bg-amber-400" : "bg-emerald-400")} />
+                                <div>
+                                  <p className="text-sm font-medium text-white leading-tight">{acc.account_name}</p>
+                                  <p className="text-[10px] text-[#52525b]">ID: {acc.account_id}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {expired
+                                  ? <Badge className="text-amber-400 border-amber-400/30 bg-amber-400/10 text-xs">Token expirado</Badge>
+                                  : <Badge className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10 text-xs">Ativo</Badge>
+                                }
+                                <Button
+                                  variant="ghost" size="sm"
+                                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-2"
+                                  onClick={() => handleDisconnect(acc.id)}
+                                  disabled={isPending}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
