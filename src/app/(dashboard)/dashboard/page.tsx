@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { BarChart3, TrendingUp, TrendingDown, DollarSign, MousePointer, Eye, Target, RefreshCw } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
+import { BarChart3, TrendingUp, TrendingDown, DollarSign, MousePointer, Eye, Target, RefreshCw, Settings2, Check, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { PerformanceChart } from "@/components/dashboard/performance-chart"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
@@ -20,7 +19,38 @@ const PERIOD_OPTIONS = [
 interface DashMetrics {
   spend: number; impressions: number; clicks: number; conversions: number
   ctr: number; cpc: number; cpa: number; meta_spend: number; google_spend: number
+  roas?: number; cpm?: number; reach?: number; frequency?: number
 }
+
+// ── All available KPI metrics ────────────────────────────────────────────────
+type MetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpa" | "conversions" | "roas" | "cpm" | "reach" | "frequency"
+
+interface MetricDef {
+  key: MetricKey
+  label: string
+  icon: React.ElementType
+  color: string
+  format: (v: number) => string
+  description: string
+  invertChange?: boolean  // lower is better (CPA, CPC, CPM)
+}
+
+const ALL_METRICS: MetricDef[] = [
+  { key: "spend",       label: "Investimento",        icon: DollarSign,   color: "#6366f1", format: formatCurrency, description: "Total gasto no período" },
+  { key: "impressions", label: "Impressões",           icon: Eye,          color: "#8b5cf6", format: formatNumber,   description: "Total de impressões" },
+  { key: "clicks",      label: "Cliques",              icon: MousePointer, color: "#06b6d4", format: formatNumber,   description: "Total de cliques" },
+  { key: "ctr",         label: "CTR",                  icon: TrendingUp,   color: "#10b981", format: (v) => `${v.toFixed(2)}%`, description: "Taxa de cliques" },
+  { key: "cpc",         label: "CPC Médio",            icon: BarChart3,    color: "#f59e0b", format: formatCurrency, description: "Custo por clique", invertChange: true },
+  { key: "cpa",         label: "Custo por Resultado",  icon: Target,       color: "#ef4444", format: formatCurrency, description: "Custo por conversão", invertChange: true },
+  { key: "conversions", label: "Conversões",           icon: Target,       color: "#10b981", format: formatNumber,   description: "Total de conversões" },
+  { key: "roas",        label: "Retorno (ROAS)",        icon: TrendingUp,   color: "#22d3ee", format: (v) => `${v.toFixed(2)}x`, description: "Retorno sobre investimento" },
+  { key: "cpm",         label: "CPM",                  icon: Eye,          color: "#a78bfa", format: formatCurrency, description: "Custo por mil impressões", invertChange: true },
+  { key: "reach",       label: "Alcance",              icon: Eye,          color: "#fb923c", format: formatNumber,   description: "Pessoas alcançadas" },
+  { key: "frequency",   label: "Frequência",           icon: BarChart3,    color: "#94a3b8", format: (v) => v.toFixed(2), description: "Média de vezes que cada pessoa viu" },
+]
+
+const DEFAULT_METRICS: MetricKey[] = ["spend", "impressions", "clicks", "ctr", "cpc", "conversions"]
+const LS_KEY = "dashboard_kpi_selection"
 interface DailyPoint {
   date: string; meta_spend: number; google_spend: number
   clicks: number; impressions: number; conversions: number
@@ -32,12 +62,13 @@ function pct(current: number, previous: number): number | null {
 }
 
 function MetricCard({
-  label, value, change, icon: Icon, color = "#6366f1", loading
+  label, value, change, icon: Icon, color = "#6366f1", loading, invertChange
 }: {
   label: string; value: string; change?: number | null
-  icon: React.ElementType; color?: string; loading?: boolean
+  icon: React.ElementType; color?: string; loading?: boolean; invertChange?: boolean
 }) {
-  const isPositive = (change ?? 0) >= 0
+  const raw = change ?? 0
+  const isGood = invertChange ? raw <= 0 : raw >= 0
   return (
     <Card className="relative overflow-hidden">
       <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top right, ${color}, transparent 60%)` }} />
@@ -58,16 +89,102 @@ function MetricCard({
           <div className="flex items-center gap-1.5 mt-3">
             <div className={cn(
               "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold",
-              isPositive ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
+              isGood ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
             )}>
-              {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              {isPositive ? "+" : ""}{change.toFixed(1)}%
+              {isGood ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {raw >= 0 ? "+" : ""}{raw.toFixed(1)}%
             </div>
             <span className="text-xs text-[#52525b]">vs período anterior</span>
           </div>
         )}
       </CardContent>
     </Card>
+  )
+}
+
+// ── KPI Selector dropdown ─────────────────────────────────────────────────────
+function KpiSelector({ selected, onChange }: { selected: MetricKey[]; onChange: (v: MetricKey[]) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function h(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener("mousedown", h)
+    return () => document.removeEventListener("mousedown", h)
+  }, [])
+
+  function toggle(key: MetricKey) {
+    if (selected.includes(key)) {
+      if (selected.length > 1) onChange(selected.filter(k => k !== key))
+    } else {
+      if (selected.length < 6) onChange([...selected, key])
+    }
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        title="Personalizar métricas"
+        className={cn(
+          "w-9 h-9 flex items-center justify-center rounded-lg border transition-colors",
+          open ? "border-[#6366f1] bg-[#6366f1]/10 text-[#818cf8]" : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white hover:border-[#6366f1]/40"
+        )}
+      >
+        <Settings2 className="w-3.5 h-3.5" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-72 bg-[#0f0f18] border border-[var(--border)] rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-white uppercase tracking-wider">Personalizar métricas</p>
+              <p className="text-[10px] text-[#52525b] mt-0.5">Selecione até 6 para exibir</p>
+            </div>
+            <span className="text-[10px] text-[#6366f1] font-semibold">{selected.length}/6</span>
+          </div>
+          <div className="p-2 max-h-72 overflow-y-auto">
+            {ALL_METRICS.map(m => {
+              const isSelected = selected.includes(m.key)
+              const disabled = !isSelected && selected.length >= 6
+              return (
+                <button
+                  key={m.key}
+                  onClick={() => toggle(m.key)}
+                  disabled={disabled}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
+                    isSelected ? "bg-[#6366f1]/10" : disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-[#1a1a27]"
+                  )}
+                >
+                  <div className={cn(
+                    "w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 transition-colors",
+                    isSelected ? "bg-[#6366f1] border-[#6366f1]" : "border-[#3f3f46]"
+                  )}>
+                    {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                  </div>
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${m.color}20` }}>
+                    <m.icon className="w-3.5 h-3.5" style={{ color: m.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-[#e4e4e7]">{m.label}</p>
+                    <p className="text-[10px] text-[#52525b] truncate">{m.description}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+          <div className="px-3 py-2.5 border-t border-[var(--border)]">
+            <button
+              onClick={() => onChange(DEFAULT_METRICS)}
+              className="w-full h-7 text-[10px] text-[#71717a] hover:text-white transition-colors"
+            >
+              Restaurar padrão
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -102,6 +219,17 @@ export default function DashboardPage() {
   const [prevMetrics, setPrevMetrics] = useState<Partial<DashMetrics> | null>(null)
   const [dailyData, setDailyData] = useState<DailyPoint[]>([])
   const [topCampaigns, setTopCampaigns] = useState(DEMO_CAMPAIGNS)
+  const [selectedKpis, setSelectedKpis] = useState<MetricKey[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_METRICS
+    try {
+      const saved = localStorage.getItem(LS_KEY)
+      return saved ? JSON.parse(saved) : DEFAULT_METRICS
+    } catch { return DEFAULT_METRICS }
+  })
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEY, JSON.stringify(selectedKpis))
+  }, [selectedKpis])
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -150,6 +278,29 @@ export default function DashboardPage() {
   const m = metrics || DEMO_METRICS
   const p = prevMetrics
 
+  // Compute derived metrics not directly in API
+  const fullMetrics: Record<MetricKey, number> = {
+    spend:       m.spend,
+    impressions: m.impressions,
+    clicks:      m.clicks,
+    ctr:         m.ctr,
+    cpc:         m.cpc,
+    cpa:         m.cpa,
+    conversions: m.conversions,
+    roas:        m.roas ?? (m.spend > 0 ? (m.conversions * m.cpa) / m.spend : 0),
+    cpm:         m.cpm ?? (m.impressions > 0 ? (m.spend / m.impressions) * 1000 : 0),
+    reach:       m.reach ?? 0,
+    frequency:   m.frequency ?? 0,
+  }
+  const fullPrev: Partial<Record<MetricKey, number>> = {
+    spend:       p?.spend,
+    impressions: p?.impressions,
+    clicks:      p?.clicks,
+    ctr:         p?.ctr,
+    cpc:         p?.cpc,
+    conversions: p?.conversions,
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -170,6 +321,7 @@ export default function DashboardPage() {
           </div>
           <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
+          <KpiSelector selected={selectedKpis} onChange={setSelectedKpis} />
           <button onClick={fetchData}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
@@ -181,14 +333,25 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards com comparativo */}
+      {/* KPI Cards — personalizáveis */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <MetricCard label="Investimento" value={formatCurrency(m.spend)} change={pct(m.spend, p?.spend ?? 0)} icon={DollarSign} color="#6366f1" loading={loading} />
-        <MetricCard label="Impressões" value={formatNumber(m.impressions)} change={pct(m.impressions, p?.impressions ?? 0)} icon={Eye} color="#8b5cf6" loading={loading} />
-        <MetricCard label="Cliques" value={formatNumber(m.clicks)} change={pct(m.clicks, p?.clicks ?? 0)} icon={MousePointer} color="#06b6d4" loading={loading} />
-        <MetricCard label="CTR Médio" value={formatPercent(m.ctr)} change={pct(m.ctr, p?.ctr ?? 0)} icon={TrendingUp} color="#10b981" loading={loading} />
-        <MetricCard label="CPC Médio" value={formatCurrency(m.cpc)} change={p?.cpc ? pct(m.cpc, p.cpc) : null} icon={BarChart3} color="#f59e0b" loading={loading} />
-        <MetricCard label="Conversões" value={formatNumber(m.conversions)} change={pct(m.conversions, p?.conversions ?? 0)} icon={Target} color="#ef4444" loading={loading} />
+        {selectedKpis.map(key => {
+          const def = ALL_METRICS.find(d => d.key === key)!
+          const val = fullMetrics[key]
+          const prev = fullPrev[key]
+          return (
+            <MetricCard
+              key={key}
+              label={def.label}
+              value={def.format(val)}
+              change={prev ? pct(val, prev) : null}
+              icon={def.icon}
+              color={def.color}
+              loading={loading}
+              invertChange={def.invertChange}
+            />
+          )
+        })}
       </div>
 
       {/* Gráfico */}
