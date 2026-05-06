@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
   )
 
   if (!tokenRes.ok) {
+    const errBody = await tokenRes.text()
+    console.error("[meta/callback] token exchange failed:", errBody, "redirect_uri used:", REDIRECT_URI)
     return NextResponse.redirect(new URL("/dashboard/configuracoes?error=meta_token", request.url))
   }
 
