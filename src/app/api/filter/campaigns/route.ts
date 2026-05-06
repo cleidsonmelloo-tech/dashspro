@@ -22,14 +22,13 @@ export async function GET(request: NextRequest) {
   const accountId = searchParams.get("account_id")
   if (!accountId) return NextResponse.json({ campaigns: [] })
 
-  // Look up the account
-  const { data: account } = await supabase
-    .from("ad_accounts")
-    .select("platform, account_id, access_token, refresh_token, token_expires_at")
-    .eq("workspace_id", workspace.id)
-    .eq("account_id", accountId)
-    .eq("is_active", true)
-    .single()
+  // Look up the account via RPC (SECURITY DEFINER) to bypass RLS
+  const { data: allAccounts } = await supabase.rpc("get_workspace_ad_accounts", {
+    p_workspace_id: workspace.id,
+  })
+  const account = (allAccounts || []).find(
+    (a: { account_id: string; is_active: boolean }) => a.account_id === accountId && a.is_active
+  )
 
   if (!account) return NextResponse.json({ campaigns: [] })
 

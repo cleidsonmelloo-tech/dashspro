@@ -13,13 +13,23 @@ export async function GET() {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ accounts: [] })
 
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("id, account_id, account_name, platform")
-    .eq("workspace_id", workspace.id)
-    .eq("is_active", true)
-    .order("platform")
-    .order("account_name")
+  // Use RPC (SECURITY DEFINER) to bypass RLS — same pattern as /api/meta/campaigns
+  const { data: allAccounts } = await supabase.rpc("get_workspace_ad_accounts", {
+    p_workspace_id: workspace.id,
+  })
 
-  return NextResponse.json({ accounts: accounts ?? [] })
+  const accounts = (allAccounts || [])
+    .filter((a: { is_active: boolean }) => a.is_active)
+    .map((a: { id: string; account_id: string; account_name: string; platform: string }) => ({
+      id: a.id,
+      account_id: a.account_id,
+      account_name: a.account_name,
+      platform: a.platform,
+    }))
+    .sort((a: { platform: string; account_name: string }, b: { platform: string; account_name: string }) => {
+      if (a.platform !== b.platform) return a.platform.localeCompare(b.platform)
+      return a.account_name.localeCompare(b.account_name)
+    })
+
+  return NextResponse.json({ accounts })
 }
