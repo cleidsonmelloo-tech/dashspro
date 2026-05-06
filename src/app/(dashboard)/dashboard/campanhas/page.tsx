@@ -9,7 +9,7 @@ import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 
 interface Campaign {
   id: string; name: string; platform: "meta" | "google"; account_name?: string
-  status: string; spend: number; impressions: number; clicks: number
+  status: string; stop_reason?: string; spend: number; impressions: number; clicks: number
   ctr: number; cpc: number; conversions: number; cpa: number; roas: number
 }
 
@@ -22,7 +22,7 @@ const MOCK_CAMPAIGNS: Campaign[] = [
   { id: "6", name: "[VENDAS] [INST_REELS] [F] [CBO] 3", platform: "meta", status: "ended", spend: 2120, impressions: 73000, clicks: 1580, ctr: 2.16, cpc: 1.34, conversions: 98, cpa: 21.63, roas: 3.1 },
 ]
 
-const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning" | "outline" }> = {
+const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning" | "outline" | "danger" }> = {
   active: { label: "Ativa", variant: "success" },
   enabled: { label: "Ativa", variant: "success" },
   paused: { label: "Pausada", variant: "warning" },
@@ -34,6 +34,7 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
   removed: { label: "Removida", variant: "outline" },
   with_issues: { label: "Com problemas", variant: "warning" },
   in_process: { label: "Em processo", variant: "warning" },
+  account_issue: { label: "Conta pausada", variant: "danger" },
 }
 
 const PERIOD_OPTIONS = [
@@ -53,6 +54,7 @@ function getDateRange(period: string) {
 export default function CampanhasPage() {
   const [search, setSearch] = useState("")
   const [platform, setPlatform] = useState<"all" | "meta" | "google">("all")
+  const [selectedBM, setSelectedBM] = useState<string>("all")
   const [period, setPeriod] = useState("30d")
   const [campaigns, setCampaigns] = useState<Campaign[]>(MOCK_CAMPAIGNS)
   const [loading, setLoading] = useState(false)
@@ -86,8 +88,11 @@ export default function CampanhasPage() {
 
   useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
 
+  const bmList = Array.from(new Set(campaigns.map((c) => c.account_name).filter(Boolean))) as string[]
+
   const filtered = campaigns
     .filter((c) => platform === "all" || c.platform === platform)
+    .filter((c) => selectedBM === "all" || c.account_name === selectedBM)
     .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
 
   const totals = filtered.reduce((acc, c) => ({
@@ -146,6 +151,13 @@ export default function CampanhasPage() {
         <div className="flex-1 min-w-48">
           <Input placeholder="Buscar campanha..." value={search} onChange={(e) => setSearch(e.target.value)} leftIcon={<Search className="w-4 h-4" />} />
         </div>
+        {bmList.length > 0 && (
+          <select value={selectedBM} onChange={(e) => setSelectedBM(e.target.value)}
+            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
+            <option value="all">Todas as BMs</option>
+            {bmList.map((bm) => <option key={bm} value={bm}>{bm}</option>)}
+          </select>
+        )}
         <div className="flex gap-1 p-1 bg-[#111118] border border-[var(--border)] rounded-lg">
           {(["all", "meta", "google"] as const).map((p) => (
             <button key={p} onClick={() => setPlatform(p)}
@@ -162,7 +174,7 @@ export default function CampanhasPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[#0d0d14]">
-                {["Campanha", "Status", "Investimento", "Impressões", "CTR", "CPC", "Conversões", "CPA", "ROAS"].map((h) => (
+                {["Campanha", "Status", "Motivo", "Investimento", "Impressões", "CTR", "CPC", "Conversões", "CPA", "ROAS"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#71717a] uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -171,7 +183,7 @@ export default function CampanhasPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b border-[var(--border)]">
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 10 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-4 bg-[#1e1e2e] rounded animate-pulse" />
                       </td>
@@ -180,7 +192,7 @@ export default function CampanhasPage() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center text-sm text-[#52525b]">
+                  <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#52525b]">
                     Nenhuma campanha encontrada.
                   </td>
                 </tr>
@@ -203,6 +215,13 @@ export default function CampanhasPage() {
                       </td>
                       <td className="px-4 py-3">
                         <Badge variant={status.variant}>{status.label}</Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        {c.stop_reason ? (
+                          <span className="text-xs text-red-400 font-medium">{c.stop_reason}</span>
+                        ) : (
+                          <span className="text-xs text-[#52525b]">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 font-semibold text-white">{formatCurrency(c.spend)}</td>
                       <td className="px-4 py-3 text-[#a1a1aa]">{c.impressions >= 1000 ? `${(c.impressions / 1000).toFixed(1)}k` : c.impressions}</td>
