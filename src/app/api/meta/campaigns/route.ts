@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
     if (isTokenExpired(account.token_expires_at)) continue
 
     // Busca campanhas com status + insights aninhados no mesmo request
-    const insightFields = `spend,impressions,clicks,actions,cpc,ctr`
-    const fields = `name,effective_status,insights.time_range({"since":"${since}","until":"${until}"}){${insightFields}}`
+    const insightFields = `spend,impressions,clicks,actions,action_values,cpc,ctr,purchase_roas`
+    const fields = `name,status,effective_status,insights.time_range({"since":"${since}","until":"${until}"}){${insightFields}}`
 
     const res = await fetch(
       `https://graph.facebook.com/v21.0/act_${account.account_id}/campaigns?` +
@@ -64,12 +64,32 @@ export async function GET(request: NextRequest) {
       const cpc = clicks > 0 ? spend / clicks : parseFloat(insight?.cpc || "0")
       const cpa = conversions > 0 ? spend / conversions : 0
 
+      // ROAS real: usa purchase_roas da Meta ou calcula via action_values
+      const purchaseRoasEntry = (insight?.purchase_roas || []).find((r: MetaAction) =>
+        ["omni_purchase", "purchase"].includes(r.action_type)
+      )
+      const purchaseValue = (insight?.action_values || []).reduce((sum: number, av: MetaAction) =>
+        ["omni_purchase", "purchase"].includes(av.action_type) ? sum + parseFloat(av.value || "0") : sum, 0
+      )
+      const roas = purchaseRoasEntry
+        ? parseFloat(purchaseRoasEntry.value || "0")
+        : (spend > 0 && purchaseValue > 0 ? purchaseValue / spend : 0)
+
+      // Status: usa effective_status se disponível, senão status
+      const rawStatus = (c.effective_status || c.status || "ACTIVE").toUpperCase()
+      const statusMap: Record<string, string> = {
+        ACTIVE: "active", PAUSED: "paused", CAMPAIGN_PAUSED: "paused",
+        ADSET_PAUSED: "paused", DELETED: "removed", ARCHIVED: "ended",
+        WITH_ISSUES: "with_issues", IN_PROCESS: "in_process",
+      }
+      const status = statusMap[rawStatus] || rawStatus.toLowerCase()
+
       allCampaigns.push({
         id: `meta_${account.account_id}_${c.id}`,
         name: c.name,
         platform: "meta",
         account_name: account.account_name,
-        status: (c.effective_status || "active").toLowerCase(),
+        status,
         spend,
         impressions,
         clicks,
@@ -77,7 +97,7 @@ export async function GET(request: NextRequest) {
         ctr,
         cpc,
         cpa,
-        roas: spend > 0 ? (conversions * 100) / spend : 0,
+        roas,
       })
     }
   }
@@ -95,9 +115,10 @@ interface MetaAction { action_type: string; value: string }
 interface MetaCampaignInsight {
   spend: string; impressions: string; clicks: string
   cpc: string; ctr: string; actions?: MetaAction[]
+  action_values?: MetaAction[]; purchase_roas?: MetaAction[]
 }
 interface MetaCampaign {
-  id: string; name: string; effective_status: string
+  id: string; name: string; status: string; effective_status: string
   insights?: { data: MetaCampaignInsight[] }
 }
 interface Campaign {
