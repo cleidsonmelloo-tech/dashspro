@@ -82,11 +82,12 @@ export default function ConfiguracoesPage() {
           // Reload accounts immediately after save
           const { data: { session } } = await supabase.auth.getSession()
           if (session?.user) {
-            const { data: ws } = await supabase
+            const { data: workspaces } = await supabase
               .from("workspaces")
               .select("id")
               .eq("owner_id", session.user.id)
-              .single()
+              .order("created_at", { ascending: true })
+            const ws = workspaces?.[0]
             if (ws) {
               const { data: accs } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: ws.id })
               setAccounts((accs as AdAccount[]) || [])
@@ -123,11 +124,12 @@ export default function ConfiguracoesPage() {
       const user = session?.user
       if (!user) return
 
-      const { data: ws } = await supabase
+      const { data: workspaceList } = await supabase
         .from("workspaces")
         .select("id, name, brand_color, logo_url")
         .eq("owner_id", user.id)
-        .single()
+        .order("created_at", { ascending: true })
+      const ws = workspaceList?.[0] ?? null
 
       if (ws) {
         setWorkspace(ws)
@@ -136,7 +138,6 @@ export default function ConfiguracoesPage() {
         setLogoUrl(ws.logo_url || "")
 
         const { data: accs } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: ws.id })
-
         setAccounts((accs as AdAccount[]) || [])
 
         const { data: settings } = await supabase
