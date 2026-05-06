@@ -86,11 +86,9 @@ async function fetchCurrentMetrics(
   until: string,
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>
 ): Promise<Metrics | null> {
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("id, platform, account_id, access_token, refresh_token, token_expires_at")
-    .eq("workspace_id", workspaceId)
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspaceId })
+  const accounts = (rawAccounts || []).filter((a: { is_active: boolean }) => a.is_active)
 
   if (!accounts || accounts.length === 0) return null
 
@@ -162,11 +160,9 @@ async function executeAction(
   workspaceId: string,
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>
 ) {
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("platform, account_id, access_token, refresh_token, token_expires_at")
-    .eq("workspace_id", workspaceId)
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAcc } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspaceId })
+  const accounts = (rawAcc || []).filter((a: { is_active: boolean }) => a.is_active)
 
   if (!accounts) return
 
