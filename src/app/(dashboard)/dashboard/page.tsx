@@ -70,43 +70,55 @@ function MetricCard({
   const raw = change ?? 0
   const isGood = invertChange ? raw <= 0 : raw >= 0
   return (
-    <Card className="relative overflow-hidden h-full">
+    <Card className="relative overflow-hidden h-[148px] sm:h-[160px]">
       <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top right, ${color}, transparent 60%)` }} />
-      <CardContent className="p-4 sm:p-5 flex flex-col h-full">
-        {/* Header: label + ícone */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <p className="text-[10px] sm:text-xs font-semibold text-[#71717a] uppercase tracking-wider leading-tight min-h-[28px] flex items-start">
+      <CardContent className="p-3 sm:p-4 h-full grid grid-rows-[auto_1fr_auto] gap-2">
+        {/* ROW 1 — Label + Icone (altura fixa) */}
+        <div className="flex items-start justify-between gap-2">
+          <p
+            className="text-[10px] font-semibold text-[#71717a] uppercase tracking-wider leading-[1.25] line-clamp-2"
+            style={{ minHeight: "26px" }}
+          >
             {label}
           </p>
           <div
-            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex-shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
             style={{ backgroundColor: `${color}20` }}
           >
-            <Icon className="w-4 h-4" style={{ color }} />
+            <Icon className="w-3.5 h-3.5" style={{ color }} />
           </div>
         </div>
 
-        {/* Valor — alinhado à esquerda */}
-        <div className="flex-1 flex items-end">
-          {loading
-            ? <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
-            : <p className="text-xl sm:text-2xl font-bold text-white leading-tight tracking-tight truncate w-full">{value}</p>
-          }
+        {/* ROW 2 — Valor (centralizado verticalmente, ocupa o espaço) */}
+        <div className="flex items-center">
+          {loading ? (
+            <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
+          ) : (
+            <p
+              className="font-bold text-white leading-none tracking-tight truncate w-full"
+              style={{ fontSize: "clamp(16px, 1.4vw, 22px)" }}
+              title={value}
+            >
+              {value}
+            </p>
+          )}
         </div>
 
-        {/* Comparação */}
-        {!loading && change !== undefined && change !== null && (
-          <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-            <div className={cn(
-              "flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold",
-              isGood ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
-            )}>
-              {isGood ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
-              {raw >= 0 ? "+" : ""}{raw.toFixed(1)}%
+        {/* ROW 3 — Comparação (sempre alocada para alinhamento, mesmo se vazia) */}
+        <div className="min-h-[20px] flex items-center">
+          {!loading && change !== undefined && change !== null ? (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <div className={cn(
+                "flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold",
+                isGood ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
+              )}>
+                {isGood ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                {raw >= 0 ? "+" : ""}{raw.toFixed(1)}%
+              </div>
+              <span className="text-[9px] text-[#52525b]">vs anterior</span>
             </div>
-            <span className="text-[9px] sm:text-[10px] text-[#52525b]">vs anterior</span>
-          </div>
-        )}
+          ) : null}
+        </div>
       </CardContent>
     </Card>
   )
