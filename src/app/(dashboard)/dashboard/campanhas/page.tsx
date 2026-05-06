@@ -26,8 +26,14 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
   active: { label: "Ativa", variant: "success" },
   enabled: { label: "Ativa", variant: "success" },
   paused: { label: "Pausada", variant: "warning" },
+  campaign_paused: { label: "Pausada", variant: "warning" },
+  adset_paused: { label: "Pausada", variant: "warning" },
   ended: { label: "Encerrada", variant: "outline" },
+  deleted: { label: "Deletada", variant: "outline" },
+  archived: { label: "Arquivada", variant: "outline" },
   removed: { label: "Removida", variant: "outline" },
+  with_issues: { label: "Com problemas", variant: "warning" },
+  in_process: { label: "Em processo", variant: "warning" },
 }
 
 const PERIOD_OPTIONS = [

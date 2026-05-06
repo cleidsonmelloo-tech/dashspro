@@ -33,13 +33,15 @@ export async function GET(request: NextRequest) {
   for (const account of accounts) {
     if (isTokenExpired(account.token_expires_at)) continue
 
-    const fields = "campaign_name,spend,impressions,clicks,actions,cpc,ctr,reach,frequency"
+    // Busca campanhas com status + insights aninhados no mesmo request
+    const insightFields = `spend,impressions,clicks,actions,cpc,ctr`
+    const fields = `name,effective_status,insights.time_range({"since":"${since}","until":"${until}"}){${insightFields}}`
+
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/act_${account.account_id}/insights?` +
+      `https://graph.facebook.com/v21.0/act_${account.account_id}/campaigns?` +
       new URLSearchParams({
         fields,
-        time_range: JSON.stringify({ since, until }),
-        level: "campaign",
+        limit: "500",
         access_token: account.access_token,
       })
     )
@@ -47,26 +49,27 @@ export async function GET(request: NextRequest) {
     if (!res.ok) continue
 
     const data = await res.json()
-    const insights: MetaCampaignInsight[] = data.data || []
+    const campaigns: MetaCampaign[] = data.data || []
 
-    for (const c of insights) {
-      const spend = parseFloat(c.spend || "0")
-      const impressions = parseInt(c.impressions || "0")
-      const clicks = parseInt(c.clicks || "0")
-      const conv = (c.actions || []).find((a: MetaAction) =>
-        ["purchase", "lead", "complete_registration"].includes(a.action_type)
+    for (const c of campaigns) {
+      const insight = c.insights?.data?.[0]
+      const spend = parseFloat(insight?.spend || "0")
+      const impressions = parseInt(insight?.impressions || "0")
+      const clicks = parseInt(insight?.clicks || "0")
+      const conv = (insight?.actions || []).find((a: MetaAction) =>
+        ["purchase", "lead", "complete_registration", "omni_purchase"].includes(a.action_type)
       )
-      const conversions = conv ? parseInt(conv.value || "0") : 0
-      const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0
-      const cpc = clicks > 0 ? spend / clicks : 0
+      const conversions = conv ? parseFloat(conv.value || "0") : 0
+      const ctr = impressions > 0 ? (clicks / impressions) * 100 : parseFloat(insight?.ctr || "0")
+      const cpc = clicks > 0 ? spend / clicks : parseFloat(insight?.cpc || "0")
       const cpa = conversions > 0 ? spend / conversions : 0
 
       allCampaigns.push({
-        id: `meta_${account.account_id}_${c.campaign_name}`,
-        name: c.campaign_name,
+        id: `meta_${account.account_id}_${c.id}`,
+        name: c.name,
         platform: "meta",
         account_name: account.account_name,
-        status: "active",
+        status: (c.effective_status || "active").toLowerCase(),
         spend,
         impressions,
         clicks,
@@ -90,8 +93,12 @@ interface AdAccountRow {
 }
 interface MetaAction { action_type: string; value: string }
 interface MetaCampaignInsight {
-  campaign_name: string; spend: string; impressions: string; clicks: string
-  cpc: string; ctr: string; reach?: string; frequency?: string; actions?: MetaAction[]
+  spend: string; impressions: string; clicks: string
+  cpc: string; ctr: string; actions?: MetaAction[]
+}
+interface MetaCampaign {
+  id: string; name: string; effective_status: string
+  insights?: { data: MetaCampaignInsight[] }
 }
 interface Campaign {
   id: string; name: string; platform: string; account_name: string
