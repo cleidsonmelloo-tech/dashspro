@@ -170,22 +170,56 @@ export default function CriativosPage() {
   const avgCTR = filtered.reduce((s, c) => s + c.ctr, 0) / (filtered.length || 1)
   const totalConversions = filtered.reduce((s, c) => s + c.conversions, 0)
 
+  const PLATFORM_OPTIONS = [
+    { value: "meta",   label: "Meta Ads",   color: "#1877f2" },
+    { value: "google", label: "Google Ads", color: "#34a853" },
+  ]
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Criativos</h1>
           <p className="text-sm text-[#71717a] mt-0.5">Performance dos seus anúncios por visual</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Status */}
           <div className={`flex items-center gap-1.5 px-3 h-7 rounded-full border ${isRealData ? "bg-emerald-500/10 border-emerald-500/20" : "bg-amber-500/10 border-amber-500/20"}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+
+          {/* Platform pill toggles */}
+          {PLATFORM_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setPlatform(prev => prev === opt.value ? "all" : opt.value as "meta" | "google")}
+              className={cn(
+                "flex items-center gap-1.5 px-3 h-8 rounded-full border text-xs font-medium transition-all cursor-pointer",
+                platform === opt.value
+                  ? "border-transparent text-white"
+                  : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white"
+              )}
+              style={platform === opt.value
+                ? { backgroundColor: `${opt.color}25`, borderColor: `${opt.color}60`, color: opt.color }
+                : {}}
+            >
+              <span className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: platform === opt.value ? opt.color : "#52525b" }} />
+              {opt.label}
+            </button>
+          ))}
+
+          {/* BM / Account / Campaign filter */}
           <BmCampaignFilter />
+
+          {/* Refresh */}
           <button onClick={fetchCreatives} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
+
+          {/* Period */}
           <select value={period} onChange={(e) => setPeriod(e.target.value)}
             className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
             {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -193,12 +227,12 @@ export default function CriativosPage() {
         </div>
       </div>
 
-      {/* KPIs */}
+      {/* ── KPIs ── */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Investimento Total", value: formatCurrency(totalSpend), icon: DollarSign, color: "#6366f1" },
-          { label: "CTR Médio", value: `${avgCTR.toFixed(2)}%`, icon: TrendingUp, color: "#10b981" },
-          { label: "Total Conversões", value: Math.round(totalConversions).toLocaleString("pt-BR"), icon: MousePointer, color: "#f59e0b" },
+          { label: "Investimento Total", value: formatCurrency(totalSpend),                          icon: DollarSign, color: "#6366f1" },
+          { label: "CTR Médio",          value: `${avgCTR.toFixed(2)}%`,                             icon: TrendingUp, color: "#10b981" },
+          { label: "Total Conversões",   value: Math.round(totalConversions).toLocaleString("pt-BR"), icon: MousePointer, color: "#f59e0b" },
         ].map((kpi) => (
           <Card key={kpi.label}>
             <CardContent className="p-4 flex items-center gap-3">
@@ -207,25 +241,21 @@ export default function CriativosPage() {
               </div>
               <div>
                 <p className="text-xs text-[#71717a]">{kpi.label}</p>
-                {loading ? <div className="h-5 w-16 bg-[#1e1e2e] rounded animate-pulse mt-1" /> : <p className="text-lg font-bold text-white">{kpi.value}</p>}
+                {loading
+                  ? <div className="h-5 w-16 bg-[#1e1e2e] rounded animate-pulse mt-1" />
+                  : <p className="text-lg font-bold text-white">{kpi.value}</p>}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Filtros */}
+      {/* ── Search + sort ── */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-48">
-          <Input placeholder="Buscar criativo..." value={search} onChange={(e) => setSearch(e.target.value)} leftIcon={<Search className="w-4 h-4" />} />
-        </div>
-        <div className="flex gap-1 p-1 bg-[#111118] border border-[var(--border)] rounded-lg">
-          {(["all", "meta", "google"] as const).map((p) => (
-            <button key={p} onClick={() => setPlatform(p)}
-              className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer", platform === p ? "bg-[#6366f1] text-white" : "text-[#71717a] hover:text-white")}>
-              {p === "all" ? "Todos" : p === "meta" ? "Meta Ads" : "Google Ads"}
-            </button>
-          ))}
+          <Input placeholder="Buscar criativo..." value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            leftIcon={<Search className="w-4 h-4" />} />
         </div>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
           className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none cursor-pointer">
