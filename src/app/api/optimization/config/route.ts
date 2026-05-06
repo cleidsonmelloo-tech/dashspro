@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
     p_min_days_running: body.min_days_running ?? 3,
     p_auto_resume: body.auto_resume ?? false,
     p_notes: body.notes ?? "",
+    p_selected_account_ids: body.selected_account_ids ?? [],
+    p_excluded_campaign_ids: body.excluded_campaign_ids ?? [],
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

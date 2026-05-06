@@ -7,6 +7,7 @@ interface OptConfig {
   is_enabled: boolean; goal: string; min_roas: number; max_cpa: number
   min_ctr: number; budget_increase_pct: number; max_budget_per_campaign: number
   min_days_running: number; auto_resume: boolean; notes: string
+  selected_account_ids: string[]; excluded_campaign_ids: string[]
 }
 interface MetaAccount { account_id: string; account_name: string; access_token: string; token_expires_at: string | null }
 interface AIDecision {
@@ -208,18 +209,24 @@ export async function POST(request: NextRequest) {
 
   // Load config
   const { data: configRows } = await supabase.rpc("get_optimization_config", { p_workspace_id: workspaceId })
-  const config: OptConfig = configRows?.[0] || { is_enabled: false, goal: "leads", min_roas: 2, max_cpa: 100, min_ctr: 1, budget_increase_pct: 20, max_budget_per_campaign: 500, min_days_running: 3, auto_resume: false, notes: "" }
+  const config: OptConfig = configRows?.[0] || { is_enabled: false, goal: "leads", min_roas: 2, max_cpa: 100, min_ctr: 1, budget_increase_pct: 20, max_budget_per_campaign: 500, min_days_running: 3, auto_resume: false, notes: "", selected_account_ids: [], excluded_campaign_ids: [] }
   if (!config.is_enabled && !isCron) {
     // Allow manual run even if disabled for testing
   }
 
-  // Load Meta accounts
+  // Load Meta accounts — filtered by selected BMs if configured
   const { data: allAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspaceId })
-  const accounts: MetaAccount[] = (allAccounts || []).filter((a: { platform: string; is_active: boolean }) => a.platform === "meta" && a.is_active)
-  if (accounts.length === 0) return NextResponse.json({ ok: true, message: "Nenhuma conta Meta conectada", decisions: [] })
+  let accounts: MetaAccount[] = (allAccounts || []).filter((a: { platform: string; is_active: boolean }) => a.platform === "meta" && a.is_active)
+  if (config.selected_account_ids?.length > 0) {
+    accounts = accounts.filter(a => config.selected_account_ids.includes(a.account_id))
+  }
+  if (accounts.length === 0) return NextResponse.json({ ok: true, message: "Nenhuma conta Meta selecionada ou conectada", decisions: [] })
 
-  // Fetch campaign data
-  const campaigns = await fetchCampaignData(accounts)
+  // Fetch campaign data — filtered by excluded campaigns if configured
+  let campaigns = await fetchCampaignData(accounts)
+  if (config.excluded_campaign_ids?.length > 0) {
+    campaigns = campaigns.filter(c => !config.excluded_campaign_ids.includes(c.meta_campaign_id))
+  }
   if (campaigns.length === 0) return NextResponse.json({ ok: true, message: "Nenhuma campanha encontrada", decisions: [] })
 
   // Ask AI for decisions
