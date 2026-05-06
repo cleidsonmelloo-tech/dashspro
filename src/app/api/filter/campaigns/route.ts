@@ -23,11 +23,12 @@ export async function GET(request: NextRequest) {
   if (!accountId) return NextResponse.json({ campaigns: [] })
 
   // Look up the account via RPC (SECURITY DEFINER) to bypass RLS
+  type AccRow = { id: string; platform: string; account_id: string; access_token: string; refresh_token: string | null; token_expires_at: string | null; is_active: boolean }
   const { data: allAccounts } = await supabase.rpc("get_workspace_ad_accounts", {
     p_workspace_id: workspace.id,
   })
-  const account = (allAccounts || []).find(
-    (a: { account_id: string; is_active: boolean }) => a.account_id === accountId && a.is_active
+  const account = (allAccounts as AccRow[] || []).find(
+    (a) => a.account_id === accountId && a.is_active
   )
 
   if (!account) return NextResponse.json({ campaigns: [] })
@@ -59,8 +60,9 @@ export async function GET(request: NextRequest) {
   // ── Google ─────────────────────────────────────────────────────────────────
   if (account.platform === "google") {
     let token = account.access_token
-    if (isTokenExpired(account.token_expires_at) && account.refresh_token) {
-      const refreshed = await refreshGoogleToken(account.refresh_token, supabase, accountId)
+    const rt = account.refresh_token
+    if (isTokenExpired(account.token_expires_at) && rt) {
+      const refreshed = await refreshGoogleToken(rt, supabase, accountId)
       if (!refreshed) return NextResponse.json({ campaigns: [] })
       token = refreshed
     }
