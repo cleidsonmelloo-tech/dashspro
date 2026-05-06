@@ -93,69 +93,85 @@ const DEMO_VALUES: Record<FunnelType, { impressions: number; clicks: number; con
   delivery:    { impressions: 98400,  clicks: 2840, conversions: 892, spend: 5000 },
 }
 
-function FunnelBar({ step, maxValue, prevValue, isLast }: { step: FunnelStep; maxValue: number; prevValue?: number; isLast?: boolean }) {
-  const width = Math.max((step.value / maxValue) * 100, 8)
-  const dropPct = prevValue !== undefined && prevValue > 0
-    ? ((prevValue - step.value) / prevValue) * 100
-    : 0
+// Cone-shaped funnel slice — true 3D look
+function FunnelSlice({ step, index, total }: { step: FunnelStep; index: number; total: number }) {
   const Icon = step.icon
+  // Width narrows from 100% (top) to 28% (bottom)
+  const startPct = 100 - (index * (72 / Math.max(1, total - 1)))
+  const endPct = 100 - ((index + 1) * (72 / Math.max(1, total - 1)))
+  const topInset = (100 - startPct) / 2
+  const botInset = (100 - Math.max(endPct, 28)) / 2
+
+  // Lighter shade for inner highlight (3D effect)
+  const lighter = step.color + "ff"
+  const darker = step.color + "aa"
 
   return (
-    <div className="flex flex-col items-center group">
-      {/* Linha de queda entre etapas */}
-      {prevValue !== undefined && dropPct > 0 && (
-        <div className="flex items-center gap-2 -mt-1 mb-1 text-[10px] text-[#71717a]">
-          <TrendingDown className="w-3 h-3 text-red-400" />
-          <span>Perdeu <span className="text-red-400 font-semibold">{dropPct.toFixed(1)}%</span> nesta etapa</span>
+    <div className="relative w-full flex items-center justify-center" style={{ height: 78 }}>
+      {/* Trapezoid background (clip-path) */}
+      <div
+        className="absolute inset-0 transition-all duration-500"
+        style={{
+          clipPath: `polygon(${topInset}% 0%, ${100 - topInset}% 0%, ${100 - botInset}% 100%, ${botInset}% 100%)`,
+          background: `linear-gradient(180deg, ${lighter} 0%, ${darker} 100%)`,
+          filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))",
+        }}
+      />
+      {/* Inner highlight strip for 3D feel */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          clipPath: `polygon(${topInset + 1}% 0%, ${topInset + 4}% 0%, ${botInset + 3}% 100%, ${botInset}% 100%)`,
+          background: "linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0))",
+        }}
+      />
+
+      {/* Content centered */}
+      <div className="relative z-10 flex items-center gap-3 text-white px-4">
+        <div className="w-9 h-9 rounded-lg bg-black/25 flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+          <Icon className="w-4 h-4 text-white" />
         </div>
-      )}
-
-      {/* Bloco do funil — formato trapézio centrado */}
-      <div className="relative w-full flex items-center justify-center" style={{ height: "72px" }}>
-        {/* Barra centralizada com gradiente */}
-        <div
-          className="relative h-full rounded-lg flex items-center justify-between px-5 transition-all duration-700 shadow-lg"
-          style={{
-            width: `${width}%`,
-            minWidth: "240px",
-            background: `linear-gradient(135deg, ${step.color} 0%, ${step.color}cc 100%)`,
-            boxShadow: `0 4px 20px ${step.color}40`,
-          }}
-        >
-          {/* Lado esquerdo: ícone + label */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
-              <Icon className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-[10px] font-medium text-white/80 uppercase tracking-wider">{step.label}</p>
-              <p className="text-xl font-bold text-white leading-tight">{step.value.toLocaleString("pt-BR")}</p>
-            </div>
-          </div>
-
-          {/* Lado direito: % + métricas */}
-          <div className="flex flex-col items-end gap-0.5">
-            <span className="text-2xl font-black text-white tracking-tight">
-              {((step.value / maxValue) * 100).toFixed(1)}%
-            </span>
-            <div className="flex items-center gap-2 text-[10px] text-white/80">
-              {step.rate !== undefined && step.rate > 0 && (
-                <span>Taxa: <strong className="text-white">{step.rate.toFixed(1)}%</strong></span>
-              )}
-              {step.cost !== undefined && step.cost > 0 && (
-                <span>Custo: <strong className="text-white">{formatCurrency(step.cost)}</strong></span>
-              )}
-            </div>
-          </div>
+        <div className="text-center min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-white/90 truncate">{step.label}</p>
+          <p className="text-xl font-black leading-tight">{step.value.toLocaleString("pt-BR")}</p>
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* Conector seta para baixo entre etapas */}
-      {!isLast && (
-        <div className="my-1 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px]"
-          style={{ borderTopColor: step.color, opacity: 0.5 }}
-        />
-      )}
+// Side panel showing rate and cost for each step
+function FunnelStats({ steps, maxValue }: { steps: FunnelStep[]; maxValue: number }) {
+  return (
+    <div className="flex flex-col gap-1 pt-2">
+      {steps.map((step, i) => {
+        const pct = (step.value / maxValue) * 100
+        const prev = i > 0 ? steps[i - 1].value : null
+        const drop = prev !== null && prev > 0 ? ((prev - step.value) / prev) * 100 : 0
+        return (
+          <div key={i} className="flex items-center gap-2 h-[78px] px-3 rounded-lg hover:bg-[#1a1410] transition-colors">
+            <div className="w-1.5 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: step.color }} />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-[#a1a1aa] truncate">{step.label}</p>
+              <div className="flex items-center gap-3 mt-0.5 text-[11px]">
+                <span className="text-white font-bold">{pct.toFixed(1)}%</span>
+                {step.rate !== undefined && step.rate > 0 && (
+                  <span className="text-[#71717a]">Taxa: <strong className="text-[#a1a1aa]">{step.rate.toFixed(1)}%</strong></span>
+                )}
+                {step.cost !== undefined && step.cost > 0 && (
+                  <span className="text-[#71717a]">Custo: <strong className="text-[#a1a1aa]">{formatCurrency(step.cost)}</strong></span>
+                )}
+                {drop > 0 && (
+                  <span className="flex items-center gap-1 text-red-400">
+                    <TrendingDown className="w-2.5 h-2.5" />
+                    -{drop.toFixed(0)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -305,27 +321,28 @@ export default function FunilPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-3">
-            {loading ? (
-              Array.from({ length: steps.length }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-40 h-10 bg-[#1a1410] rounded animate-pulse flex-shrink-0" />
-                  <div className="flex-1 h-10 bg-[#1a1410] rounded animate-pulse" />
-                  <div className="w-36 h-10 bg-[#1a1410] rounded animate-pulse flex-shrink-0" />
+          {loading ? (
+            <div className="flex flex-col gap-1">
+              {Array.from({ length: steps.length }).map((_, i) => (
+                <div key={i} className="h-[78px] bg-[#1a1410] rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 items-start">
+              {/* Cone do funil */}
+              <div className="flex flex-col gap-0 px-4 py-2">
+                {steps.map((step, i) => (
+                  <FunnelSlice key={i} step={step} index={i} total={steps.length} />
+                ))}
+                {/* Base / "alvo" */}
+                <div className="flex justify-center mt-2">
+                  <div className="w-16 h-1 rounded-full bg-gradient-to-r from-transparent via-[#FF5F1A] to-transparent opacity-60" />
                 </div>
-              ))
-            ) : (
-              steps.map((step, i) => (
-                <FunnelBar
-                  key={i}
-                  step={step}
-                  maxValue={maxValue}
-                  prevValue={i > 0 ? steps[i - 1].value : undefined}
-                  isLast={i === steps.length - 1}
-                />
-              ))
-            )}
-          </div>
+              </div>
+              {/* Painel de estatísticas */}
+              <FunnelStats steps={steps} maxValue={maxValue} />
+            </div>
+          )}
         </CardContent>
       </Card>
 
