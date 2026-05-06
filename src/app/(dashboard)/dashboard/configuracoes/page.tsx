@@ -88,12 +88,8 @@ export default function ConfiguracoesPage() {
               .eq("owner_id", session.user.id)
               .single()
             if (ws) {
-              const { data: accs } = await supabase
-                .from("ad_accounts")
-                .select("id, platform, account_id, account_name, is_active, token_expires_at, created_at")
-                .eq("workspace_id", ws.id)
-                .order("created_at", { ascending: false })
-              setAccounts(accs || [])
+              const { data: accs } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: ws.id })
+              setAccounts((accs as AdAccount[]) || [])
             }
           }
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
@@ -139,13 +135,9 @@ export default function ConfiguracoesPage() {
         setBrandColor(ws.brand_color || "#6366f1")
         setLogoUrl(ws.logo_url || "")
 
-        const { data: accs } = await supabase
-          .from("ad_accounts")
-          .select("id, platform, account_id, account_name, is_active, token_expires_at, created_at")
-          .eq("workspace_id", ws.id)
-          .order("created_at", { ascending: false })
+        const { data: accs } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: ws.id })
 
-        setAccounts(accs || [])
+        setAccounts((accs as AdAccount[]) || [])
 
         const { data: settings } = await supabase
           .from("workspace_settings")
