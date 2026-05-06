@@ -7,7 +7,7 @@ import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 import { PlatformPills } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
-import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 
 type FunnelType = "ecommerce" | "mensagens" | "infoproduto" | "cadastro" | "delivery"
 
@@ -177,14 +177,8 @@ function FunnelStats({ steps, maxValue }: { steps: FunnelStep[]; maxValue: numbe
 }
 
 export default function FunilPage() {
-  const { filterParam } = useFilter()
-  const [platformFilter, setPlatformFilter] = useState<string[]>([])
+  const { filterParam, dateRange, setDateRange, platformFilter, setPlatformFilter } = useFilter()
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("ecommerce")
-  const [dateRange, setDateRange] = useState<DateRange>(() => {
-    const d = new Date(); const until = d.toISOString().split("T")[0]
-    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
-    return { since, until }
-  })
   const [loading, setLoading] = useState(false)
   const [isRealData, setIsRealData] = useState(false)
   const [liveMetrics, setLiveMetrics] = useState<{ impressions: number; clicks: number; conversions: number; spend: number } | null>(null)

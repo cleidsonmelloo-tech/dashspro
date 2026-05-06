@@ -7,7 +7,7 @@ import { PerformanceChart } from "@/components/dashboard/performance-chart"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 import { PlatformPills } from "@/components/ui/platform-pills"
-import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { useFilter } from "@/lib/filter-context"
 
 interface DashMetrics {
@@ -209,13 +209,7 @@ const DEMO_CAMPAIGNS = [
 ]
 
 export default function DashboardPage() {
-  const { filterParam } = useFilter()
-  const [platformFilter, setPlatformFilter] = useState<string[]>([])
-  const [dateRange, setDateRange] = useState<DateRange>(() => {
-    const d = new Date(); const until = d.toISOString().split("T")[0]
-    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
-    return { since, until }
-  })
+  const { filterParam, dateRange, setDateRange, platformFilter, setPlatformFilter } = useFilter()
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
   const [metrics, setMetrics] = useState<DashMetrics | null>(null)
