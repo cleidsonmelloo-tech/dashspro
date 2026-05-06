@@ -500,14 +500,16 @@ export default function OtimizacaoPage() {
           { label: "Próx. análise automática", value: config.is_enabled ? countdown : "—", icon: Clock, color: "#10b981", raw: true },
         ].map((kpi) => (
           <Card key={kpi.label}>
-            <CardContent className="p-4 flex items-center gap-3">
+            <CardContent className="p-3 sm:p-4 flex items-center gap-3 h-[80px]">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${kpi.color}20` }}>
                 <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
               </div>
-              <div>
-                <p className="text-xs text-[#71717a]">{kpi.label}</p>
-                {loading ? <div className="h-5 w-12 bg-[#1a1410] rounded animate-pulse mt-1" />
-                  : <p className={cn("font-bold", (kpi as { raw?: boolean }).raw ? "text-sm text-white mt-0.5" : "text-lg text-white")}>{kpi.value}</p>}
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs text-[#71717a] uppercase tracking-wider line-clamp-1">{kpi.label}</p>
+                {loading
+                  ? <div className="h-6 w-12 bg-[#1a1410] rounded animate-pulse mt-1" />
+                  : <p className={cn("font-bold text-white truncate", (kpi as { raw?: boolean }).raw ? "text-sm mt-0.5" : "text-lg mt-0.5")} title={String(kpi.value)}>{kpi.value}</p>
+                }
               </div>
             </CardContent>
           </Card>
@@ -950,13 +952,13 @@ export default function OtimizacaoPage() {
                   { label: "Verbas ajustadas",     value: report.budgets_increased, color: "#06b6d4", icon: TrendingUp },
                 ].map(s => (
                   <Card key={s.label}>
-                    <CardContent className="p-4 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${s.color}20` }}>
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3 h-[80px]">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${s.color}20` }}>
                         <s.icon className="w-4 h-4" style={{ color: s.color }} />
                       </div>
-                      <div>
-                        <p className="text-xs text-[#71717a]">{s.label}</p>
-                        <p className="text-2xl font-bold text-white">{s.value}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-xs text-[#71717a] uppercase tracking-wider line-clamp-1">{s.label}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-white truncate">{s.value}</p>
                       </div>
                     </CardContent>
                   </Card>

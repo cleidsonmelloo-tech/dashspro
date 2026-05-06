@@ -198,12 +198,12 @@ export default function CriativosPage() {
           { label: "Total Conversões",   value: Math.round(totalConversions).toLocaleString("pt-BR"), icon: MousePointer, color: "#f59e0b" },
         ].map((kpi) => (
           <Card key={kpi.label}>
-            <CardContent className="p-4 flex items-center gap-3">
+            <CardContent className="p-3 sm:p-4 flex items-center gap-3 h-[80px]">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${kpi.color}20` }}>
                 <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
               </div>
               <div>
-                <p className="text-xs text-[#71717a]">{kpi.label}</p>
+                <p className="text-[10px] sm:text-xs text-[#71717a] uppercase tracking-wider line-clamp-1">{kpi.label}</p>
                 {loading
                   ? <div className="h-5 w-16 bg-[#1a1410] rounded animate-pulse mt-1" />
                   : <p className="text-lg font-bold text-white">{kpi.value}</p>}

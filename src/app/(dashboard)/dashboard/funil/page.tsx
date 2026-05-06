@@ -291,21 +291,34 @@ export default function FunilPage() {
         })}
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* KPIs — alinhados com altura fixa */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Investimento Total", value: formatCurrency(values.spend), color: "#FF5F1A" },
-          { label: lastStep.label, value: values.conversions.toLocaleString("pt-BR"), color: "#10b981" },
+          { label: lastStep.label, value: realConversions.toLocaleString("pt-BR"), color: "#10b981" },
           { label: "Custo por Resultado", value: formatCurrency(cpa), color: "#f59e0b" },
           { label: "Taxa de Conversão", value: `${conversionRate.toFixed(3)}%`, color: "#FF7A33" },
         ].map((kpi) => (
-          <Card key={kpi.label}>
-            <CardContent className="p-4">
-              <p className="text-xs text-[#71717a] mb-1">{kpi.label}</p>
-              {loading
-                ? <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
-                : <p className="text-xl font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
-              }
+          <Card key={kpi.label} className="h-[100px]">
+            <CardContent className="p-3 sm:p-4 grid grid-rows-[auto_1fr] gap-1 h-full">
+              <p
+                className="text-[10px] sm:text-xs font-semibold text-[#71717a] uppercase tracking-wider line-clamp-2 leading-[1.25]"
+                style={{ minHeight: "26px" }}
+              >
+                {kpi.label}
+              </p>
+              <div className="flex items-center">
+                {loading
+                  ? <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
+                  : <p
+                      className="font-bold leading-none truncate w-full"
+                      style={{ color: kpi.color, fontSize: "clamp(14px, 1.4vw, 22px)" }}
+                      title={kpi.value}
+                    >
+                      {kpi.value}
+                    </p>
+                }
+              </div>
             </CardContent>
           </Card>
         ))}
