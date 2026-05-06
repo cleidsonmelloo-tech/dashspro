@@ -237,13 +237,14 @@ export async function POST(request: NextRequest) {
   let pausedCount = 0, resumedCount = 0, budgetCount = 0
 
   for (const decision of decisions) {
+    const campNoAction = campaigns.find(c => c.meta_campaign_id === decision.campaign_id)
     if (decision.action === "no_action") {
       await supabase.rpc("insert_optimization_log", {
         p_workspace_id: workspaceId,
         p_campaign_id: decision.campaign_id,
         p_campaign_name: decision.campaign_name,
         p_platform: "meta",
-        p_account_name: campaigns.find(c => c.meta_campaign_id === decision.campaign_id)?.account_name || "",
+        p_account_name: campNoAction?.account_name || "",
         p_action: "no_action",
         p_reason: decision.reason,
         p_reasoning: decision.reasoning,
@@ -252,7 +253,7 @@ export async function POST(request: NextRequest) {
         p_executed: true,
         p_error_message: null,
       })
-      results.push({ ...decision, executed: true, error: null })
+      results.push({ ...decision, account_name: campNoAction?.account_name || "", executed: true, error: null })
       continue
     }
 
@@ -289,7 +290,7 @@ export async function POST(request: NextRequest) {
       if (decision.action === "resume") resumedCount++
       if (decision.action === "increase_budget" || decision.action === "decrease_budget") budgetCount++
     }
-    results.push({ ...decision, executed: apiResult.ok, error: apiResult.error || null })
+    results.push({ ...decision, account_name: camp.account_name, executed: apiResult.ok, error: apiResult.error || null })
   }
 
   // Generate / update daily report
