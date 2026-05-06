@@ -86,8 +86,8 @@ export function DateRangePicker({ value, onChange }: Props) {
         className={cn(
           "flex items-center gap-2 h-9 px-3 rounded-lg border text-xs font-medium transition-all",
           open
-            ? "border-[#6366f1] bg-[#6366f1]/10 text-[#818cf8]"
-            : "border-[var(--border)] bg-[#111118] text-[#f4f4f5] hover:border-[#6366f1]/40"
+            ? "border-[#FF5F1A] bg-[#FF5F1A]/10 text-[#FF8C42]"
+            : "border-[var(--border)] bg-[#131313] text-[#f4f4f5] hover:border-[#FF5F1A]/40"
         )}
       >
         <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
@@ -101,7 +101,7 @@ export function DateRangePicker({ value, onChange }: Props) {
           {/* Header */}
           <div className="px-4 py-3 border-b border-[var(--border)]">
             <p className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <CalendarDays className="w-3.5 h-3.5 text-[#6366f1]" />
+              <CalendarDays className="w-3.5 h-3.5 text-[#FF5F1A]" />
               Período
             </p>
           </div>
@@ -115,12 +115,12 @@ export function DateRangePicker({ value, onChange }: Props) {
                 className={cn(
                   "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-left",
                   activePreset === i && !isCustom
-                    ? "bg-[#6366f1]/15 text-[#818cf8]"
+                    ? "bg-[#FF5F1A]/15 text-[#FF8C42]"
                     : "text-[#a1a1aa] hover:bg-[#1a1a27] hover:text-white"
                 )}
               >
                 <span>{preset.label}</span>
-                {activePreset === i && !isCustom && <Check className="w-3.5 h-3.5 text-[#6366f1]" />}
+                {activePreset === i && !isCustom && <Check className="w-3.5 h-3.5 text-[#FF5F1A]" />}
               </button>
             ))}
           </div>
@@ -136,7 +136,7 @@ export function DateRangePicker({ value, onChange }: Props) {
                   value={customSince}
                   max={customUntil}
                   onChange={e => setCustomSince(e.target.value)}
-                  className="w-full h-8 px-2 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none focus:border-[#6366f1]/60"
+                  className="w-full h-8 px-2 rounded-lg border border-[var(--border)] bg-[#131313] text-xs text-[#f4f4f5] outline-none focus:border-[#FF5F1A]/60"
                   style={{ colorScheme: "dark" }}
                 />
               </div>
@@ -148,7 +148,7 @@ export function DateRangePicker({ value, onChange }: Props) {
                   min={customSince}
                   max={toISO(today())}
                   onChange={e => setCustomUntil(e.target.value)}
-                  className="w-full h-8 px-2 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none focus:border-[#6366f1]/60"
+                  className="w-full h-8 px-2 rounded-lg border border-[var(--border)] bg-[#131313] text-xs text-[#f4f4f5] outline-none focus:border-[#FF5F1A]/60"
                   style={{ colorScheme: "dark" }}
                 />
               </div>
@@ -156,7 +156,7 @@ export function DateRangePicker({ value, onChange }: Props) {
             <button
               onClick={applyCustom}
               disabled={!customSince || !customUntil || customSince > customUntil}
-              className="w-full h-8 mt-2 bg-[#6366f1] hover:bg-[#5558dd] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors"
+              className="w-full h-8 mt-2 bg-[#FF5F1A] hover:bg-[#5558dd] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors"
             >
               Aplicar período
             </button>

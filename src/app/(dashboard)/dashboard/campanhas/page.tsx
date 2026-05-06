@@ -118,13 +118,13 @@ export default function CampanhasPage() {
           <PlatformPills value={platform} onChange={setPlatform} />
           <BmCampaignFilter />
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none cursor-pointer">
+            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-xs text-[#f4f4f5] outline-none cursor-pointer">
             <option value="spend">Ordenar: Investimento</option>
             <option value="conversions">Ordenar: Conversões</option>
             <option value="ctr">Ordenar: CTR</option>
             <option value="cpa">Ordenar: CPA (menor)</option>
           </select>
-          <button onClick={fetchCampaigns} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+          <button onClick={fetchCampaigns} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
           <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -134,8 +134,8 @@ export default function CampanhasPage() {
       {/* KPI totais */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Investimento", value: formatCurrency(totals.spend), icon: DollarSign, color: "#6366f1" },
-          { label: "Impressões", value: formatNumber(totals.impressions), icon: Eye, color: "#8b5cf6" },
+          { label: "Investimento", value: formatCurrency(totals.spend), icon: DollarSign, color: "#FF5F1A" },
+          { label: "Impressões", value: formatNumber(totals.impressions), icon: Eye, color: "#FF7A33" },
           { label: "Cliques", value: formatNumber(totals.clicks), icon: MousePointer, color: "#06b6d4" },
           { label: "Conversões", value: formatNumber(totals.conversions), icon: Target, color: "#10b981" },
         ].map((kpi) => (
@@ -146,7 +146,7 @@ export default function CampanhasPage() {
               </div>
               <div>
                 <p className="text-xs text-[#71717a]">{kpi.label}</p>
-                {loading ? <div className="h-5 w-16 bg-[#1e1e2e] rounded animate-pulse mt-1" /> : <p className="text-lg font-bold text-white">{kpi.value}</p>}
+                {loading ? <div className="h-5 w-16 bg-[#1a1410] rounded animate-pulse mt-1" /> : <p className="text-lg font-bold text-white">{kpi.value}</p>}
               </div>
             </CardContent>
           </Card>
@@ -160,7 +160,7 @@ export default function CampanhasPage() {
         </div>
         {bmList.length > 0 && (
           <select value={selectedBM} onChange={(e) => setSelectedBM(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
+            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none cursor-pointer">
             <option value="all">Todas as BMs</option>
             {bmList.map((bm) => <option key={bm} value={bm}>{bm}</option>)}
           </select>
@@ -172,7 +172,7 @@ export default function CampanhasPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-[#0d0d14]">
+              <tr className="border-b border-[var(--border)] bg-[#0f0f0f]">
                 {["Campanha", "Status", "Investimento", "Impressões", "CTR", "CPC", "Conversões", "CPA", "ROAS"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#71717a] uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
@@ -184,7 +184,7 @@ export default function CampanhasPage() {
                   <tr key={i} className="border-b border-[var(--border)]">
                     {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
-                        <div className="h-4 bg-[#1e1e2e] rounded animate-pulse" />
+                        <div className="h-4 bg-[#1a1410] rounded animate-pulse" />
                       </td>
                     ))}
                   </tr>
@@ -199,7 +199,7 @@ export default function CampanhasPage() {
                 filtered.map((c) => {
                   const status = STATUS_MAP[c.status] || { label: c.status, variant: "outline" as const }
                   return (
-                    <tr key={c.id} className="border-b border-[var(--border)] hover:bg-[#111118] transition-colors">
+                    <tr key={c.id} className="border-b border-[var(--border)] hover:bg-[#131313] transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", c.platform === "meta" ? "bg-blue-500" : "bg-green-500")} />

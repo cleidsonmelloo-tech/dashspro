@@ -44,7 +44,7 @@ export function PlatformPills({ value, onChange, fixed }: PlatformPillsProps) {
               fixed ? "cursor-default" : "cursor-pointer",
               isActive
                 ? "text-white"
-                : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white hover:border-[#52525b]"
+                : "border-[var(--border)] bg-[#131313] text-[#71717a] hover:text-white hover:border-[#52525b]"
             )}
             style={isActive ? {
               backgroundColor: `${opt.color}22`,

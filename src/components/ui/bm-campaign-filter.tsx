@@ -180,10 +180,10 @@ export function BmCampaignFilter() {
                             className={cn(
                               "w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 transition-colors",
                               checked && selectedAccountIds.length > 0
-                                ? "bg-[#6366f1] border-[#6366f1]"
+                                ? "bg-[#FF5F1A] border-[#FF5F1A]"
                                 : selectedAccountIds.length === 0
-                                  ? "border-[#6366f1]/60 bg-[#6366f1]/10"
-                                  : "border-[#3f3f46] hover:border-[#6366f1]/60"
+                                  ? "border-[#FF5F1A]/60 bg-[#FF5F1A]/10"
+                                  : "border-[#3f3f46] hover:border-[#FF5F1A]/60"
                             )}
                           >
                             {checked && <Check className="w-2.5 h-2.5 text-white" />}
@@ -198,7 +198,7 @@ export function BmCampaignFilter() {
                           {/* Expand campaigns */}
                           <button
                             onClick={() => toggleExpand(acc.account_id)}
-                            className="p-1 rounded hover:bg-[#27272a] text-[#52525b] hover:text-[#a1a1aa] transition-colors flex-shrink-0"
+                            className="p-1 rounded hover:bg-[#2a1f15] text-[#52525b] hover:text-[#a1a1aa] transition-colors flex-shrink-0"
                             title="Ver campanhas"
                           >
                             {isLoading
@@ -233,8 +233,8 @@ export function BmCampaignFilter() {
                                   <div className={cn(
                                     "w-3.5 h-3.5 rounded flex items-center justify-center border flex-shrink-0 transition-colors",
                                     selectedCampaignIds.includes(camp.id)
-                                      ? "bg-[#6366f1] border-[#6366f1]"
-                                      : "border-[#3f3f46] hover:border-[#6366f1]/60"
+                                      ? "bg-[#FF5F1A] border-[#FF5F1A]"
+                                      : "border-[#3f3f46] hover:border-[#FF5F1A]/60"
                                   )}>
                                     {selectedCampaignIds.includes(camp.id) && <Check className="w-2 h-2 text-white" />}
                                   </div>
@@ -265,8 +265,8 @@ export function BmCampaignFilter() {
         className={cn(
           "flex items-center gap-1.5 h-9 px-3 rounded-lg border text-sm transition-all",
           isFiltered
-            ? "border-[#6366f1] bg-[#6366f1]/10 text-[#818cf8]"
-            : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white hover:border-[#6366f1]/40"
+            ? "border-[#FF5F1A] bg-[#FF5F1A]/10 text-[#FF8C42]"
+            : "border-[var(--border)] bg-[#131313] text-[#71717a] hover:text-white hover:border-[#FF5F1A]/40"
         )}
       >
         <Filter className="w-3.5 h-3.5 flex-shrink-0" />
@@ -290,14 +290,14 @@ export function BmCampaignFilter() {
           {/* Header */}
           <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Filter className="w-3.5 h-3.5 text-[#6366f1]" />
+              <Filter className="w-3.5 h-3.5 text-[#FF5F1A]" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">
                 Conta / BM / Campanha
               </span>
             </div>
             {isFiltered && (
               <button onClick={clearFilter}
-                className="text-[10px] font-medium text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap ml-2">
+                className="text-[10px] font-medium text-[#FF5F1A] hover:text-[#FF8C42] transition-colors whitespace-nowrap ml-2">
                 Limpar
               </button>
             )}
@@ -306,9 +306,9 @@ export function BmCampaignFilter() {
           {/* Hierarchy legend */}
           <div className="px-4 py-2 bg-[#0a0a12] border-b border-[var(--border)] flex items-center gap-3 text-[9px] text-[#52525b] uppercase tracking-widest">
             <span className="flex items-center gap-1"><Briefcase className="w-2.5 h-2.5" /> Conta</span>
-            <span className="text-[#27272a]">›</span>
+            <span className="text-[#2a1f15]">›</span>
             <span className="flex items-center gap-1"><Building2 className="w-2.5 h-2.5" /> BM</span>
-            <span className="text-[#27272a]">›</span>
+            <span className="text-[#2a1f15]">›</span>
             <span className="flex items-center gap-1"><Megaphone className="w-2.5 h-2.5" /> Campanha</span>
           </div>
 
@@ -331,7 +331,7 @@ export function BmCampaignFilter() {
           <div className="px-3 py-2.5 border-t border-[var(--border)]">
             <button
               onClick={() => setOpen(false)}
-              className="w-full h-8 bg-[#6366f1] hover:bg-[#5558dd] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              className="w-full h-8 bg-[#FF5F1A] hover:bg-[#5558dd] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
             >
               {isFiltered ? "Aplicar filtros" : "Fechar"}
             </button>

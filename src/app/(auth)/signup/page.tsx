@@ -33,7 +33,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="rounded-2xl border border-[#27272a] bg-[#111118] p-8 flex flex-col items-center gap-4 text-center">
+      <div className="rounded-2xl border border-[#2a1f15] bg-[#131313] p-8 flex flex-col items-center gap-4 text-center">
         <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7 text-emerald-400" />
         </div>
@@ -49,7 +49,7 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#6366f1]">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF5F1A]">
           <BarChart3 className="w-6 h-6 text-white" />
         </div>
         <div className="text-center">
@@ -58,7 +58,7 @@ export default function SignupPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#27272a] bg-[#111118] p-8 flex flex-col gap-6">
+      <div className="rounded-2xl border border-[#2a1f15] bg-[#131313] p-8 flex flex-col gap-6">
         {error && (
           <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
             {error}
@@ -116,7 +116,7 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-[#71717a]">
           Já tem conta?{" "}
-          <Link href="/login" className="text-[#6366f1] hover:text-[#818cf8] font-medium transition-colors">
+          <Link href="/login" className="text-[#FF5F1A] hover:text-[#FF8C42] font-medium transition-colors">
             Fazer login
           </Link>
         </p>

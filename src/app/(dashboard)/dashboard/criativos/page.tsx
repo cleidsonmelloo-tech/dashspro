@@ -38,11 +38,11 @@ function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: n
     return (
       <Card>
         <CardContent className="p-4">
-          <div className="w-full h-32 rounded-lg bg-[#1e1e2e] mb-3 animate-pulse" />
-          <div className="h-4 bg-[#1e1e2e] rounded mb-3 animate-pulse" />
+          <div className="w-full h-32 rounded-lg bg-[#1a1410] mb-3 animate-pulse" />
+          <div className="h-4 bg-[#1a1410] rounded mb-3 animate-pulse" />
           <div className="grid grid-cols-2 gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-14 bg-[#1e1e2e] rounded-lg animate-pulse" />
+              <div key={i} className="h-14 bg-[#1a1410] rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -51,12 +51,12 @@ function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: n
   }
 
   return (
-    <Card className={cn("relative transition-all hover:border-[#6366f1]/40", isPaused && "opacity-60")}>
-      <div className="absolute -top-2.5 -left-2.5 w-7 h-7 rounded-full bg-[#6366f1] flex items-center justify-center text-xs font-bold text-white shadow-lg z-10">
+    <Card className={cn("relative transition-all hover:border-[#FF5F1A]/40", isPaused && "opacity-60")}>
+      <div className="absolute -top-2.5 -left-2.5 w-7 h-7 rounded-full bg-[#FF5F1A] flex items-center justify-center text-xs font-bold text-white shadow-lg z-10">
         {rank}
       </div>
       <CardContent className="p-4">
-        <div className="w-full h-32 rounded-lg bg-[#1e1e2e] mb-3 flex items-center justify-center overflow-hidden relative">
+        <div className="w-full h-32 rounded-lg bg-[#1a1410] mb-3 flex items-center justify-center overflow-hidden relative">
           {creative.thumbnail_url
             ? <img src={creative.thumbnail_url} alt={creative.name} className="w-full h-full object-cover" />
             : <div className="flex flex-col items-center gap-1 text-[#3f3f46]"><ImageIcon className="w-8 h-8" /></div>
@@ -77,28 +77,28 @@ function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: n
         )}
 
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg bg-[#0d0d14] p-2.5">
+          <div className="rounded-lg bg-[#0f0f0f] p-2.5">
             <div className="flex items-center gap-1 mb-1">
               <TrendingUp className="w-3 h-3 text-[#71717a]" />
               <span className="text-[10px] text-[#71717a]">CTR</span>
             </div>
             <p className={cn("text-sm font-bold", isGood ? "text-emerald-400" : "text-amber-400")}>{creative.ctr.toFixed(2)}%</p>
           </div>
-          <div className="rounded-lg bg-[#0d0d14] p-2.5">
+          <div className="rounded-lg bg-[#0f0f0f] p-2.5">
             <div className="flex items-center gap-1 mb-1">
               <DollarSign className="w-3 h-3 text-[#71717a]" />
               <span className="text-[10px] text-[#71717a]">CPA</span>
             </div>
             <p className="text-sm font-bold text-white">{creative.cpa > 0 ? formatCurrency(creative.cpa) : "—"}</p>
           </div>
-          <div className="rounded-lg bg-[#0d0d14] p-2.5">
+          <div className="rounded-lg bg-[#0f0f0f] p-2.5">
             <div className="flex items-center gap-1 mb-1">
               <Eye className="w-3 h-3 text-[#71717a]" />
               <span className="text-[10px] text-[#71717a]">Impressões</span>
             </div>
             <p className="text-sm font-bold text-white">{creative.impressions >= 1000 ? `${(creative.impressions / 1000).toFixed(1)}k` : creative.impressions}</p>
           </div>
-          <div className="rounded-lg bg-[#0d0d14] p-2.5">
+          <div className="rounded-lg bg-[#0f0f0f] p-2.5">
             <div className="flex items-center gap-1 mb-1">
               <MousePointer className="w-3 h-3 text-[#71717a]" />
               <span className="text-[10px] text-[#71717a]">Conversões</span>
@@ -181,7 +181,7 @@ export default function CriativosPage() {
           <BmCampaignFilter />
 
           {/* Refresh */}
-          <button onClick={fetchCreatives} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+          <button onClick={fetchCreatives} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
 
@@ -193,7 +193,7 @@ export default function CriativosPage() {
       {/* ── KPIs ── */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Investimento Total", value: formatCurrency(totalSpend),                          icon: DollarSign, color: "#6366f1" },
+          { label: "Investimento Total", value: formatCurrency(totalSpend),                          icon: DollarSign, color: "#FF5F1A" },
           { label: "CTR Médio",          value: `${avgCTR.toFixed(2)}%`,                             icon: TrendingUp, color: "#10b981" },
           { label: "Total Conversões",   value: Math.round(totalConversions).toLocaleString("pt-BR"), icon: MousePointer, color: "#f59e0b" },
         ].map((kpi) => (
@@ -205,7 +205,7 @@ export default function CriativosPage() {
               <div>
                 <p className="text-xs text-[#71717a]">{kpi.label}</p>
                 {loading
-                  ? <div className="h-5 w-16 bg-[#1e1e2e] rounded animate-pulse mt-1" />
+                  ? <div className="h-5 w-16 bg-[#1a1410] rounded animate-pulse mt-1" />
                   : <p className="text-lg font-bold text-white">{kpi.value}</p>}
               </div>
             </CardContent>
@@ -221,7 +221,7 @@ export default function CriativosPage() {
             leftIcon={<Search className="w-4 h-4" />} />
         </div>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none cursor-pointer">
+          className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-xs text-[#f4f4f5] outline-none cursor-pointer">
           <option value="ctr">Ordenar: CTR</option>
           <option value="conversions">Ordenar: Conversões</option>
           <option value="spend">Ordenar: Investimento</option>

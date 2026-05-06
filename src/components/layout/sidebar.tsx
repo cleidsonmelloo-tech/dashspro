@@ -39,7 +39,7 @@ interface SidebarProps {
 function SidebarContent({
   workspaceName = "DashsPro",
   workspaceLogo,
-  brandColor = "#6366f1",
+  brandColor = "#FF5F1A",
   collapsed,
   onClose,
 }: SidebarProps & { collapsed: boolean; onClose?: () => void }) {
@@ -84,14 +84,14 @@ function SidebarContent({
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all group relative",
                 isActive
-                  ? "bg-[#6366f1]/15 text-white"
-                  : "text-[#71717a] hover:bg-[#1e1e2e] hover:text-[#f4f4f5]",
+                  ? "bg-[#FF5F1A]/15 text-white"
+                  : "text-[#71717a] hover:bg-[#1a1410] hover:text-[#f4f4f5]",
                 collapsed && "justify-center px-0"
               )}
             >
               <item.icon className={cn(
                 "w-4 h-4 flex-shrink-0",
-                isActive ? "text-[#818cf8]" : "text-current"
+                isActive ? "text-[#FF8C42]" : "text-current"
               )} />
               {!collapsed && <span className="truncate">{item.label}</span>}
 
@@ -103,7 +103,7 @@ function SidebarContent({
               )}
 
               {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 rounded-md bg-[#1e1e2e] border border-[var(--border)] text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+                <div className="absolute left-full ml-2 px-2 py-1 rounded-md bg-[#1a1410] border border-[var(--border)] text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
                   {item.label}
                 </div>
               )}
@@ -118,7 +118,7 @@ function SidebarContent({
         <button
           onClick={toggleSidebar}
           className={cn(
-            "hidden lg:flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#71717a] hover:bg-[#1e1e2e] hover:text-[#f4f4f5] transition-all w-full cursor-pointer",
+            "hidden lg:flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#71717a] hover:bg-[#1a1410] hover:text-[#f4f4f5] transition-all w-full cursor-pointer",
             collapsed && "justify-center px-0"
           )}
         >
@@ -152,7 +152,7 @@ export function Sidebar({ workspaceName, workspaceLogo, brandColor }: SidebarPro
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-screen border-r border-[var(--border)] bg-[#0d0d14] z-30 transition-all duration-300",
+          "fixed left-0 top-0 h-screen border-r border-[var(--border)] bg-[#0f0f0f] z-30 transition-all duration-300",
           "hidden lg:flex flex-col",
           sidebarCollapsed ? "w-16" : "w-[260px]"
         )}
@@ -176,7 +176,7 @@ export function Sidebar({ workspaceName, workspaceLogo, brandColor }: SidebarPro
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-screen w-[260px] flex flex-col border-r border-[var(--border)] bg-[#0d0d14] z-50 transition-transform duration-300 lg:hidden",
+          "fixed left-0 top-0 h-screen w-[260px] flex flex-col border-r border-[var(--border)] bg-[#0f0f0f] z-50 transition-transform duration-300 lg:hidden",
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

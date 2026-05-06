@@ -151,7 +151,7 @@ export default function RelatoriosPage() {
           </div>
           <BmCampaignFilter />
           <button onClick={fetchData}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -166,8 +166,8 @@ export default function RelatoriosPage() {
       {metrics ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Investimento", value: formatCurrency(metrics.spend), icon: DollarSign, color: "#6366f1" },
-            { label: "Impressões", value: formatNumber(metrics.impressions), icon: Eye, color: "#8b5cf6" },
+            { label: "Investimento", value: formatCurrency(metrics.spend), icon: DollarSign, color: "#FF5F1A" },
+            { label: "Impressões", value: formatNumber(metrics.impressions), icon: Eye, color: "#FF7A33" },
             { label: "Cliques", value: formatNumber(metrics.clicks), icon: MousePointer, color: "#06b6d4" },
             { label: "Conversões", value: formatNumber(metrics.conversions), icon: Target, color: "#10b981" },
           ].map((kpi) => (
@@ -185,10 +185,10 @@ export default function RelatoriosPage() {
           ))}
         </div>
       ) : !connected && (
-        <div className="rounded-xl border border-dashed border-[#27272a] p-6 text-center">
+        <div className="rounded-xl border border-dashed border-[#2a1f15] p-6 text-center">
           <FileText className="w-8 h-8 text-[#3f3f46] mx-auto mb-2" />
           <p className="text-sm text-[#71717a]">Sem contas conectadas para gerar relatório.</p>
-          <a href="/dashboard/configuracoes" className="text-xs text-[#6366f1] hover:underline mt-1 inline-block">
+          <a href="/dashboard/configuracoes" className="text-xs text-[#FF5F1A] hover:underline mt-1 inline-block">
             Conectar Meta Ads ou Google Ads →
           </a>
         </div>
@@ -200,7 +200,7 @@ export default function RelatoriosPage() {
           {[
             { label: "Meta Ads", value: metrics.meta_spend, pct: metrics.spend > 0 ? (metrics.meta_spend / metrics.spend) * 100 : 0, color: "#1877f2" },
             { label: "Google Ads", value: metrics.google_spend, pct: metrics.spend > 0 ? (metrics.google_spend / metrics.spend) * 100 : 0, color: "#34a853" },
-            { label: "ROAS Médio", value: avgROAS, pct: 0, color: "#6366f1", isRoas: true },
+            { label: "ROAS Médio", value: avgROAS, pct: 0, color: "#FF5F1A", isRoas: true },
           ].map((p) => (
             <Card key={p.label}>
               <CardContent className="p-4">
@@ -212,7 +212,7 @@ export default function RelatoriosPage() {
                   {("isRoas" in p) ? `${avgROAS.toFixed(2)}x` : formatCurrency(p.value)}
                 </p>
                 {!("isRoas" in p) && (
-                  <div className="h-1.5 bg-[#1e1e2e] rounded-full mt-2 overflow-hidden">
+                  <div className="h-1.5 bg-[#1a1410] rounded-full mt-2 overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${p.pct}%`, backgroundColor: p.color }} />
                   </div>
                 )}
@@ -244,7 +244,7 @@ export default function RelatoriosPage() {
           {loading ? (
             <div className="p-6 flex flex-col gap-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-10 bg-[#1e1e2e] rounded animate-pulse" />
+                <div key={i} className="h-10 bg-[#1a1410] rounded animate-pulse" />
               ))}
             </div>
           ) : campaigns.length === 0 ? (
@@ -255,7 +255,7 @@ export default function RelatoriosPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--border)] bg-[#0d0d14]">
+                  <tr className="border-b border-[var(--border)] bg-[#0f0f0f]">
                     {["#", "Campanha", "Plataforma", "Invest.", "Impressões", "Cliques", "CTR", "CPC", "Conv.", "CPA", "ROAS"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#71717a] uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
@@ -263,7 +263,7 @@ export default function RelatoriosPage() {
                 </thead>
                 <tbody>
                   {campaigns.map((c, i) => (
-                    <tr key={c.id} className="border-b border-[var(--border)] hover:bg-[#111118] transition-colors">
+                    <tr key={c.id} className="border-b border-[var(--border)] hover:bg-[#131313] transition-colors">
                       <td className="px-4 py-3 text-xs text-[#52525b] font-mono">{i + 1}</td>
                       <td className="px-4 py-3">
                         <span className="text-xs font-medium text-white max-w-[200px] truncate block">{c.name}</span>
@@ -294,7 +294,7 @@ export default function RelatoriosPage() {
                 </tbody>
                 {campaigns.length > 0 && (
                   <tfoot>
-                    <tr className="border-t-2 border-[var(--border)] bg-[#0d0d14]">
+                    <tr className="border-t-2 border-[var(--border)] bg-[#0f0f0f]">
                       <td className="px-4 py-3" />
                       <td className="px-4 py-3 text-xs font-bold text-white">TOTAL</td>
                       <td className="px-4 py-3" />

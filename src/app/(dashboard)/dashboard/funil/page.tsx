@@ -29,17 +29,17 @@ function buildFunnelSteps(type: FunnelType, impressions: number, clicks: number,
   switch (type) {
     case "ecommerce":
       return [
-        { label: "Impressões", value: impressions, color: "#6366f1", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#8b5cf6", icon: Users },
-        { label: "Visitas à Loja", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: "#a78bfa", icon: Users },
+        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
+        { label: "Visitas à Loja", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: "#FFA66B", icon: Users },
         { label: "Adicionou ao Carrinho", value: Math.round(clicks * 0.19), rate: 23, cost: cpc * 4.3, color: "#c4b5fd", icon: ShoppingCart },
         { label: "Iniciou Checkout", value: Math.round(clicks * 0.09), rate: 47, cost: cpc * 9.2, color: "#ddd6fe", icon: ShoppingCart },
         { label: "Compras", value: conversions, rate: conversions > 0 ? (conversions / Math.round(clicks * 0.09)) * 100 : 0, cost: cpa, color: "#10b981", icon: DollarSign },
       ]
     case "mensagens":
       return [
-        { label: "Impressões", value: impressions, color: "#6366f1", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#8b5cf6", icon: Users },
+        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
         { label: "Conversas Iniciadas", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: "#06b6d4", icon: MessageCircle },
         { label: "Responderam", value: Math.round(clicks * 0.59), rate: 72, cost: cpc * 1.69, color: "#22d3ee", icon: MessageCircle },
         { label: "Proposta Enviada", value: Math.round(clicks * 0.22), rate: 38, cost: cpc * 4.55, color: "#67e8f9", icon: MessageCircle },
@@ -47,25 +47,25 @@ function buildFunnelSteps(type: FunnelType, impressions: number, clicks: number,
       ]
     case "infoproduto":
       return [
-        { label: "Impressões", value: impressions, color: "#6366f1", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#8b5cf6", icon: Users },
-        { label: "Visitas à Página", value: Math.round(clicks * 0.87), rate: 87, cost: cpc * 1.15, color: "#a78bfa", icon: Users },
+        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
+        { label: "Visitas à Página", value: Math.round(clicks * 0.87), rate: 87, cost: cpc * 1.15, color: "#FFA66B", icon: Users },
         { label: "Leads Capturados", value: Math.round(clicks * 0.22), rate: 25, cost: cpc * 4.55, color: "#f59e0b", icon: ClipboardList },
         { label: "Foram ao Checkout", value: Math.round(clicks * 0.095), rate: 43, cost: cpc * 10.5, color: "#fbbf24", icon: ShoppingCart },
         { label: "Compraram", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: DollarSign },
       ]
     case "cadastro":
       return [
-        { label: "Impressões", value: impressions, color: "#6366f1", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#8b5cf6", icon: Users },
-        { label: "Visitas à Landing Page", value: Math.round(clicks * 0.86), rate: 86, cost: cpc * 1.16, color: "#a78bfa", icon: Users },
+        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
+        { label: "Visitas à Landing Page", value: Math.round(clicks * 0.86), rate: 86, cost: cpc * 1.16, color: "#FFA66B", icon: Users },
         { label: "Iniciou Formulário", value: Math.round(clicks * 0.34), rate: 40, cost: cpc * 2.94, color: "#f97316", icon: ClipboardList },
         { label: "Leads Qualificados", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: ClipboardList },
       ]
     case "delivery":
       return [
-        { label: "Impressões", value: impressions, color: "#6366f1", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#8b5cf6", icon: Users },
+        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
         { label: "Acessou Cardápio", value: Math.round(clicks * 0.78), rate: 78, cost: cpc * 1.28, color: "#ef4444", icon: Pizza },
         { label: "Adicionou Item", value: Math.round(clicks * 0.5), rate: 65, cost: cpc * 2.0, color: "#f87171", icon: Pizza },
         { label: "Pedidos Finalizados", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: DollarSign },
@@ -99,7 +99,7 @@ function FunnelBar({ step, maxValue }: { step: FunnelStep; maxValue: number }) {
         <p className="text-lg font-bold text-white">{step.value.toLocaleString("pt-BR")}</p>
       </div>
       <div className="flex-1 relative h-10 flex items-center">
-        <div className="absolute inset-y-0 left-0 right-0 bg-[#1e1e2e] rounded-lg" />
+        <div className="absolute inset-y-0 left-0 right-0 bg-[#1a1410] rounded-lg" />
         <div
           className="relative h-8 rounded-lg transition-all duration-700 flex items-center px-3"
           style={{ width: `${width}%`, backgroundColor: step.color, minWidth: "52px" }}
@@ -210,7 +210,7 @@ export default function FunilPage() {
           </div>
           <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
-          <button onClick={fetchMetrics} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+          <button onClick={fetchMetrics} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
           <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -226,8 +226,8 @@ export default function FunilPage() {
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer",
                 activeFunnel === key
-                  ? "border-[#6366f1] bg-[#6366f1]/15 text-white"
-                  : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white hover:border-[#6366f1]/40"
+                  ? "border-[#FF5F1A] bg-[#FF5F1A]/15 text-white"
+                  : "border-[var(--border)] bg-[#131313] text-[#71717a] hover:text-white hover:border-[#FF5F1A]/40"
               )}
             >
               <span>{m.emoji}</span>{m.label}
@@ -239,16 +239,16 @@ export default function FunilPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Investimento Total", value: formatCurrency(values.spend), color: "#6366f1" },
+          { label: "Investimento Total", value: formatCurrency(values.spend), color: "#FF5F1A" },
           { label: lastStep.label, value: values.conversions.toLocaleString("pt-BR"), color: "#10b981" },
           { label: "Custo por Resultado", value: formatCurrency(cpa), color: "#f59e0b" },
-          { label: "Taxa de Conversão", value: `${conversionRate.toFixed(3)}%`, color: "#8b5cf6" },
+          { label: "Taxa de Conversão", value: `${conversionRate.toFixed(3)}%`, color: "#FF7A33" },
         ].map((kpi) => (
           <Card key={kpi.label}>
             <CardContent className="p-4">
               <p className="text-xs text-[#71717a] mb-1">{kpi.label}</p>
               {loading
-                ? <div className="h-7 w-24 bg-[#1e1e2e] rounded animate-pulse" />
+                ? <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
                 : <p className="text-xl font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
               }
             </CardContent>
@@ -274,9 +274,9 @@ export default function FunilPage() {
             {loading ? (
               Array.from({ length: steps.length }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <div className="w-40 h-10 bg-[#1e1e2e] rounded animate-pulse flex-shrink-0" />
-                  <div className="flex-1 h-10 bg-[#1e1e2e] rounded animate-pulse" />
-                  <div className="w-36 h-10 bg-[#1e1e2e] rounded animate-pulse flex-shrink-0" />
+                  <div className="w-40 h-10 bg-[#1a1410] rounded animate-pulse flex-shrink-0" />
+                  <div className="flex-1 h-10 bg-[#1a1410] rounded animate-pulse" />
+                  <div className="w-36 h-10 bg-[#1a1410] rounded animate-pulse flex-shrink-0" />
                 </div>
               ))
             ) : (
@@ -297,13 +297,13 @@ export default function FunilPage() {
 
       {/* Nota sobre dados */}
       {!isRealData && (
-        <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-4 flex items-center gap-3">
+        <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-4 flex items-center gap-3">
           <span className="text-lg flex-shrink-0">💡</span>
           <div>
             <p className="text-sm font-medium text-white">As etapas intermediárias são projetadas</p>
             <p className="text-xs text-[#71717a] mt-0.5">
               Com contas conectadas, os dados reais de impressões, cliques e conversões alimentam o funil automaticamente.{" "}
-              <a href="/dashboard/configuracoes" className="text-[#6366f1] hover:underline">Conectar agora →</a>
+              <a href="/dashboard/configuracoes" className="text-[#FF5F1A] hover:underline">Conectar agora →</a>
             </p>
           </div>
         </div>

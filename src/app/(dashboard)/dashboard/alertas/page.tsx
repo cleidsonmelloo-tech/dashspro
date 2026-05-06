@@ -132,7 +132,7 @@ function AddAlertModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d14] border border-[var(--border)] rounded-xl shadow-2xl">
+      <div className="w-full max-w-md bg-[#0f0f0f] border border-[var(--border)] rounded-xl shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <h2 className="text-base font-semibold text-white">Novo Alerta</h2>
           <button onClick={onClose} className="text-[#71717a] hover:text-white transition-colors">
@@ -148,7 +148,7 @@ function AddAlertModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: CPA alto demais"
-              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
             />
           </div>
 
@@ -158,7 +158,7 @@ function AddAlertModal({
             <select
               value={metric}
               onChange={(e) => setMetric(e.target.value as MetricKey)}
-              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer"
+              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer"
             >
               {(Object.keys(METRIC_META) as MetricKey[]).map((k) => (
                 <option key={k} value={k}>{METRIC_META[k].label}</option>
@@ -173,7 +173,7 @@ function AddAlertModal({
               <select
                 value={operator}
                 onChange={(e) => setOperator(e.target.value as Operator)}
-                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer"
+                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer"
               >
                 {(Object.entries(OPERATOR_LABELS) as [Operator, string][]).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
@@ -191,7 +191,7 @@ function AddAlertModal({
                 value={threshold}
                 onChange={(e) => setThreshold(e.target.value)}
                 placeholder="0"
-                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
               />
             </div>
           </div>
@@ -230,7 +230,7 @@ function AddAlertModal({
             </button>
             <button
               type="submit"
-              className="flex-1 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors"
+              className="flex-1 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors"
             >
               Criar alerta
             </button>
@@ -264,14 +264,14 @@ function AlertCard({
       "rounded-xl border p-4 transition-all",
       triggered
         ? `${cfg.bg} ${cfg.border}`
-        : "bg-[#0d0d14] border-[var(--border)]",
+        : "bg-[#0f0f0f] border-[var(--border)]",
       !alert.active && "opacity-50"
     )}>
       <div className="flex items-start gap-3">
         {/* Status icon */}
         <div className={cn(
           "flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0 mt-0.5",
-          triggered ? cfg.bg : "bg-[#1e1e2e]"
+          triggered ? cfg.bg : "bg-[#1a1410]"
         )}>
           {triggered
             ? <AlertTriangle className={cn("w-4 h-4", cfg.color)} />
@@ -290,7 +290,7 @@ function AlertCard({
               {cfg.label}
             </span>
             {!alert.active && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#27272a] text-[#71717a] uppercase tracking-wider">
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#2a1f15] text-[#71717a] uppercase tracking-wider">
                 Pausado
               </span>
             )}
@@ -515,13 +515,13 @@ export default function AlertasPage() {
           <BmCampaignFilter />
           <button
             onClick={fetchAll}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors"
           >
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors"
+            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors"
           >
             <Plus className="w-4 h-4" />
             Novo alerta
@@ -532,7 +532,7 @@ export default function AlertasPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total de alertas",   value: alerts.length,                           color: "#6366f1", icon: Bell          },
+          { label: "Total de alertas",   value: alerts.length,                           color: "#FF5F1A", icon: Bell          },
           { label: "Alertas ativos",     value: alerts.filter((a) => a.active).length,   color: "#10b981", icon: CheckCircle2  },
           { label: "Disparados agora",   value: triggeredAlerts.length,                  color: "#ef4444", icon: AlertTriangle },
           { label: "Pausados",           value: alerts.filter((a) => !a.active).length,  color: "#f59e0b", icon: TrendingDown  },
@@ -593,7 +593,7 @@ export default function AlertasPage() {
                   "rounded-lg p-3 border",
                   triggeredHere
                     ? "bg-red-500/10 border-red-500/30"
-                    : "bg-[#0d0d14] border-[var(--border)]"
+                    : "bg-[#0f0f0f] border-[var(--border)]"
                 )}>
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Icon className={cn("w-3.5 h-3.5", triggeredHere ? "text-red-400" : "text-[#71717a]")} />
@@ -625,8 +625,8 @@ export default function AlertasPage() {
                   className={cn(
                     "px-3 h-7 rounded-lg text-xs font-medium transition-colors",
                     filter === f
-                      ? "bg-[#6366f1] text-white"
-                      : "bg-[#1e1e2e] text-[#71717a] hover:text-white"
+                      ? "bg-[#FF5F1A] text-white"
+                      : "bg-[#1a1410] text-[#71717a] hover:text-white"
                   )}
                 >
                   {f === "all" ? "Todos" : f === "active" ? "Ativos" : "Disparados"}
@@ -638,7 +638,7 @@ export default function AlertasPage() {
         <CardContent>
           {filteredAlerts.length === 0 ? (
             <div className="py-12 flex flex-col items-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-xl bg-[#1e1e2e] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-[#1a1410] flex items-center justify-center">
                 <Bell className="w-6 h-6 text-[#3f3f46]" />
               </div>
               <p className="text-sm font-medium text-[#71717a]">
@@ -649,7 +649,7 @@ export default function AlertasPage() {
               {filter === "all" && (
                 <button
                   onClick={() => setShowModal(true)}
-                  className="flex items-center gap-1.5 text-xs text-[#6366f1] hover:underline"
+                  className="flex items-center gap-1.5 text-xs text-[#FF5F1A] hover:underline"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Criar primeiro alerta
@@ -674,9 +674,9 @@ export default function AlertasPage() {
 
       {/* Info banner */}
       {!connected && (
-        <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#6366f1]/10 flex items-center justify-center flex-shrink-0">
-            <Bell className="w-5 h-5 text-[#6366f1]" />
+        <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#FF5F1A]/10 flex items-center justify-center flex-shrink-0">
+            <Bell className="w-5 h-5 text-[#FF5F1A]" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-white">Alertas com dados reais</p>
@@ -686,7 +686,7 @@ export default function AlertasPage() {
           </div>
           <a
             href="/dashboard/configuracoes"
-            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#6366f1] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors"
+            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#FF5F1A] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors"
           >
             Conectar agora
           </a>

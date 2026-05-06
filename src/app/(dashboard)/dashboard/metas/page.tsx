@@ -121,7 +121,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d14] border border-[var(--border)] rounded-xl shadow-2xl">
+      <div className="w-full max-w-md bg-[#0f0f0f] border border-[var(--border)] rounded-xl shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <h2 className="text-base font-semibold text-white">Nova Meta</h2>
           <button onClick={onClose} className="text-[#71717a] hover:text-white transition-colors">
@@ -135,7 +135,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="Ex: Conversões mensais"
-              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -144,7 +144,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
               <select
                 value={metric}
                 onChange={(e) => setMetric(e.target.value as MetricKey)}
-                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer"
+                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer"
               >
                 {(Object.keys(METRIC_CONFIG) as MetricKey[]).map((k) => (
                   <option key={k} value={k}>{METRIC_CONFIG[k].label}</option>
@@ -156,7 +156,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value as Period)}
-                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer"
+                className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer"
               >
                 {(Object.entries(PERIOD_LABELS) as [Period, string][]).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
@@ -175,7 +175,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
               value={target}
               onChange={(e) => setTarget(e.target.value)}
               placeholder="0"
-              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
             />
           </div>
           {error && <p className="text-xs text-red-400">{error}</p>}
@@ -185,7 +185,7 @@ function AddGoalModal({ onClose, onAdd }: { onClose: () => void; onAdd: (g: Goal
               Cancelar
             </button>
             <button type="submit"
-              className="flex-1 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+              className="flex-1 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
               Criar meta
             </button>
           </div>
@@ -211,11 +211,11 @@ function GoalCard({
   const diffFmt = cfg.format(Math.abs(diff))
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[#0d0d14] p-4 hover:border-[#3f3f46] transition-colors group">
+    <div className="rounded-xl border border-[var(--border)] bg-[#0f0f0f] p-4 hover:border-[#3f3f46] transition-colors group">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-[#1e1e2e] flex items-center justify-center flex-shrink-0">
-            <Icon className="w-4 h-4 text-[#818cf8]" />
+          <div className="w-8 h-8 rounded-lg bg-[#1a1410] flex items-center justify-center flex-shrink-0">
+            <Icon className="w-4 h-4 text-[#FF8C42]" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{goal.label}</p>
@@ -245,7 +245,7 @@ function GoalCard({
             Meta: <span className="font-medium text-[#a1a1aa]">{cfg.format(goal.target)}</span>
           </span>
         </div>
-        <div className="h-2 bg-[#1e1e2e] rounded-full overflow-hidden">
+        <div className="h-2 bg-[#1a1410] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%`, backgroundColor: sCfg.bar }}
@@ -395,11 +395,11 @@ export default function MetasPage() {
           </div>
           <BmCampaignFilter />
           <button onClick={fetchAll}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <button onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
             <Plus className="w-4 h-4" />
             Nova meta
           </button>
@@ -447,8 +447,8 @@ export default function MetasPage() {
                   className={cn(
                     "px-3 h-7 rounded-lg text-xs font-medium transition-colors",
                     filterPeriod === k
-                      ? "bg-[#6366f1] text-white"
-                      : "bg-[#1e1e2e] text-[#71717a] hover:text-white"
+                      ? "bg-[#FF5F1A] text-white"
+                      : "bg-[#1a1410] text-[#71717a] hover:text-white"
                   )}
                 >
                   {v}
@@ -460,13 +460,13 @@ export default function MetasPage() {
         <CardContent>
           {filtered.length === 0 ? (
             <div className="py-12 flex flex-col items-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-xl bg-[#1e1e2e] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-[#1a1410] flex items-center justify-center">
                 <Flag className="w-6 h-6 text-[#3f3f46]" />
               </div>
               <p className="text-sm font-medium text-[#71717a]">Nenhuma meta criada ainda</p>
               <button
                 onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 text-xs text-[#6366f1] hover:underline"
+                className="flex items-center gap-1.5 text-xs text-[#FF5F1A] hover:underline"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Criar primeira meta
@@ -506,7 +506,7 @@ export default function MetasPage() {
                     const stat = getStatus(goal.metric, curr, goal.target)
                     const sCfg = STATUS_CONFIG[stat]
                     return (
-                      <tr key={goal.id} className={cn("border-b border-[var(--border)] last:border-0 hover:bg-[#111118] transition-colors", loading && "opacity-50")}>
+                      <tr key={goal.id} className={cn("border-b border-[var(--border)] last:border-0 hover:bg-[#131313] transition-colors", loading && "opacity-50")}>
                         <td className="px-4 py-3 font-medium text-white">{goal.label}</td>
                         <td className="px-4 py-3 text-[#a1a1aa]">{cfg.label}</td>
                         <td className="px-4 py-3 text-[#71717a]">{PERIOD_LABELS[goal.period]}</td>
@@ -514,7 +514,7 @@ export default function MetasPage() {
                         <td className="px-4 py-3 text-[#a1a1aa]">{cfg.format(goal.target)}</td>
                         <td className="px-4 py-3 w-32">
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-[#1e1e2e] rounded-full overflow-hidden">
+                            <div className="flex-1 h-1.5 bg-[#1a1410] rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: sCfg.bar }} />
                             </div>
                             <span className="text-xs font-bold" style={{ color: sCfg.bar }}>{pct.toFixed(0)}%</span>
@@ -537,9 +537,9 @@ export default function MetasPage() {
 
       {/* Info banner */}
       {!connected && (
-        <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#6366f1]/10 flex items-center justify-center flex-shrink-0">
-            <Flag className="w-5 h-5 text-[#6366f1]" />
+        <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#FF5F1A]/10 flex items-center justify-center flex-shrink-0">
+            <Flag className="w-5 h-5 text-[#FF5F1A]" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-white">Metas com dados reais</p>
@@ -548,7 +548,7 @@ export default function MetasPage() {
             </p>
           </div>
           <a href="/dashboard/configuracoes"
-            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#6366f1] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#FF5F1A] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
             Conectar agora
           </a>
         </div>

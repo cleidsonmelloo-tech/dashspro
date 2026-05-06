@@ -31,7 +31,7 @@ interface WorkspaceData {
 }
 
 const BRAND_COLORS = [
-  "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
+  "#FF5F1A", "#FF7A33", "#ec4899", "#ef4444",
   "#f97316", "#f59e0b", "#10b981", "#06b6d4",
   "#3b82f6", "#64748b",
 ]
@@ -53,7 +53,7 @@ export default function ConfiguracoesPage() {
   const [loadingAccounts, setLoadingAccounts] = useState(true)
   const [isPending, startTransition] = useTransition()
   const [workspaceName, setWorkspaceName] = useState("")
-  const [brandColor, setBrandColor] = useState("#6366f1")
+  const [brandColor, setBrandColor] = useState("#FF5F1A")
   const [logoUrl, setLogoUrl] = useState("")
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null)
   const searchParams = useSearchParams()
@@ -136,7 +136,7 @@ export default function ConfiguracoesPage() {
       if (ws) {
         setWorkspace(ws)
         setWorkspaceName(ws.name)
-        setBrandColor(ws.brand_color || "#6366f1")
+        setBrandColor(ws.brand_color || "#FF5F1A")
         setLogoUrl(ws.logo_url || "")
 
         const { data: accs } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: ws.id })
@@ -237,7 +237,7 @@ export default function ConfiguracoesPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-[#111118] border border-[var(--border)] rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-[#131313] border border-[var(--border)] rounded-xl w-fit">
         {[
           { key: "contas", label: "Contas de Anúncios" },
           { key: "workspace", label: "Workspace" },
@@ -248,7 +248,7 @@ export default function ConfiguracoesPage() {
             onClick={() => setActiveTab(tab.key as typeof activeTab)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
               activeTab === tab.key
-                ? "bg-[#6366f1] text-white"
+                ? "bg-[#FF5F1A] text-white"
                 : "text-[#71717a] hover:text-[#f4f4f5]"
             }`}
           >
@@ -307,7 +307,7 @@ export default function ConfiguracoesPage() {
                         {accs.map((acc) => {
                           const expired = isTokenExpired(acc.token_expires_at)
                           return (
-                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0d0d14] hover:bg-[#111118] transition-colors">
+                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0f0f0f] hover:bg-[#131313] transition-colors">
                               <div className="flex items-center gap-2.5">
                                 <Building2 className="w-3 h-3 text-[#1877f2]/60 flex-shrink-0" />
                                 <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", expired ? "bg-amber-400" : "bg-emerald-400")} />
@@ -386,7 +386,7 @@ export default function ConfiguracoesPage() {
                         {accs.map((acc) => {
                           const expired = isTokenExpired(acc.token_expires_at)
                           return (
-                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0d0d14] hover:bg-[#111118] transition-colors">
+                            <div key={acc.id} className="flex items-center justify-between px-3 py-2.5 bg-[#0f0f0f] hover:bg-[#131313] transition-colors">
                               <div className="flex items-center gap-2.5">
                                 <Building2 className="w-3 h-3 text-[#34a853]/60 flex-shrink-0" />
                                 <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", expired ? "bg-amber-400" : "bg-emerald-400")} />
@@ -427,7 +427,7 @@ export default function ConfiguracoesPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Settings className="w-5 h-5 text-[#6366f1]" />
+              <Settings className="w-5 h-5 text-[#FF5F1A]" />
               <div>
                 <CardTitle>Personalização do Workspace</CardTitle>
                 <CardDescription>Configure o nome, logo e cor da sua marca</CardDescription>
@@ -443,7 +443,7 @@ export default function ConfiguracoesPage() {
             />
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#a1a1aa] flex items-center gap-2">
-                <Palette className="w-4 h-4 text-[#6366f1]" />
+                <Palette className="w-4 h-4 text-[#FF5F1A]" />
                 Cor da marca
               </label>
               <div className="flex flex-wrap gap-2.5 mb-2">
@@ -491,7 +491,7 @@ export default function ConfiguracoesPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#6366f1]" />
+              <BarChart3 className="w-5 h-5 text-[#FF5F1A]" />
               <div>
                 <CardTitle>Tipo de Funil Padrão</CardTitle>
                 <CardDescription>Escolha o modelo que melhor representa seu negócio</CardDescription>
@@ -507,8 +507,8 @@ export default function ConfiguracoesPage() {
                   className={cn(
                     "flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer",
                     selectedFunnel === funnel.key
-                      ? "border-[#6366f1] bg-[#6366f1]/10"
-                      : "border-[var(--border)] bg-[#0d0d14] hover:border-[#6366f1]/40 hover:bg-[#6366f1]/5"
+                      ? "border-[#FF5F1A] bg-[#FF5F1A]/10"
+                      : "border-[var(--border)] bg-[#0f0f0f] hover:border-[#FF5F1A]/40 hover:bg-[#FF5F1A]/5"
                   )}
                 >
                   <span className="text-2xl">{funnel.emoji}</span>
@@ -517,7 +517,7 @@ export default function ConfiguracoesPage() {
                     <p className="text-xs text-[#71717a] mt-0.5">{funnel.desc}</p>
                   </div>
                   {selectedFunnel === funnel.key && (
-                    <CheckCircle2 className="w-4 h-4 text-[#6366f1] flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#FF5F1A] flex-shrink-0 mt-0.5" />
                   )}
                 </button>
               ))}

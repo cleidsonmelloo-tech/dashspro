@@ -27,7 +27,7 @@ const ROLE_CONFIG: Record<Role, {
 }> = {
   owner:  { label: "Dono",         icon: Crown,  color: "text-amber-400",   bg: "bg-amber-500/15",   description: "Acesso total — não pode ser removido" },
   admin:  { label: "Administrador",icon: Shield, color: "text-blue-400",    bg: "bg-blue-500/15",    description: "Pode gerenciar contas, campanhas e membros" },
-  viewer: { label: "Visualizador", icon: Eye,    color: "text-[#71717a]",   bg: "bg-[#27272a]",      description: "Apenas leitura — não pode alterar configurações" },
+  viewer: { label: "Visualizador", icon: Eye,    color: "text-[#71717a]",   bg: "bg-[#2a1f15]",      description: "Apenas leitura — não pode alterar configurações" },
 }
 
 const DEMO_MEMBERS: Member[] = [
@@ -69,7 +69,7 @@ function InviteModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d14] border border-[var(--border)] rounded-xl shadow-2xl">
+      <div className="w-full max-w-md bg-[#0f0f0f] border border-[var(--border)] rounded-xl shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <h2 className="text-base font-semibold text-white">Convidar Membro</h2>
           <button onClick={onClose} className="text-[#71717a] hover:text-white transition-colors">
@@ -85,7 +85,7 @@ function InviteModal({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@exemplo.com"
               disabled={loading || success}
-              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors disabled:opacity-50"
+              className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors disabled:opacity-50"
             />
             <p className="text-[10px] text-[#52525b] mt-1">O usuário precisa ter uma conta DashsPro.</p>
           </div>
@@ -131,7 +131,7 @@ function InviteModal({
               Cancelar
             </button>
             <button type="submit" disabled={loading || success}
-              className="flex-1 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              className="flex-1 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
               {loading ? "Convidando..." : "Convidar"}
             </button>
@@ -159,7 +159,7 @@ function MemberRow({
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[var(--border)] last:border-0">
       {/* Avatar */}
-      <div className="w-9 h-9 rounded-full bg-[#6366f1] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 overflow-hidden">
+      <div className="w-9 h-9 rounded-full bg-[#FF5F1A] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 overflow-hidden">
         {member.avatar_url
           ? <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
           : initials
@@ -197,7 +197,7 @@ function MemberRow({
             {showRoleMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowRoleMenu(false)} />
-                <div className="absolute right-0 top-8 w-44 rounded-xl border border-[var(--border)] bg-[#111118] shadow-2xl z-20 overflow-hidden p-1">
+                <div className="absolute right-0 top-8 w-44 rounded-xl border border-[var(--border)] bg-[#131313] shadow-2xl z-20 overflow-hidden p-1">
                   {(["admin", "viewer"] as Exclude<Role, "owner">[]).map((r) => {
                     const cfg = ROLE_CONFIG[r]
                     const Ic = cfg.icon
@@ -208,7 +208,7 @@ function MemberRow({
                           "flex items-center gap-2 w-full px-3 py-2 text-xs rounded-lg transition-colors",
                           member.role === r
                             ? `${cfg.bg} ${cfg.color} font-semibold`
-                            : "text-[#a1a1aa] hover:bg-[#1e1e2e] hover:text-white"
+                            : "text-[#a1a1aa] hover:bg-[#1a1410] hover:text-white"
                         )}>
                         <Ic className="w-3.5 h-3.5" />{cfg.label}
                         {member.role === r && <Check className="w-3 h-3 ml-auto" />}
@@ -309,11 +309,11 @@ export default function EquipePage() {
             </div>
           )}
           <button onClick={fetchMembers}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <button onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
             <Plus className="w-4 h-4" />
             Convidar membro
           </button>
@@ -323,7 +323,7 @@ export default function EquipePage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total de membros",    value: members.length,  color: "#6366f1", Icon: Users  },
+          { label: "Total de membros",    value: members.length,  color: "#FF5F1A", Icon: Users  },
           { label: "Administradores",     value: adminCount,      color: "#3b82f6", Icon: Shield },
           { label: "Visualizadores",      value: viewerCount,     color: "#71717a", Icon: Eye    },
         ].map(({ label, value, color, Icon }) => (
@@ -369,7 +369,7 @@ export default function EquipePage() {
           {loading ? (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-14 rounded-lg bg-[#1e1e2e] animate-pulse" />
+                <div key={i} className="h-14 rounded-lg bg-[#1a1410] animate-pulse" />
               ))}
             </div>
           ) : (
@@ -389,16 +389,16 @@ export default function EquipePage() {
       </Card>
 
       {/* Info */}
-      <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-[#6366f1]/10 flex items-center justify-center flex-shrink-0">
-          <Users className="w-5 h-5 text-[#6366f1]" />
+      <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-[#FF5F1A]/10 flex items-center justify-center flex-shrink-0">
+          <Users className="w-5 h-5 text-[#FF5F1A]" />
         </div>
         <div>
           <p className="text-sm font-semibold text-white">Como funciona o convite de membros</p>
           <p className="text-xs text-[#71717a] mt-1 leading-relaxed">
             O usuário convidado precisa ter uma conta no DashsPro com o mesmo email.
             Após adicionado, ele verá este workspace na troca de contexto da navbar.
-            <span className="text-[#6366f1]"> Administradores</span> podem conectar contas de anúncio e gerenciar campanhas.
+            <span className="text-[#FF5F1A]"> Administradores</span> podem conectar contas de anúncio e gerenciar campanhas.
             <span className="text-[#71717a]"> Visualizadores</span> apenas consultam os dados.
           </p>
         </div>

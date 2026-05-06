@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#6366f1]">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF5F1A]">
           <BarChart3 className="w-6 h-6 text-white" />
         </div>
         <div className="text-center">
@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#27272a] bg-[#111118] p-8 flex flex-col gap-6">
+      <div className="rounded-2xl border border-[#2a1f15] bg-[#131313] p-8 flex flex-col gap-6">
         {success ? (
           <div className="flex flex-col items-center gap-4 text-center py-2">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">

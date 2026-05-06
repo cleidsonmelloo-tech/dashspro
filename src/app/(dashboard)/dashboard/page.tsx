@@ -30,16 +30,16 @@ interface MetricDef {
 }
 
 const ALL_METRICS: MetricDef[] = [
-  { key: "spend",       label: "Investimento",        icon: DollarSign,   color: "#6366f1", format: formatCurrency, description: "Total gasto no período" },
+  { key: "spend",       label: "Investimento",        icon: DollarSign,   color: "#FF5F1A", format: formatCurrency, description: "Total gasto no período" },
   { key: "conversions", label: "Resultado",            icon: Target,       color: "#10b981", format: formatNumber,   description: "Total de conversões / resultados" },
   { key: "cpa",         label: "Custo por Resultado",  icon: Target,       color: "#ef4444", format: formatCurrency, description: "Custo por conversão (CPA)", invertChange: true },
   { key: "revenue",     label: "Retorno R$",           icon: DollarSign,   color: "#22d3ee", format: formatCurrency, description: "Receita atribuída (ROAS × Investimento)" },
   { key: "roas",        label: "ROAS",                 icon: TrendingUp,   color: "#34d399", format: (v) => `${v.toFixed(2)}x`, description: "Retorno sobre investimento (multiplicador)" },
-  { key: "impressions", label: "Impressões",           icon: Eye,          color: "#8b5cf6", format: formatNumber,   description: "Total de impressões" },
+  { key: "impressions", label: "Impressões",           icon: Eye,          color: "#FF7A33", format: formatNumber,   description: "Total de impressões" },
   { key: "clicks",      label: "Cliques",              icon: MousePointer, color: "#06b6d4", format: formatNumber,   description: "Total de cliques" },
   { key: "ctr",         label: "CTR",                  icon: TrendingUp,   color: "#10b981", format: (v) => `${v.toFixed(2)}%`, description: "Taxa de cliques" },
   { key: "cpc",         label: "CPC Médio",            icon: BarChart3,    color: "#f59e0b", format: formatCurrency, description: "Custo por clique", invertChange: true },
-  { key: "cpm",         label: "CPM",                  icon: Eye,          color: "#a78bfa", format: formatCurrency, description: "Custo por mil impressões", invertChange: true },
+  { key: "cpm",         label: "CPM",                  icon: Eye,          color: "#FFA66B", format: formatCurrency, description: "Custo por mil impressões", invertChange: true },
   { key: "reach",          label: "Alcance",              icon: Eye,          color: "#fb923c", format: formatNumber,   description: "Pessoas alcançadas" },
   { key: "frequency",      label: "Frequência",           icon: BarChart3,    color: "#94a3b8", format: (v) => v.toFixed(2), description: "Média de vezes que cada pessoa viu" },
   // ── Kiwify ──
@@ -61,7 +61,7 @@ function pct(current: number, previous: number): number | null {
 }
 
 function MetricCard({
-  label, value, change, icon: Icon, color = "#6366f1", loading, invertChange
+  label, value, change, icon: Icon, color = "#FF5F1A", loading, invertChange
 }: {
   label: string; value: string; change?: number | null
   icon: React.ElementType; color?: string; loading?: boolean; invertChange?: boolean
@@ -76,7 +76,7 @@ function MetricCard({
           <div className="flex flex-col gap-1">
             <p className="text-xs font-medium text-[#71717a] uppercase tracking-wide">{label}</p>
             {loading
-              ? <div className="h-8 w-20 bg-[#1e1e2e] rounded animate-pulse" />
+              ? <div className="h-8 w-20 bg-[#1a1410] rounded animate-pulse" />
               : <p className="text-2xl font-bold text-white">{value}</p>
             }
           </div>
@@ -127,7 +127,7 @@ function KpiSelector({ selected, onChange }: { selected: MetricKey[]; onChange: 
         title="Personalizar métricas"
         className={cn(
           "w-9 h-9 flex items-center justify-center rounded-lg border transition-colors",
-          open ? "border-[#6366f1] bg-[#6366f1]/10 text-[#818cf8]" : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white hover:border-[#6366f1]/40"
+          open ? "border-[#FF5F1A] bg-[#FF5F1A]/10 text-[#FF8C42]" : "border-[var(--border)] bg-[#131313] text-[#71717a] hover:text-white hover:border-[#FF5F1A]/40"
         )}
       >
         <Settings2 className="w-3.5 h-3.5" />
@@ -140,7 +140,7 @@ function KpiSelector({ selected, onChange }: { selected: MetricKey[]; onChange: 
               <p className="text-xs font-bold text-white uppercase tracking-wider">Personalizar métricas</p>
               <p className="text-[10px] text-[#52525b] mt-0.5">Selecione até 6 para exibir</p>
             </div>
-            <span className="text-[10px] text-[#6366f1] font-semibold">{selected.length}/6</span>
+            <span className="text-[10px] text-[#FF5F1A] font-semibold">{selected.length}/6</span>
           </div>
           <div className="p-2 max-h-72 overflow-y-auto">
             {ALL_METRICS.map(m => {
@@ -153,12 +153,12 @@ function KpiSelector({ selected, onChange }: { selected: MetricKey[]; onChange: 
                   disabled={disabled}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
-                    isSelected ? "bg-[#6366f1]/10" : disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-[#1a1a27]"
+                    isSelected ? "bg-[#FF5F1A]/10" : disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-[#1a1a27]"
                   )}
                 >
                   <div className={cn(
                     "w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 transition-colors",
-                    isSelected ? "bg-[#6366f1] border-[#6366f1]" : "border-[#3f3f46]"
+                    isSelected ? "bg-[#FF5F1A] border-[#FF5F1A]" : "border-[#3f3f46]"
                   )}>
                     {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                   </div>
@@ -338,7 +338,7 @@ export default function DashboardPage() {
           <BmCampaignFilter />
           <KpiSelector selected={selectedKpis} onChange={setSelectedKpis} />
           <button onClick={fetchData}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -390,7 +390,7 @@ export default function DashboardPage() {
                     <span className="font-medium text-white">{p.label}</span>
                     <span className="text-[#a1a1aa]">{formatCurrency(p.value)} · {pct.toFixed(0)}%</span>
                   </div>
-                  <div className="h-2.5 bg-[#1e1e2e] rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-[#1a1410] rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: p.color }} />
                   </div>
                 </div>
@@ -402,7 +402,7 @@ export default function DashboardPage() {
                 { label: "CPC Médio", value: formatCurrency(m.cpc) },
                 { label: "CPA Médio", value: formatCurrency(m.cpa) },
               ].map((s) => (
-                <div key={s.label} className="rounded-lg bg-[#0d0d14] p-3">
+                <div key={s.label} className="rounded-lg bg-[#0f0f0f] p-3">
                   <p className="text-xs text-[#71717a]">{s.label}</p>
                   <p className="text-base font-bold text-white mt-0.5">{loading ? "—" : s.value}</p>
                 </div>
@@ -415,14 +415,14 @@ export default function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Top Campanhas</CardTitle>
-              <a href="/dashboard/campanhas" className="text-xs text-[#6366f1] hover:underline">Ver todas →</a>
+              <a href="/dashboard/campanhas" className="text-xs text-[#FF5F1A] hover:underline">Ver todas →</a>
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-0">
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="py-2.5 border-b border-[var(--border)] last:border-0">
-                  <div className="h-4 bg-[#1e1e2e] rounded animate-pulse" />
+                  <div className="h-4 bg-[#1a1410] rounded animate-pulse" />
                 </div>
               ))
             ) : (
@@ -444,16 +444,16 @@ export default function DashboardPage() {
 
       {/* Banner conectar */}
       {!connected && (
-        <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#6366f1]/10 flex items-center justify-center flex-shrink-0">
-            <BarChart3 className="w-5 h-5 text-[#6366f1]" />
+        <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#FF5F1A]/10 flex items-center justify-center flex-shrink-0">
+            <BarChart3 className="w-5 h-5 text-[#FF5F1A]" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-white">Conecte suas contas para dados reais</p>
             <p className="text-xs text-[#71717a] mt-0.5">Dados demonstrativos com comparativo fictício. Conecte Meta Ads e Google Ads nas configurações.</p>
           </div>
           <a href="/dashboard/configuracoes"
-            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#6366f1] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#FF5F1A] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
             Conectar agora
           </a>
         </div>

@@ -109,8 +109,8 @@ function SelectGroup({ label, options: opts, value, onChange, info }: {
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer",
               value === opt.value
-                ? "bg-[#6366f1] border-[#6366f1] text-white"
-                : "bg-[#0d0d14] border-[var(--border)] text-[#71717a] hover:text-white hover:border-[#6366f1]/40"
+                ? "bg-[#FF5F1A] border-[#FF5F1A] text-white"
+                : "bg-[#0f0f0f] border-[var(--border)] text-[#71717a] hover:text-white hover:border-[#FF5F1A]/40"
             )}
           >
             {opt.label}
@@ -131,7 +131,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={copy}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[#1e1e2e] text-xs text-[#a1a1aa] hover:text-white hover:border-[#6366f1]/40 transition-all cursor-pointer"
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[#1a1410] text-xs text-[#a1a1aa] hover:text-white hover:border-[#FF5F1A]/40 transition-all cursor-pointer"
     >
       {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
       {copied ? "Copiado!" : "Copiar"}
@@ -203,7 +203,7 @@ export default function NomenclaturaPage() {
                 type="text"
                 value={config.productName}
                 onChange={(e) => update("productName")(e.target.value)}
-                className="h-10 rounded-lg border border-[var(--border)] bg-[#111118] px-3 text-sm text-white outline-none focus:border-[#6366f1]"
+                className="h-10 rounded-lg border border-[var(--border)] bg-[#131313] px-3 text-sm text-white outline-none focus:border-[#FF5F1A]"
                 placeholder="MeuProduto"
               />
             </div>
@@ -213,7 +213,7 @@ export default function NomenclaturaPage() {
                 type="number"
                 value={config.version}
                 onChange={(e) => update("version")(e.target.value)}
-                className="h-10 rounded-lg border border-[var(--border)] bg-[#111118] px-3 text-sm text-white outline-none focus:border-[#6366f1]"
+                className="h-10 rounded-lg border border-[var(--border)] bg-[#131313] px-3 text-sm text-white outline-none focus:border-[#FF5F1A]"
                 min={1} max={99}
               />
             </div>
@@ -223,7 +223,7 @@ export default function NomenclaturaPage() {
                 type="text"
                 value={config.extra}
                 onChange={(e) => update("extra")(e.target.value)}
-                className="h-10 rounded-lg border border-[var(--border)] bg-[#111118] px-3 text-sm text-white outline-none focus:border-[#6366f1]"
+                className="h-10 rounded-lg border border-[var(--border)] bg-[#131313] px-3 text-sm text-white outline-none focus:border-[#FF5F1A]"
                 placeholder="Ex: Gladstone, Black"
               />
             </div>
@@ -232,20 +232,20 @@ export default function NomenclaturaPage() {
       </Card>
 
       {/* Resultado */}
-      <Card className="bg-[#0d0d14]">
+      <Card className="bg-[#0f0f0f]">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Tag className="w-4 h-4 text-[#6366f1]" />
+            <Tag className="w-4 h-4 text-[#FF5F1A]" />
             <CardTitle>Nomenclaturas Geradas</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {[
-            { label: "🎯 Campanha", value: generated.campaign, color: "#6366f1" },
-            { label: "👥 Conjunto de Anúncios", value: generated.adset, color: "#8b5cf6" },
+            { label: "🎯 Campanha", value: generated.campaign, color: "#FF5F1A" },
+            { label: "👥 Conjunto de Anúncios", value: generated.adset, color: "#FF7A33" },
             { label: "🎨 Anúncio", value: generated.ad, color: "#06b6d4" },
           ].map((item) => (
-            <div key={item.label} className="rounded-xl border border-[var(--border)] bg-[#111118] p-4">
+            <div key={item.label} className="rounded-xl border border-[var(--border)] bg-[#131313] p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-[#71717a] uppercase tracking-wide">{item.label}</span>
                 <CopyButton text={item.value} />
@@ -255,12 +255,12 @@ export default function NomenclaturaPage() {
           ))}
 
           {/* UTM */}
-          <div className="rounded-xl border border-[var(--border)] bg-[#111118] p-4">
+          <div className="rounded-xl border border-[var(--border)] bg-[#131313] p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-[#71717a] uppercase tracking-wide">🔗 UTM Parameters</span>
               <CopyButton text={generated.utm} />
             </div>
-            <code className="text-xs font-mono text-[#a78bfa] break-all leading-relaxed">{generated.utm}</code>
+            <code className="text-xs font-mono text-[#FFA66B] break-all leading-relaxed">{generated.utm}</code>
           </div>
         </CardContent>
       </Card>

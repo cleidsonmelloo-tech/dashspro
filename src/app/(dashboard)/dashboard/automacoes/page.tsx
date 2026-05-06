@@ -133,7 +133,7 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-[#0d0d14] border border-[var(--border)] rounded-xl shadow-2xl">
+      <div className="w-full max-w-lg bg-[#0f0f0f] border border-[var(--border)] rounded-xl shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <div>
             <h2 className="text-base font-semibold text-white">Nova Automação</h2>
@@ -155,14 +155,14 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
                 <input
                   value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Pausar campanha se CPA alto"
-                  className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+                  className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Métrica</label>
                   <select value={metric} onChange={(e) => setMetric(e.target.value as MetricKey)}
-                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer">
+                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer">
                     {(Object.keys(METRIC_CONFIG) as MetricKey[]).map((k) => (
                       <option key={k} value={k}>{METRIC_CONFIG[k].label}</option>
                     ))}
@@ -171,7 +171,7 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
                 <div>
                   <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Plataforma</label>
                   <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)}
-                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer">
+                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer">
                     {(Object.entries(PLATFORM_LABELS) as [Platform, string][]).map(([k, v]) => (
                       <option key={k} value={k}>{v}</option>
                     ))}
@@ -182,7 +182,7 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
                 <div>
                   <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Condição</label>
                   <select value={operator} onChange={(e) => setOperator(e.target.value as Operator)}
-                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] cursor-pointer">
+                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] cursor-pointer">
                     {(Object.entries(OPERATOR_LABELS) as [Operator, string][]).map(([k, v]) => (
                       <option key={k} value={k}>{v}</option>
                     ))}
@@ -195,13 +195,13 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
                   <input type="number" step="any" min="0" value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
                     placeholder="0"
-                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
                   />
                 </div>
               </div>
               {/* Preview */}
               {name && threshold && (
-                <div className="rounded-lg bg-[#111118] border border-[var(--border)] p-3 text-xs text-[#a1a1aa]">
+                <div className="rounded-lg bg-[#131313] border border-[var(--border)] p-3 text-xs text-[#a1a1aa]">
                   <span className="text-[#71717a]">Condição: </span>
                   <span className="text-white font-medium">
                     {`Se ${METRIC_CONFIG[metric].label} ${OPERATOR_LABELS[operator]} ${METRIC_CONFIG[metric].format(parseFloat(threshold) || 0)} em ${PLATFORM_LABELS[platform]}`}
@@ -238,13 +238,13 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
                   <input type="number" step="1" min="1" max="100" value={actionValue}
                     onChange={(e) => setActionValue(e.target.value)}
                     placeholder="Ex: 20"
-                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#6366f1] transition-colors"
+                    className="w-full h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#FF5F1A] transition-colors"
                   />
                 </div>
               )}
 
               {/* Full rule preview */}
-              <div className="rounded-lg bg-[#111118] border border-[var(--border)] p-3 text-xs space-y-1">
+              <div className="rounded-lg bg-[#131313] border border-[var(--border)] p-3 text-xs space-y-1">
                 <p className="text-[#71717a]">Regra completa:</p>
                 <p className="text-white font-medium">
                   {`Se ${METRIC_CONFIG[metric].label} ${OPERATOR_LABELS[operator]} ${METRIC_CONFIG[metric].format(parseFloat(threshold) || 0)}`}
@@ -273,12 +273,12 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (a: Automati
             </button>
             {step === 1 ? (
               <button type="button" onClick={handleNext}
-                className="flex-1 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+                className="flex-1 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
                 Próximo →
               </button>
             ) : (
               <button type="submit"
-                className="flex-1 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+                className="flex-1 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
                 Criar automação
               </button>
             )}
@@ -302,7 +302,7 @@ function AutoCard({
   return (
     <div className={cn(
       "rounded-xl border p-4 transition-all",
-      auto.active ? "bg-[#0d0d14] border-[var(--border)]" : "bg-[#0d0d14] border-[var(--border)] opacity-50"
+      auto.active ? "bg-[#0f0f0f] border-[var(--border)]" : "bg-[#0f0f0f] border-[var(--border)] opacity-50"
     )}>
       <div className="flex items-start gap-3">
         {/* Icon */}
@@ -314,7 +314,7 @@ function AutoCard({
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span className="text-sm font-semibold text-white truncate">{auto.name}</span>
             {!auto.active && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#27272a] text-[#71717a] uppercase tracking-wider">
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#2a1f15] text-[#71717a] uppercase tracking-wider">
                 Pausada
               </span>
             )}
@@ -470,11 +470,11 @@ export default function AutomacoesPage() {
             </div>
           )}
           <button onClick={fetchAll}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
           <button onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex items-center gap-2 px-3 h-9 rounded-lg bg-[#FF5F1A] text-white text-sm font-medium hover:bg-[#4f52d1] transition-colors">
             <Plus className="w-4 h-4" />
             Nova automação
           </button>
@@ -484,10 +484,10 @@ export default function AutomacoesPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total",      value: automations.length, color: "#6366f1", Icon: Zap           },
+          { label: "Total",      value: automations.length, color: "#FF5F1A", Icon: Zap           },
           { label: "Ativas",     value: active,             color: "#10b981", Icon: PlayCircle     },
           { label: "Pausadas",   value: paused,             color: "#f59e0b", Icon: PauseCircle    },
-          { label: "Já ativadas",value: triggered,          color: "#8b5cf6", Icon: Clock          },
+          { label: "Já ativadas",value: triggered,          color: "#FF7A33", Icon: Clock          },
         ].map(({ label, value, color, Icon }) => (
           <Card key={label} className="relative overflow-hidden">
             <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top right, ${color}, transparent 60%)` }} />
@@ -511,8 +511,8 @@ export default function AutomacoesPage() {
         <CardContent className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             {[
-              { step: "1", title: "Defina a condição",  desc: "Ex: se CPA > R$60",               icon: BarChart3,    color: "#6366f1" },
-              { step: "2", title: "Escolha a ação",     desc: "Pausar, ajustar budget ou avisar", icon: Zap,          color: "#8b5cf6" },
+              { step: "1", title: "Defina a condição",  desc: "Ex: se CPA > R$60",               icon: BarChart3,    color: "#FF5F1A" },
+              { step: "2", title: "Escolha a ação",     desc: "Pausar, ajustar budget ou avisar", icon: Zap,          color: "#FF7A33" },
               { step: "3", title: "Escolha a plataforma",desc: "Meta, Google ou ambas",           icon: Target,       color: "#06b6d4" },
               { step: "4", title: "Ative e monitore",   desc: "O sistema aplica automaticamente", icon: PlayCircle,   color: "#10b981" },
             ].map((s) => {
@@ -542,13 +542,13 @@ export default function AutomacoesPage() {
             <div className="flex gap-1 flex-wrap">
               <button onClick={() => setFilterAction("all")}
                 className={cn("px-3 h-7 rounded-lg text-xs font-medium transition-colors",
-                  filterAction === "all" ? "bg-[#6366f1] text-white" : "bg-[#1e1e2e] text-[#71717a] hover:text-white")}>
+                  filterAction === "all" ? "bg-[#FF5F1A] text-white" : "bg-[#1a1410] text-[#71717a] hover:text-white")}>
                 Todas
               </button>
               {(Object.keys(ACTION_CONFIG) as Action[]).map((k) => (
                 <button key={k} onClick={() => setFilterAction(k)}
                   className={cn("px-3 h-7 rounded-lg text-xs font-medium transition-colors",
-                    filterAction === k ? "bg-[#6366f1] text-white" : "bg-[#1e1e2e] text-[#71717a] hover:text-white")}>
+                    filterAction === k ? "bg-[#FF5F1A] text-white" : "bg-[#1a1410] text-[#71717a] hover:text-white")}>
                   {ACTION_CONFIG[k].label}
                 </button>
               ))}
@@ -559,17 +559,17 @@ export default function AutomacoesPage() {
           {loading ? (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-20 rounded-xl bg-[#1e1e2e] animate-pulse" />
+                <div key={i} className="h-20 rounded-xl bg-[#1a1410] animate-pulse" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-12 flex flex-col items-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-xl bg-[#1e1e2e] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-[#1a1410] flex items-center justify-center">
                 <Zap className="w-6 h-6 text-[#3f3f46]" />
               </div>
               <p className="text-sm font-medium text-[#71717a]">Nenhuma automação criada ainda</p>
               <button onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 text-xs text-[#6366f1] hover:underline">
+                className="flex items-center gap-1.5 text-xs text-[#FF5F1A] hover:underline">
                 <Plus className="w-3.5 h-3.5" />
                 Criar primeira automação
               </button>
@@ -585,7 +585,7 @@ export default function AutomacoesPage() {
       </Card>
 
       {/* Info banner */}
-      <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-start gap-4">
+      <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-start gap-4">
         <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
           <Zap className="w-5 h-5 text-amber-400" />
         </div>

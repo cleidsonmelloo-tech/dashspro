@@ -8,7 +8,7 @@ import { createWorkspace } from "@/app/actions/workspace"
 import { cn } from "@/lib/utils"
 
 const BRAND_COLORS = [
-  "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
+  "#FF5F1A", "#FF7A33", "#ec4899", "#ef4444",
   "#f97316", "#f59e0b", "#10b981", "#06b6d4",
   "#3b82f6", "#64748b",
 ]
@@ -24,7 +24,7 @@ const FUNNEL_TYPES = [
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [name, setName] = useState("")
-  const [brandColor, setBrandColor] = useState("#6366f1")
+  const [brandColor, setBrandColor] = useState("#FF5F1A")
   const [logoUrl, setLogoUrl] = useState("")
   const [funnelType, setFunnelType] = useState("ecommerce")
   const [error, setError] = useState("")
@@ -52,11 +52,11 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-5 blur-3xl" style={{ backgroundColor: brandColor }} />
-        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#8b5cf6]/5 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#FF7A33]/5 blur-3xl" />
       </div>
 
       <div className="relative z-10 w-full max-w-lg">
@@ -77,16 +77,16 @@ export default function OnboardingPage() {
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all",
-                step > s ? "bg-emerald-500 text-white" : step === s ? "text-white" : "bg-[#1e1e2e] text-[#52525b]"
+                step > s ? "bg-emerald-500 text-white" : step === s ? "text-white" : "bg-[#1a1410] text-[#52525b]"
               )} style={step === s ? { backgroundColor: brandColor } : {}}>
                 {step > s ? <Check className="w-4 h-4" /> : s}
               </div>
-              {s < 3 && <div className={cn("flex-1 h-0.5 rounded-full", step > s ? "bg-emerald-500" : "bg-[#1e1e2e]")} />}
+              {s < 3 && <div className={cn("flex-1 h-0.5 rounded-full", step > s ? "bg-emerald-500" : "bg-[#1a1410]")} />}
             </div>
           ))}
         </div>
 
-        <div className="rounded-2xl border border-[#27272a] bg-[#111118] p-8">
+        <div className="rounded-2xl border border-[#2a1f15] bg-[#131313] p-8">
           {error && (
             <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 mb-5">
               {error}
@@ -98,7 +98,7 @@ export default function OnboardingPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Building2 className="w-4 h-4 text-[#6366f1]" />
+                  <Building2 className="w-4 h-4 text-[#FF5F1A]" />
                   <h2 className="text-lg font-semibold text-white">Seu workspace</h2>
                 </div>
                 <p className="text-sm text-[#71717a]">Como se chama sua agência, negócio ou projeto?</p>
@@ -114,7 +114,7 @@ export default function OnboardingPage() {
 
               <div>
                 <label className="text-sm font-medium text-[#a1a1aa] block mb-3">
-                  <Palette className="w-4 h-4 inline mr-2 text-[#6366f1]" />
+                  <Palette className="w-4 h-4 inline mr-2 text-[#FF5F1A]" />
                   Cor da marca
                 </label>
                 <div className="flex flex-wrap gap-2.5">
@@ -163,8 +163,8 @@ export default function OnboardingPage() {
                     className={cn(
                       "flex items-center gap-4 p-4 rounded-xl border text-left cursor-pointer transition-all",
                       funnelType === ft.key
-                        ? "border-[#6366f1] bg-[#6366f1]/10"
-                        : "border-[var(--border)] bg-[#0d0d14] hover:border-[#6366f1]/40"
+                        ? "border-[#FF5F1A] bg-[#FF5F1A]/10"
+                        : "border-[var(--border)] bg-[#0f0f0f] hover:border-[#FF5F1A]/40"
                     )}
                   >
                     <span className="text-2xl flex-shrink-0">{ft.emoji}</span>
@@ -173,7 +173,7 @@ export default function OnboardingPage() {
                       <p className="text-xs text-[#71717a] mt-0.5">{ft.desc}</p>
                     </div>
                     {funnelType === ft.key && (
-                      <div className="w-5 h-5 rounded-full bg-[#6366f1] flex items-center justify-center flex-shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-[#FF5F1A] flex items-center justify-center flex-shrink-0">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     )}
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
                 <p className="text-sm text-[#71717a]">Confirme as informações do seu workspace</p>
               </div>
 
-              <div className="rounded-xl border border-[var(--border)] bg-[#0d0d14] p-4 flex flex-col gap-3">
+              <div className="rounded-xl border border-[var(--border)] bg-[#0f0f0f] p-4 flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: brandColor }}>
                     <BarChart3 className="w-5 h-5 text-white" />
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-dashed border-[#27272a] p-4 text-sm text-[#71717a]">
+              <div className="rounded-xl border border-dashed border-[#2a1f15] p-4 text-sm text-[#71717a]">
                 <p className="font-medium text-[#a1a1aa] mb-1">Próximos passos após criar:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
                   <li>Conectar conta Meta Ads em Configurações</li>

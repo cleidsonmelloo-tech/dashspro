@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useTransition } from "react"
 import { User, Mail, Lock, Shield, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
@@ -122,7 +122,7 @@ export default function PerfilPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-[#6366f1]" />
+            <User className="w-5 h-5 text-[#FF5F1A]" />
             <div>
               <CardTitle>Informações Pessoais</CardTitle>
               <CardDescription>Seu nome exibido no sistema</CardDescription>
@@ -131,7 +131,7 @@ export default function PerfilPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#6366f1] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-[#FF5F1A] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover rounded-2xl" />
               ) : (
@@ -167,7 +167,7 @@ export default function PerfilPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-[#6366f1]" />
+            <Lock className="w-5 h-5 text-[#FF5F1A]" />
             <div>
               <CardTitle>Segurança</CardTitle>
               <CardDescription>Altere sua senha de acesso</CardDescription>
@@ -199,7 +199,7 @@ export default function PerfilPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#6366f1]" />
+            <Shield className="w-5 h-5 text-[#FF5F1A]" />
             <div>
               <CardTitle>Informações da Conta</CardTitle>
               <CardDescription>Detalhes técnicos da sua conta</CardDescription>

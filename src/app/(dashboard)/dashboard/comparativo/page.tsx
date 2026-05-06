@@ -107,9 +107,9 @@ function CompareBar({ valA, valB, higherIsBetter }: { valA: number; valB: number
   return (
     <div className="flex h-1.5 rounded-full overflow-hidden gap-px bg-transparent">
       <div className="h-full rounded-l-full transition-all duration-700"
-        style={{ width: `${pctA}%`, backgroundColor: aBetter ? "#6366f1" : "#ef4444" }} />
+        style={{ width: `${pctA}%`, backgroundColor: aBetter ? "#FF5F1A" : "#ef4444" }} />
       <div className="h-full rounded-r-full transition-all duration-700"
-        style={{ width: `${pctB}%`, backgroundColor: "#27272a" }} />
+        style={{ width: `${pctB}%`, backgroundColor: "#2a1f15" }} />
     </div>
   )
 }
@@ -223,7 +223,7 @@ export default function ComparativoPage() {
           <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
           <BmCampaignFilter />
           <button onClick={run}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
         </div>
@@ -238,7 +238,7 @@ export default function ComparativoPage() {
                 onClick={() => setUseCustom(false)}
                 className={cn(
                   "px-3 h-7 rounded-lg text-xs font-medium transition-colors",
-                  !useCustom ? "bg-[#6366f1] text-white" : "bg-[#1e1e2e] text-[#71717a] hover:text-white"
+                  !useCustom ? "bg-[#FF5F1A] text-white" : "bg-[#1a1410] text-[#71717a] hover:text-white"
                 )}
               >
                 Predefinidos
@@ -247,7 +247,7 @@ export default function ComparativoPage() {
                 onClick={() => setUseCustom(true)}
                 className={cn(
                   "px-3 h-7 rounded-lg text-xs font-medium transition-colors",
-                  useCustom ? "bg-[#6366f1] text-white" : "bg-[#1e1e2e] text-[#71717a] hover:text-white"
+                  useCustom ? "bg-[#FF5F1A] text-white" : "bg-[#1a1410] text-[#71717a] hover:text-white"
                 )}
               >
                 Personalizado
@@ -263,7 +263,7 @@ export default function ComparativoPage() {
                     className={cn(
                       "px-3 h-7 rounded-lg text-xs font-medium border transition-colors",
                       preset === i
-                        ? "bg-[#6366f1]/15 border-[#6366f1]/40 text-[#818cf8]"
+                        ? "bg-[#FF5F1A]/15 border-[#FF5F1A]/40 text-[#FF8C42]"
                         : "border-[var(--border)] text-[#71717a] hover:text-white hover:border-[#3f3f46]"
                     )}
                   >
@@ -282,12 +282,12 @@ export default function ComparativoPage() {
                     <div className="flex items-center gap-2">
                       <input type="date" value={state.since}
                         onChange={(e) => setter((prev) => ({ ...prev, since: e.target.value }))}
-                        className="flex-1 h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                        className="flex-1 h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] transition-colors cursor-pointer"
                       />
                       <span className="text-xs text-[#52525b]">até</span>
                       <input type="date" value={state.until}
                         onChange={(e) => setter((prev) => ({ ...prev, until: e.target.value }))}
-                        className="flex-1 h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                        className="flex-1 h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-[#f4f4f5] outline-none focus:border-[#FF5F1A] transition-colors cursor-pointer"
                       />
                     </div>
                   </div>
@@ -303,12 +303,12 @@ export default function ComparativoPage() {
         <Card className="col-span-1">
           <CardContent className="p-4 text-center">
             <p className="text-xs font-medium text-[#71717a] uppercase tracking-wide mb-1">{labelA}</p>
-            <p className="text-3xl font-bold text-[#818cf8]">{loading ? "—" : aWins}</p>
+            <p className="text-3xl font-bold text-[#FF8C42]">{loading ? "—" : aWins}</p>
             <p className="text-xs text-[#52525b] mt-1">métricas venceu</p>
           </CardContent>
         </Card>
         <Card className="col-span-1 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1]/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FF5F1A]/5 to-transparent" />
           <CardContent className="p-4 text-center">
             <p className="text-xs font-medium text-[#71717a] uppercase tracking-wide mb-1">Total métricas</p>
             <p className="text-3xl font-bold text-white">{METRICS.length}</p>
@@ -331,11 +331,11 @@ export default function ComparativoPage() {
             <CardTitle>Comparação Detalhada</CardTitle>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#6366f1]" />
+                <div className="w-3 h-3 rounded-full bg-[#FF5F1A]" />
                 <span className="text-[#a1a1aa]">{labelA}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#27272a]" />
+                <div className="w-3 h-3 rounded-full bg-[#2a1f15]" />
                 <span className="text-[#a1a1aa]">{labelB}</span>
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function ComparativoPage() {
               <thead>
                 <tr className="border-b border-[var(--border)]">
                   <th className="text-left px-4 py-3 text-xs font-semibold text-[#71717a] uppercase tracking-wider">Métrica</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#6366f1] uppercase tracking-wider">{labelA}</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#FF5F1A] uppercase tracking-wider">{labelA}</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-[#71717a] uppercase tracking-wider">{labelB}</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-[#71717a] uppercase tracking-wider">Variação</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-[#71717a] uppercase tracking-wider w-32">Distribuição</th>
@@ -361,11 +361,11 @@ export default function ComparativoPage() {
                   const aBetter = m.higherIsBetter ? va >= vb : va <= vb
                   const Icon = m.icon
                   return (
-                    <tr key={m.key} className="border-b border-[var(--border)] last:border-0 hover:bg-[#111118] transition-colors">
+                    <tr key={m.key} className="border-b border-[var(--border)] last:border-0 hover:bg-[#131313] transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-[#1e1e2e] flex items-center justify-center flex-shrink-0">
-                            <Icon className="w-3.5 h-3.5 text-[#818cf8]" />
+                          <div className="w-7 h-7 rounded-lg bg-[#1a1410] flex items-center justify-center flex-shrink-0">
+                            <Icon className="w-3.5 h-3.5 text-[#FF8C42]" />
                           </div>
                           <span className="font-medium text-white">{m.label}</span>
                         </div>
@@ -373,7 +373,7 @@ export default function ComparativoPage() {
                       <td className="px-4 py-3 text-right">
                         <span className={cn(
                           "font-bold text-sm",
-                          loading ? "text-[#71717a]" : aBetter ? "text-[#818cf8]" : "text-[#a1a1aa]"
+                          loading ? "text-[#71717a]" : aBetter ? "text-[#FF8C42]" : "text-[#a1a1aa]"
                         )}>
                           {loading ? "—" : m.format(va)}
                         </span>
@@ -388,7 +388,7 @@ export default function ComparativoPage() {
                           <div className={cn(
                             "inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold",
                             diff === 0
-                              ? "bg-[#27272a] text-[#71717a]"
+                              ? "bg-[#2a1f15] text-[#71717a]"
                               : aBetter
                                 ? "bg-emerald-500/15 text-emerald-400"
                                 : "bg-red-500/15 text-red-400"
@@ -433,7 +433,7 @@ export default function ComparativoPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <div>
-                    <p className="text-[10px] text-[#6366f1] font-semibold mb-0.5">{labelA}</p>
+                    <p className="text-[10px] text-[#FF5F1A] font-semibold mb-0.5">{labelA}</p>
                     <p className="text-xl font-bold text-white">{loading ? "—" : m.format(va)}</p>
                   </div>
                   <div className="pt-2 border-t border-[var(--border)]">
@@ -458,9 +458,9 @@ export default function ComparativoPage() {
 
       {/* Info banner */}
       {!connected && (
-        <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111118]/40 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#6366f1]/10 flex items-center justify-center flex-shrink-0">
-            <GitCompare className="w-5 h-5 text-[#6366f1]" />
+        <div className="rounded-xl border border-dashed border-[#2a1f15] bg-[#131313]/40 p-5 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#FF5F1A]/10 flex items-center justify-center flex-shrink-0">
+            <GitCompare className="w-5 h-5 text-[#FF5F1A]" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-white">Comparativo com dados reais</p>
@@ -469,7 +469,7 @@ export default function ComparativoPage() {
             </p>
           </div>
           <a href="/dashboard/configuracoes"
-            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#6366f1] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
+            className="flex-shrink-0 px-3 py-2 rounded-lg bg-[#FF5F1A] text-white text-xs font-medium hover:bg-[#4f52d1] transition-colors">
             Conectar agora
           </a>
         </div>

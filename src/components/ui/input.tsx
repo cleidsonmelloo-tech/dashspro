@@ -28,9 +28,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             ref={ref}
             className={cn(
-              "w-full h-10 rounded-lg border border-[var(--border)] bg-[#111118] px-3 text-sm text-[var(--foreground)]",
+              "w-full h-10 rounded-lg border border-[var(--border)] bg-[#131313] px-3 text-sm text-[var(--foreground)]",
               "placeholder:text-[#52525b] outline-none transition-all",
-              "focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20",
+              "focus:border-[#FF5F1A] focus:ring-2 focus:ring-[#FF5F1A]/20",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               leftIcon && "pl-9",
               rightIcon && "pr-9",

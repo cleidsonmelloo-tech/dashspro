@@ -31,10 +31,10 @@ const MOCK_KEYWORDS: Keyword[] = [
 const MATCH_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   EXACT: { label: "[Exato]", color: "#10b981" },
   PHRASE: { label: '"Frase"', color: "#f59e0b" },
-  BROAD: { label: "Ampla", color: "#6366f1" },
+  BROAD: { label: "Ampla", color: "#FF5F1A" },
   exact: { label: "[Exato]", color: "#10b981" },
   phrase: { label: '"Frase"', color: "#f59e0b" },
-  broad: { label: "Ampla", color: "#6366f1" },
+  broad: { label: "Ampla", color: "#FF5F1A" },
 }
 
 function QualityScore({ score }: { score: number }) {
@@ -43,7 +43,7 @@ function QualityScore({ score }: { score: number }) {
     <div className="flex items-center gap-1.5">
       <div className="flex gap-0.5">
         {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="w-1.5 h-3 rounded-sm" style={{ backgroundColor: i < score ? color : "#27272a" }} />
+          <div key={i} className="w-1.5 h-3 rounded-sm" style={{ backgroundColor: i < score ? color : "#2a1f15" }} />
         ))}
       </div>
       <span className="text-xs font-bold" style={{ color }}>{score > 0 ? `${score}/10` : "—"}</span>
@@ -115,7 +115,7 @@ export default function KeywordsPage() {
           </div>
           <PlatformPills value={[]} onChange={() => {}} fixed="google" />
           <BmCampaignFilter />
-          <button onClick={fetchKeywords} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
+          <button onClick={fetchKeywords} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
           <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -125,7 +125,7 @@ export default function KeywordsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Investimento", value: formatCurrency(totals.spend), icon: DollarSign, color: "#6366f1" },
+          { label: "Investimento", value: formatCurrency(totals.spend), icon: DollarSign, color: "#FF5F1A" },
           { label: "CTR Médio", value: `${avgCTR.toFixed(2)}%`, icon: TrendingUp, color: "#10b981" },
           { label: "CPA Médio", value: formatCurrency(avgCPA), icon: Target, color: "#f59e0b" },
           { label: "Conversões", value: Math.round(totals.conversions).toString(), icon: MousePointer, color: "#06b6d4" },
@@ -137,7 +137,7 @@ export default function KeywordsPage() {
               </div>
               <div>
                 <p className="text-xs text-[#71717a]">{kpi.label}</p>
-                {loading ? <div className="h-5 w-16 bg-[#1e1e2e] rounded animate-pulse mt-1" /> : <p className="text-lg font-bold text-white">{kpi.value}</p>}
+                {loading ? <div className="h-5 w-16 bg-[#1a1410] rounded animate-pulse mt-1" /> : <p className="text-lg font-bold text-white">{kpi.value}</p>}
               </div>
             </CardContent>
           </Card>
@@ -149,16 +149,16 @@ export default function KeywordsPage() {
         <div className="flex-1 min-w-48">
           <Input placeholder="Buscar keyword..." value={search} onChange={(e) => setSearch(e.target.value)} leftIcon={<Search className="w-4 h-4" />} />
         </div>
-        <div className="flex gap-1 p-1 bg-[#111118] border border-[var(--border)] rounded-lg">
+        <div className="flex gap-1 p-1 bg-[#131313] border border-[var(--border)] rounded-lg">
           {(["all", "EXACT", "PHRASE", "BROAD"] as const).map((m) => (
             <button key={m} onClick={() => setMatchFilter(m)}
-              className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer", matchFilter === m ? "bg-[#6366f1] text-white" : "text-[#71717a] hover:text-white")}>
+              className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer", matchFilter === m ? "bg-[#FF5F1A] text-white" : "text-[#71717a] hover:text-white")}>
               {m === "all" ? "Todos" : m === "EXACT" ? "[Exato]" : m === "PHRASE" ? '"Frase"' : "Ampla"}
             </button>
           ))}
         </div>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none cursor-pointer">
+          className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#131313] text-xs text-[#f4f4f5] outline-none cursor-pointer">
           <option value="conversions">Ordenar: Conversões</option>
           <option value="ctr">Ordenar: CTR</option>
           <option value="spend">Ordenar: Gasto</option>
@@ -171,7 +171,7 @@ export default function KeywordsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-[#0d0d14]">
+              <tr className="border-b border-[var(--border)] bg-[#0f0f0f]">
                 {["Keyword", "Tipo", "Quality Score", "Impressões", "CTR", "CPC", "Conversões", "CPA"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#71717a] uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
@@ -182,7 +182,7 @@ export default function KeywordsPage() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="border-b border-[var(--border)]">
                     {Array.from({ length: 8 }).map((_, j) => (
-                      <td key={j} className="px-4 py-3"><div className="h-4 bg-[#1e1e2e] rounded animate-pulse" /></td>
+                      <td key={j} className="px-4 py-3"><div className="h-4 bg-[#1a1410] rounded animate-pulse" /></td>
                     ))}
                   </tr>
                 ))
@@ -192,9 +192,9 @@ export default function KeywordsPage() {
                 </tr>
               ) : (
                 filtered.map((k) => {
-                  const mt = MATCH_TYPE_CONFIG[k.matchType] || { label: k.matchType, color: "#6366f1" }
+                  const mt = MATCH_TYPE_CONFIG[k.matchType] || { label: k.matchType, color: "#FF5F1A" }
                   return (
-                    <tr key={k.id} className="border-b border-[var(--border)] hover:bg-[#111118] transition-colors">
+                    <tr key={k.id} className="border-b border-[var(--border)] hover:bg-[#131313] transition-colors">
                       <td className="px-4 py-3">
                         <span className="font-medium text-white text-xs block max-w-[200px] truncate">{k.keyword}</span>
                         {k.campaign && <span className="text-[10px] text-[#52525b] block truncate max-w-[200px]">{k.campaign}</span>}

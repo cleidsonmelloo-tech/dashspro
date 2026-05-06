@@ -1,19 +1,19 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
-  --background: #0a0a0f;
+  --background: #0a0a0a;
   --foreground: #f4f4f5;
-  --card: #111118;
+  --card: #131313;
   --card-foreground: #f4f4f5;
-  --primary: #6366f1;
+  --primary: #FF5F1A;
   --primary-foreground: #ffffff;
-  --secondary: #1e1e2e;
+  --secondary: #1a1410;
   --secondary-foreground: #a1a1aa;
-  --muted: #1e1e2e;
+  --muted: #1a1410;
   --muted-foreground: #71717a;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #6366f1;
+  --border: #2a1f15;
+  --input: #2a1f15;
+  --ring: #FF5F1A;
   --radius: 0.75rem;
   --sidebar-width: 260px;
 }
@@ -40,11 +40,11 @@ body {
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #52525b; }
+::-webkit-scrollbar-thumb { background: #3a2a1f; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #FF5F1A; }
 
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, #FF5F1A 0%, #FF7A33 50%, #FFA66B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -56,7 +56,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #1e1e2e 25%, #27272a 50%, #1e1e2e 75%);
+  background: linear-gradient(90deg, #1a1410 25%, #2a1f15 50%, #1a1410 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

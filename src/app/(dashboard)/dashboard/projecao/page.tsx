@@ -123,7 +123,7 @@ export default function ProjecaoPage() {
                 "flex items-center gap-1.5 px-3 h-8 rounded-full border text-xs font-medium transition-all cursor-pointer",
                 activePlatforms.has(opt.value)
                   ? "border-transparent text-white"
-                  : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white"
+                  : "border-[var(--border)] bg-[#131313] text-[#71717a] hover:text-white"
               )}
               style={activePlatforms.has(opt.value)
                 ? { backgroundColor: `${opt.color}25`, borderColor: `${opt.color}60`, color: opt.color }
@@ -161,7 +161,7 @@ export default function ProjecaoPage() {
                   value={startDate}
                   max={endDate}
                   onChange={e => setStartDate(e.target.value)}
-                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-white outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-white outline-none focus:border-[#FF5F1A] transition-colors cursor-pointer"
                   style={{ colorScheme: "dark" }}
                 />
               </div>
@@ -178,7 +178,7 @@ export default function ProjecaoPage() {
                   value={endDate}
                   min={startDate}
                   onChange={e => setEndDate(e.target.value)}
-                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-white outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#131313] text-sm text-white outline-none focus:border-[#FF5F1A] transition-colors cursor-pointer"
                   style={{ colorScheme: "dark" }}
                 />
               </div>
@@ -192,7 +192,7 @@ export default function ProjecaoPage() {
               { label: "Dias restantes",        value: `${daysRemaining} dias` },
               { label: "Orçamento/dia (total)", value: `R$ ${fmtBRL(budget / daysInPeriod)}` },
             ].map(info => (
-              <div key={info.label} className="rounded-lg bg-[#0d0d14] border border-[var(--border)] p-3">
+              <div key={info.label} className="rounded-lg bg-[#0f0f0f] border border-[var(--border)] p-3">
                 <p className="text-xs text-[#71717a]">{info.label}</p>
                 <p className="text-base font-bold text-white mt-0.5">{info.value}</p>
               </div>
@@ -221,13 +221,13 @@ export default function ProjecaoPage() {
           {filteredPlatforms.map(p => {
             const platformBudget = (p.percentage / 100) * budget
             return (
-              <div key={p.id} className="rounded-xl border border-[var(--border)] bg-[#0d0d14] overflow-hidden">
+              <div key={p.id} className="rounded-xl border border-[var(--border)] bg-[#0f0f0f] overflow-hidden">
                 {/* Linha principal */}
                 <div className="flex items-center gap-3 px-4 py-3">
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
                   <span className="text-sm font-semibold text-white w-28 flex-shrink-0">{p.name}</span>
                   {/* Barra de progresso */}
-                  <div className="flex-1 h-2 bg-[#1e1e2e] rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-[#1a1410] rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(p.percentage, 100)}%`, backgroundColor: p.color }} />
                   </div>
@@ -249,7 +249,7 @@ export default function ProjecaoPage() {
                         type="number"
                         value={parseFloat(platformBudget.toFixed(2))}
                         onChange={e => updateBudgetValue(p.id, e.target.value)}
-                        className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[#111118] px-2 text-sm font-bold text-white outline-none focus:border-[#6366f1] transition-colors"
+                        className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[#131313] px-2 text-sm font-bold text-white outline-none focus:border-[#FF5F1A] transition-colors"
                         style={{ colorScheme: "dark" }}
                         min={0}
                         step={100}
@@ -265,7 +265,7 @@ export default function ProjecaoPage() {
                         type="number"
                         value={p.percentage}
                         onChange={e => updatePercentage(p.id, e.target.value)}
-                        className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[#111118] px-2 text-sm font-bold text-white outline-none focus:border-[#6366f1] transition-colors"
+                        className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[#131313] px-2 text-sm font-bold text-white outline-none focus:border-[#FF5F1A] transition-colors"
                         style={{ colorScheme: "dark" }}
                         min={0} max={100} step={1}
                       />
@@ -300,10 +300,10 @@ export default function ProjecaoPage() {
                   <div key={item.label}
                     className={cn("rounded-lg p-3",
                       item.highlight
-                        ? "bg-[#6366f1]/10 border border-[#6366f1]/20"
-                        : "bg-[#0d0d14] border border-[var(--border)]")}>
+                        ? "bg-[#FF5F1A]/10 border border-[#FF5F1A]/20"
+                        : "bg-[#0f0f0f] border border-[var(--border)]")}>
                     <p className="text-[10px] text-[#71717a] mb-1">{item.label}</p>
-                    <p className={cn("text-sm font-bold", item.highlight ? "text-[#818cf8]" : "text-white")}>
+                    <p className={cn("text-sm font-bold", item.highlight ? "text-[#FF8C42]" : "text-white")}>
                       {item.value}
                     </p>
                   </div>
@@ -316,10 +316,10 @@ export default function ProjecaoPage() {
 
       {/* Resumo total */}
       {Math.abs(totalPercentage - 100) <= 0.1 && (
-        <Card className="bg-[#6366f1]/5 border-[#6366f1]/20">
+        <Card className="bg-[#FF5F1A]/5 border-[#FF5F1A]/20">
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-4 h-4 text-[#818cf8]" />
+              <TrendingUp className="w-4 h-4 text-[#FF8C42]" />
               <h3 className="font-semibold text-white">Resumo da Projeção</h3>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -331,7 +331,7 @@ export default function ProjecaoPage() {
               ].map(item => (
                 <div key={item.label}>
                   <p className="text-xs text-[#71717a]">{item.label}</p>
-                  <p className="text-base font-bold text-[#818cf8] mt-0.5">{item.value}</p>
+                  <p className="text-base font-bold text-[#FF8C42] mt-0.5">{item.value}</p>
                 </div>
               ))}
             </div>

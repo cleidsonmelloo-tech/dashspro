@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
@@ -10,7 +10,7 @@ export async function createWorkspace(formData: FormData) {
   if (!user) return { error: "Não autenticado." }
 
   const name = (formData.get("name") as string)?.trim()
-  const brandColor = (formData.get("brand_color") as string) || "#6366f1"
+  const brandColor = (formData.get("brand_color") as string) || "#FF5F1A"
   const logoUrl = (formData.get("logo_url") as string)?.trim() || null
 
   if (!name) return { error: "Nome do workspace é obrigatório." }
@@ -57,7 +57,7 @@ export async function updateWorkspace(formData: FormData) {
   if (!workspace) return { error: "Workspace não encontrado." }
 
   const name = (formData.get("name") as string)?.trim()
-  const brandColor = (formData.get("brand_color") as string) || "#6366f1"
+  const brandColor = (formData.get("brand_color") as string) || "#FF5F1A"
   const logoUrl = (formData.get("logo_url") as string)?.trim() || null
 
   const { error } = await supabase

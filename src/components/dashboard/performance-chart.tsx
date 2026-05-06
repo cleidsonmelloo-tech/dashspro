@@ -25,7 +25,7 @@ const generateData = (days: number) =>
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[#111118] p-3 shadow-xl text-xs">
+    <div className="rounded-xl border border-[var(--border)] bg-[#131313] p-3 shadow-xl text-xs">
       <p className="font-semibold text-[#a1a1aa] mb-2">{label}</p>
       {payload.map((entry: any) => (
         <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
@@ -76,28 +76,28 @@ export function PerformanceChart({ externalData }: { externalData?: ExternalData
     <div className="flex flex-col gap-4">
       {/* Controls */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex gap-1 p-1 bg-[#0d0d14] border border-[var(--border)] rounded-lg">
+        <div className="flex gap-1 p-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg">
           {(Object.keys(metricConfig) as MetricKey[]).map(k => (
             <button
               key={k}
               onClick={() => setMetric(k)}
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
-                metric === k ? "bg-[#6366f1] text-white" : "text-[#71717a] hover:text-white"
+                metric === k ? "bg-[#FF5F1A] text-white" : "text-[#71717a] hover:text-white"
               )}
             >
               {metricConfig[k].label}
             </button>
           ))}
         </div>
-        <div className="flex gap-1 p-1 bg-[#0d0d14] border border-[var(--border)] rounded-lg">
+        <div className="flex gap-1 p-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg">
           {[7, 14, 30].map(d => (
             <button
               key={d}
               onClick={() => setPeriod(d)}
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
-                period === d ? "bg-[#6366f1] text-white" : "text-[#71717a] hover:text-white"
+                period === d ? "bg-[#FF5F1A] text-white" : "text-[#71717a] hover:text-white"
               )}
             >
               {d}d
@@ -112,30 +112,30 @@ export function PerformanceChart({ externalData }: { externalData?: ExternalData
           <AreaChart data={processedData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id="metaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                <stop offset="5%" stopColor="#FF5F1A" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#FF5F1A" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="googleGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#34a853" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="#34a853" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1a1410" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: "#52525b", fontSize: 10 }} axisLine={false} tickLine={false} interval={Math.floor(period / 7)} />
             <YAxis tick={{ fill: "#52525b", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} width={48} />
             <Tooltip content={<CustomTooltip />} />
             <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "11px", color: "#71717a" }} />
-            <Area type="monotone" dataKey="meta" name="Meta Ads" stroke="#6366f1" fill="url(#metaGrad)" strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="meta" name="Meta Ads" stroke="#FF5F1A" fill="url(#metaGrad)" strokeWidth={2} dot={false} />
             <Area type="monotone" dataKey="google" name="Google Ads" stroke="#34a853" fill="url(#googleGrad)" strokeWidth={2} dot={false} />
           </AreaChart>
         ) : (
           <LineChart data={processedData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1a1410" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: "#52525b", fontSize: 10 }} axisLine={false} tickLine={false} interval={Math.floor(period / 7)} />
             <YAxis tick={{ fill: "#52525b", fontSize: 10 }} axisLine={false} tickLine={false} width={40}
               tickFormatter={v => metric === "ctr" ? `${v}%` : String(v)} />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey={metric} name={metricConfig[metric].label} stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#6366f1" }} />
+            <Line type="monotone" dataKey={metric} name={metricConfig[metric].label} stroke="#FF5F1A" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#FF5F1A" }} />
           </LineChart>
         )}
       </ResponsiveContainer>

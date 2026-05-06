@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let userEmail = "demo@dashspro.com"
   let workspaceName = "DashsPro"
   let workspaceLogo: string | undefined
-  let brandColor = "#6366f1"
+  let brandColor = "#FF5F1A"
   let needsOnboarding = false
 
   if (isSupabaseConfigured) {
@@ -39,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       } else {
         workspaceName = workspace.name
         workspaceLogo = workspace.logo_url
-        brandColor = workspace.brand_color || "#6366f1"
+        brandColor = workspace.brand_color || "#FF5F1A"
       }
     } catch {}
   }
@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <FilterProvider>
-      <div className="min-h-screen bg-[#0a0a0f]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Sidebar workspaceName={workspaceName} workspaceLogo={workspaceLogo} brandColor={brandColor} />
         <Navbar userName={userName} userEmail={userEmail} workspaceName={workspaceName} workspaceColor={brandColor} />
         <MainContent>{children}</MainContent>
