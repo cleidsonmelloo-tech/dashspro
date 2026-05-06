@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 import { useFilter } from "@/lib/filter-context"
+import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker"
 
 interface Campaign {
   id: string; name: string; platform: string; account_name?: string
@@ -20,38 +21,10 @@ interface DashMetrics {
   ctr: number; cpc: number; cpa: number; meta_spend: number; google_spend: number
 }
 
-const PERIOD_OPTIONS = [
-  { label: "Hoje", value: "today" },
-  { label: "Últimos 7 dias", value: "7d" },
-  { label: "Últimos 30 dias", value: "30d" },
-  { label: "Este mês", value: "this_month" },
-  { label: "Mês anterior", value: "last_month" },
-]
+function fmtBR(iso: string) { const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}` }
 
-function getDateRange(period: string): { since: string; until: string; label: string } {
-  const today = new Date()
-  const until = today.toISOString().split("T")[0]
-  if (period === "today") return { since: until, until, label: "Hoje" }
-  if (period === "7d") {
-    const d = new Date(today); d.setDate(d.getDate() - 7)
-    return { since: d.toISOString().split("T")[0], until, label: "Últimos 7 dias" }
-  }
-  if (period === "this_month") {
-    const since = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`
-    return { since, until, label: "Este mês" }
-  }
-  if (period === "last_month") {
-    const d = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-    const e = new Date(today.getFullYear(), today.getMonth(), 0)
-    return { since: d.toISOString().split("T")[0], until: e.toISOString().split("T")[0], label: "Mês anterior" }
-  }
-  // 30d
-  const d = new Date(today); d.setDate(d.getDate() - 30)
-  return { since: d.toISOString().split("T")[0], until, label: "Últimos 30 dias" }
-}
-
-function exportCSV(campaigns: Campaign[], metrics: DashMetrics | null, period: string) {
-  const { label } = getDateRange(period)
+function exportCSV(campaigns: Campaign[], metrics: DashMetrics | null, since: string, until: string) {
+  const label = `${fmtBR(since)} — ${fmtBR(until)}`
   const rows: string[] = []
 
   // Cabeçalho do relatório
@@ -100,14 +73,18 @@ function exportCSV(campaigns: Campaign[], metrics: DashMetrics | null, period: s
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
-  a.download = `dashspro-relatorio-${period}-${new Date().toISOString().split("T")[0]}.csv`
+  a.download = `dashspro-relatorio-${since}-${until}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }
 
 export default function RelatoriosPage() {
   const { filterParam } = useFilter()
-  const [period, setPeriod] = useState("30d")
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const d = new Date(); const until = d.toISOString().split("T")[0]
+    d.setDate(d.getDate() - 30); const since = d.toISOString().split("T")[0]
+    return { since, until }
+  })
   const [loading, setLoading] = useState(false)
   const [connected, setConnected] = useState(false)
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
@@ -117,7 +94,7 @@ export default function RelatoriosPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const { since, until } = getDateRange(period)
+      const { since, until } = dateRange
       const [metricsRes, metaCRes, googleCRes] = await Promise.all([
         fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`),
         fetch(`/api/meta/campaigns?since=${since}&until=${until}${filterParam}`),
@@ -137,17 +114,17 @@ export default function RelatoriosPage() {
     } finally {
       setLoading(false)
     }
-  }, [period, filterParam])
+  }, [dateRange, filterParam])
 
   useEffect(() => { fetchData() }, [fetchData])
 
   function handleExport() {
     setExporting(true)
-    exportCSV(campaigns, metrics, period)
+    exportCSV(campaigns, metrics, dateRange.since, dateRange.until)
     setTimeout(() => setExporting(false), 1000)
   }
 
-  const { label: periodLabel } = getDateRange(period)
+  const periodLabel = `${fmtBR(dateRange.since)} — ${fmtBR(dateRange.until)}`
   const totalSpend = metrics?.spend ?? campaigns.reduce((s, c) => s + c.spend, 0)
   const totalConv = metrics?.conversions ?? campaigns.reduce((s, c) => s + c.conversions, 0)
   const avgROAS = campaigns.length > 0
@@ -177,10 +154,7 @@ export default function RelatoriosPage() {
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-[#f4f4f5] outline-none cursor-pointer">
-            {PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
           <Button onClick={handleExport} loading={exporting} size="sm" className="gap-2">
             <FileSpreadsheet className="w-4 h-4" />
             Exportar CSV
