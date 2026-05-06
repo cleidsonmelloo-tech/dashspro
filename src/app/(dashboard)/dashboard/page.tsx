@@ -94,7 +94,7 @@ const DEMO_CAMPAIGNS = [
 
 export default function DashboardPage() {
   const { filterParam } = useFilter()
-  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
+  const [platformFilter, setPlatformFilter] = useState<string[]>([])
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)

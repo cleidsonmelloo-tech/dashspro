@@ -140,7 +140,7 @@ function getDateRange(period: string) {
 
 export default function FunilPage() {
   const { filterParam } = useFilter()
-  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
+  const [platformFilter, setPlatformFilter] = useState<string[]>([])
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("ecommerce")
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(false)

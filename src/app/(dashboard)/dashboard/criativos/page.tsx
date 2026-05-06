@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
-import { PlatformPills } from "@/components/ui/platform-pills"
+import { PlatformPills, matchesPlatform } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 interface Creative {
@@ -132,7 +132,7 @@ function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: n
 export default function CriativosPage() {
   const { filterParam } = useFilter()
   const [search, setSearch] = useState("")
-  const [platform, setPlatform] = useState<"all" | "meta" | "google">("all")
+  const [platform, setPlatform] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<"ctr" | "conversions" | "spend">("ctr")
   const [period, setPeriod] = useState("30d")
   const [creatives, setCreatives] = useState<Creative[]>(MOCK_CREATIVES)
@@ -163,7 +163,7 @@ export default function CriativosPage() {
   useEffect(() => { fetchCreatives() }, [fetchCreatives])
 
   const filtered = creatives
-    .filter((c) => platform === "all" || c.platform === platform)
+    .filter((c) => matchesPlatform(c.platform, platform))
     .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => b[sortBy] - a[sortBy])
 

@@ -117,7 +117,7 @@ function CompareBar({ valA, valB, higherIsBetter }: { valA: number; valB: number
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ComparativoPage() {
   const { filterParam } = useFilter()
-  const [platformFilter, setPlatformFilter] = useState<"all" | "meta" | "google">("all")
+  const [platformFilter, setPlatformFilter] = useState<string[]>([])
   const [preset, setPreset]       = useState(0)
   const [useCustom, setUseCustom] = useState(false)
   const [customA, setCustomA]     = useState({ since: "", until: "" })

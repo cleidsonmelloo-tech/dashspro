@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
-import { PlatformPills } from "@/components/ui/platform-pills"
+import { PlatformPills, matchesPlatform } from "@/components/ui/platform-pills"
 import { useFilter } from "@/lib/filter-context"
 
 interface Campaign {
@@ -57,7 +57,8 @@ function getDateRange(period: string) {
 export default function CampanhasPage() {
   const { filterParam, selectedCampaignIds } = useFilter()
   const [search, setSearch] = useState("")
-  const [platform, setPlatform] = useState<"all" | "meta" | "google">("all")
+  const [platform, setPlatform] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState<"spend" | "conversions" | "ctr" | "cpa">("spend")
   const [selectedBM, setSelectedBM] = useState<string>("all")
   const [period, setPeriod] = useState("30d")
   const [campaigns, setCampaigns] = useState<Campaign[]>(MOCK_CAMPAIGNS)
@@ -95,10 +96,14 @@ export default function CampanhasPage() {
   const bmList = Array.from(new Set(campaigns.map((c) => c.account_name).filter(Boolean))) as string[]
 
   const filtered = campaigns
-    .filter((c) => platform === "all" || c.platform === platform)
+    .filter((c) => matchesPlatform(c.platform, platform))
     .filter((c) => selectedBM === "all" || c.account_name === selectedBM)
     .filter((c) => selectedCampaignIds.length === 0 || selectedCampaignIds.includes(c.id))
     .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === "cpa") return (a.cpa > 0 ? a.cpa : 9999) - (b.cpa > 0 ? b.cpa : 9999)
+      return b[sortBy] - a[sortBy]
+    })
 
   const totals = filtered.reduce((acc, c) => ({
     spend: acc.spend + c.spend,
@@ -121,6 +126,13 @@ export default function CampanhasPage() {
           </div>
           <PlatformPills value={platform} onChange={setPlatform} />
           <BmCampaignFilter />
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="h-9 px-3 rounded-lg border border-[var(--border)] bg-[#111118] text-xs text-[#f4f4f5] outline-none cursor-pointer">
+            <option value="spend">Ordenar: Investimento</option>
+            <option value="conversions">Ordenar: Conversões</option>
+            <option value="ctr">Ordenar: CTR</option>
+            <option value="cpa">Ordenar: CPA (menor)</option>
+          </select>
           <button onClick={fetchCampaigns} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -165,14 +177,6 @@ export default function CampanhasPage() {
             {bmList.map((bm) => <option key={bm} value={bm}>{bm}</option>)}
           </select>
         )}
-        <div className="flex gap-1 p-1 bg-[#111118] border border-[var(--border)] rounded-lg">
-          {(["all", "meta", "google"] as const).map((p) => (
-            <button key={p} onClick={() => setPlatform(p)}
-              className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer", platform === p ? "bg-[#6366f1] text-white" : "text-[#71717a] hover:text-white")}>
-              {p === "all" ? "Todos" : p === "meta" ? "Meta Ads" : "Google Ads"}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Tabela */}
