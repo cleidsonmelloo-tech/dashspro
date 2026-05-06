@@ -23,31 +23,35 @@ const platformOptions = [
   { value: "youtube", label: "YouTube Ads", color: "#ff0000" },
 ]
 
-function getDaysInMonth(year: number, month: number) {
-  return new Date(year, month + 1, 0).getDate()
+function toISO(d: Date) { return d.toISOString().split("T")[0] }
+function diffDays(a: string, b: string) {
+  return Math.max(Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000) + 1, 1)
 }
-
 function fmtBRL(n: number) {
   return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
+function fmtDate(iso: string) {
+  const [y, m, d] = iso.split("-")
+  return `${d}/${m}/${y}`
+}
 
 export default function ProjecaoPage() {
-  const today = new Date()
-  const [totalBudget, setTotalBudget] = useState("10000")
-  const [startDay,    setStartDay]    = useState("1")
-  const [endDay,      setEndDay]      = useState(String(getDaysInMonth(today.getFullYear(), today.getMonth())))
+  const today    = new Date()
+  const firstDay = toISO(new Date(today.getFullYear(), today.getMonth(), 1))
+  const lastDay  = toISO(new Date(today.getFullYear(), today.getMonth() + 1, 0))
+
+  const [totalBudget,   setTotalBudget]   = useState("10000")
+  const [startDate,     setStartDate]     = useState(firstDay)
+  const [endDate,       setEndDate]       = useState(lastDay)
   const [activePlatforms, setActivePlatforms] = useState<Set<string>>(new Set(["meta", "google"]))
   const [platforms, setPlatforms] = useState<PlatformBudget[]>([
     { id: "1", platform: "meta",   name: "Meta Ads",   percentage: 70, color: "#1877f2" },
     { id: "2", platform: "google", name: "Google Ads", percentage: 30, color: "#34a853" },
   ])
 
-  const budget      = parseFloat(totalBudget) || 0
-  const start       = parseInt(startDay)  || 1
-  const end         = parseInt(endDay)    || getDaysInMonth(today.getFullYear(), today.getMonth())
-  const daysInPeriod   = Math.max(end - start + 1, 1)
-  const daysInMonth    = getDaysInMonth(today.getFullYear(), today.getMonth())
-  const daysRemaining  = Math.max(daysInMonth - today.getDate() + 1, 1)
+  const budget         = parseFloat(totalBudget) || 0
+  const daysInPeriod   = diffDays(startDate, endDate)
+  const daysRemaining  = Math.max(diffDays(toISO(today), endDate), 0)
 
   function togglePlatform(p: string) {
     setActivePlatforms(prev => {
@@ -76,14 +80,13 @@ export default function ProjecaoPage() {
 
   const projections = useMemo(() => {
     return filteredPlatforms.map(p => {
-      const share            = (p.percentage / 100) * budget
-      const dailyBudget      = share / daysInPeriod
-      const monthlyProjection = dailyBudget * daysInMonth
-      const remainingBudget  = dailyBudget * daysRemaining
-      return { ...p, share, dailyBudget, monthlyProjection, remainingBudget }
+      const share           = (p.percentage / 100) * budget
+      const dailyBudget     = share / daysInPeriod
+      const remainingBudget = dailyBudget * daysRemaining
+      return { ...p, share, dailyBudget, remainingBudget }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredPlatforms, budget, daysInPeriod, daysInMonth, daysRemaining])
+  }, [filteredPlatforms, budget, daysInPeriod, daysRemaining])
 
   function addPlatform() {
     const available = platformOptions.find(o => !platforms.find(p => p.platform === o.value))
@@ -143,21 +146,51 @@ export default function ProjecaoPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Orçamento total */}
             <Input label="Orçamento Total (R$)" type="number" value={totalBudget}
               onChange={e => setTotalBudget(e.target.value)}
               leftIcon={<DollarSign className="w-4 h-4" />} placeholder="10000" />
-            <Input label="Dia de início" type="number" value={startDay}
-              onChange={e => setStartDay(e.target.value)}
-              leftIcon={<Calendar className="w-4 h-4" />} min={1} max={31} />
-            <Input label="Dia de término" type="number" value={endDay}
-              onChange={e => setEndDay(e.target.value)}
-              leftIcon={<Calendar className="w-4 h-4" />} min={1} max={31} />
+
+            {/* Data de início */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-[#a1a1aa]">Data de início</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a] pointer-events-none" />
+                <input
+                  type="date"
+                  value={startDate}
+                  max={endDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-white outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                  style={{ colorScheme: "dark" }}
+                />
+              </div>
+              <span className="text-[11px] text-[#52525b]">{fmtDate(startDate)}</span>
+            </div>
+
+            {/* Data de término */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-[#a1a1aa]">Data de término</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a] pointer-events-none" />
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[#111118] text-sm text-white outline-none focus:border-[#6366f1] transition-colors cursor-pointer"
+                  style={{ colorScheme: "dark" }}
+                />
+              </div>
+              <span className="text-[11px] text-[#52525b]">{fmtDate(endDate)}</span>
+            </div>
           </div>
+
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Dias no período",       value: `${daysInPeriod} dias` },
-              { label: "Dias restantes",         value: `${daysRemaining} dias` },
-              { label: "Orçamento/dia (total)",  value: `R$ ${(budget / daysInPeriod).toFixed(2)}` },
+              { label: "Dias no período",      value: `${daysInPeriod} dias` },
+              { label: "Dias restantes",        value: `${daysRemaining} dias` },
+              { label: "Orçamento/dia (total)", value: `R$ ${fmtBRL(budget / daysInPeriod)}` },
             ].map(info => (
               <div key={info.label} className="rounded-lg bg-[#0d0d14] border border-[var(--border)] p-3">
                 <p className="text-xs text-[#71717a]">{info.label}</p>
@@ -259,10 +292,10 @@ export default function ProjecaoPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Orçamento Total",   value: `R$ ${fmtBRL(p.share)}` },
-                  { label: "Diário (período)",  value: `R$ ${fmtBRL(p.dailyBudget)}` },
-                  { label: "Projeção Mensal",   value: `R$ ${fmtBRL(p.monthlyProjection)}`, highlight: true },
-                  { label: "Restante do Mês",   value: `R$ ${fmtBRL(p.remainingBudget)}` },
+                  { label: "Orçamento Total",     value: `R$ ${fmtBRL(p.share)}` },
+                  { label: "Diário (período)",    value: `R$ ${fmtBRL(p.dailyBudget)}` },
+                  { label: "Total no Período",    value: `R$ ${fmtBRL(p.share)}`, highlight: true },
+                  { label: "Restante do Período", value: `R$ ${fmtBRL(p.remainingBudget)}` },
                 ].map(item => (
                   <div key={item.label}
                     className={cn("rounded-lg p-3",
@@ -291,10 +324,10 @@ export default function ProjecaoPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "Total no Período",  value: `R$ ${fmtBRL(budget)}` },
-                { label: "Média Diária",      value: `R$ ${fmtBRL(budget / daysInPeriod)}` },
-                { label: "Projeção Mensal",   value: `R$ ${fmtBRL((budget / daysInPeriod) * daysInMonth)}` },
-                { label: "Restante do Mês",  value: `R$ ${fmtBRL((budget / daysInPeriod) * daysRemaining)}` },
+                { label: "Total no Período",     value: `R$ ${fmtBRL(budget)}` },
+                { label: "Média Diária",         value: `R$ ${fmtBRL(budget / daysInPeriod)}` },
+                { label: "Período",              value: `${fmtDate(startDate)} → ${fmtDate(endDate)}` },
+                { label: "Restante do Período",  value: `R$ ${fmtBRL((budget / daysInPeriod) * daysRemaining)}` },
               ].map(item => (
                 <div key={item.label}>
                   <p className="text-xs text-[#71717a]">{item.label}</p>
