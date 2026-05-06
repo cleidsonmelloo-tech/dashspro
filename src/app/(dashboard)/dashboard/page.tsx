@@ -374,7 +374,10 @@ export default function DashboardPage() {
       <Card>
         <CardHeader><CardTitle>Performance ao Longo do Tempo</CardTitle></CardHeader>
         <CardContent>
-          <PerformanceChart externalData={dailyData.length > 0 ? dailyData : undefined} />
+          <PerformanceChart
+            externalData={dailyData.length > 0 ? dailyData : undefined}
+            availableMetrics={selectedKpis}
+          />
         </CardContent>
       </Card>
 
