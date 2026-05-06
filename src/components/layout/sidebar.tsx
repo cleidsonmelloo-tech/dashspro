@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import {
   BarChart3, LayoutDashboard, TrendingUp, Target,
   Image, Search, DollarSign, Tag, Settings, LogOut,
-  ChevronLeft, ChevronRight, User, X, FileText, Bell, Flag, GitCompare, Zap, Users
+  ChevronLeft, ChevronRight, User, X, FileText, Bell, Flag, GitCompare, Zap, Users, Bot
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut } from "@/app/actions/auth"
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard/funil", icon: TrendingUp, label: "Funil" },
   { href: "/dashboard/campanhas", icon: Target, label: "Campanhas" },
+  { href: "/dashboard/otimizacao", icon: Bot, label: "Piloto Automático" },
   { href: "/dashboard/criativos", icon: Image, label: "Criativos" },
   { href: "/dashboard/keywords", icon: Search, label: "Keywords" },
   { href: "/dashboard/projecao", icon: DollarSign, label: "Projeção de Verba" },
