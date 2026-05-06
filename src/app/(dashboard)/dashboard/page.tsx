@@ -17,7 +17,7 @@ interface DashMetrics {
 }
 
 // ── All available KPI metrics ────────────────────────────────────────────────
-type MetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpa" | "conversions" | "roas" | "cpm" | "reach" | "frequency"
+type MetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpa" | "conversions" | "roas" | "revenue" | "cpm" | "reach" | "frequency"
 
 interface MetricDef {
   key: MetricKey
@@ -31,19 +31,20 @@ interface MetricDef {
 
 const ALL_METRICS: MetricDef[] = [
   { key: "spend",       label: "Investimento",        icon: DollarSign,   color: "#6366f1", format: formatCurrency, description: "Total gasto no período" },
+  { key: "conversions", label: "Resultado",            icon: Target,       color: "#10b981", format: formatNumber,   description: "Total de conversões / resultados" },
+  { key: "cpa",         label: "Custo por Resultado",  icon: Target,       color: "#ef4444", format: formatCurrency, description: "Custo por conversão (CPA)", invertChange: true },
+  { key: "revenue",     label: "Retorno R$",           icon: DollarSign,   color: "#22d3ee", format: formatCurrency, description: "Receita atribuída (ROAS × Investimento)" },
+  { key: "roas",        label: "ROAS",                 icon: TrendingUp,   color: "#34d399", format: (v) => `${v.toFixed(2)}x`, description: "Retorno sobre investimento (multiplicador)" },
   { key: "impressions", label: "Impressões",           icon: Eye,          color: "#8b5cf6", format: formatNumber,   description: "Total de impressões" },
   { key: "clicks",      label: "Cliques",              icon: MousePointer, color: "#06b6d4", format: formatNumber,   description: "Total de cliques" },
   { key: "ctr",         label: "CTR",                  icon: TrendingUp,   color: "#10b981", format: (v) => `${v.toFixed(2)}%`, description: "Taxa de cliques" },
   { key: "cpc",         label: "CPC Médio",            icon: BarChart3,    color: "#f59e0b", format: formatCurrency, description: "Custo por clique", invertChange: true },
-  { key: "cpa",         label: "Custo por Resultado",  icon: Target,       color: "#ef4444", format: formatCurrency, description: "Custo por conversão", invertChange: true },
-  { key: "conversions", label: "Conversões",           icon: Target,       color: "#10b981", format: formatNumber,   description: "Total de conversões" },
-  { key: "roas",        label: "Retorno (ROAS)",        icon: TrendingUp,   color: "#22d3ee", format: (v) => `${v.toFixed(2)}x`, description: "Retorno sobre investimento" },
   { key: "cpm",         label: "CPM",                  icon: Eye,          color: "#a78bfa", format: formatCurrency, description: "Custo por mil impressões", invertChange: true },
   { key: "reach",       label: "Alcance",              icon: Eye,          color: "#fb923c", format: formatNumber,   description: "Pessoas alcançadas" },
   { key: "frequency",   label: "Frequência",           icon: BarChart3,    color: "#94a3b8", format: (v) => v.toFixed(2), description: "Média de vezes que cada pessoa viu" },
 ]
 
-const DEFAULT_METRICS: MetricKey[] = ["spend", "impressions", "clicks", "ctr", "cpc", "conversions"]
+const DEFAULT_METRICS: MetricKey[] = ["spend", "conversions", "cpa", "revenue", "ctr", "cpc"]
 const LS_KEY = "dashboard_kpi_selection"
 interface DailyPoint {
   date: string; meta_spend: number; google_spend: number
@@ -286,6 +287,7 @@ export default function DashboardPage() {
     cpa:         m.cpa,
     conversions: m.conversions,
     roas:        m.roas ?? (m.spend > 0 ? (m.conversions * m.cpa) / m.spend : 0),
+    revenue:     m.roas ? m.roas * m.spend : (m.conversions * m.cpa),
     cpm:         m.cpm ?? (m.impressions > 0 ? (m.spend / m.impressions) * 1000 : 0),
     reach:       m.reach ?? 0,
     frequency:   m.frequency ?? 0,
