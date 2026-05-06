@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 const META_APP_ID = process.env.META_APP_ID!
 const META_APP_SECRET = process.env.META_APP_SECRET!
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
 
   if (!tokenRes.ok) {
     const errBody = await tokenRes.text()
-    console.error("[meta/callback] token exchange failed:", errBody, "redirect_uri used:", REDIRECT_URI)
+    console.error("[meta/callback] token exchange failed:", errBody, "redirect_uri:", REDIRECT_URI)
     return NextResponse.redirect(new URL("/dashboard/configuracoes?error=meta_token", request.url))
   }
 
@@ -60,45 +61,28 @@ export async function GET(request: NextRequest) {
   const expiresIn = longTokenData.expires_in || 5184000
   const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
-  // Busca contas de anúncio pessoais + via Business Manager + info do usuário
-  const [personalAccountsRes, businessesRes, meRes] = await Promise.all([
+  // Busca contas de anúncio pessoais + via Business Manager
+  const [personalAccountsRes, businessesRes] = await Promise.all([
     fetch(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`),
     fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id,name&limit=50&access_token=${finalToken}`),
-    fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`),
   ])
 
   const personalData = await personalAccountsRes.json()
   const businessesData = await businessesRes.json()
-  const meData = await meRes.json()
 
-  console.log("[meta/callback] personal accounts:", JSON.stringify(personalData?.data?.map((a: {id:string;name:string}) => ({id:a.id,name:a.name}))))
-  console.log("[meta/callback] businesses:", JSON.stringify(businessesData?.data?.map((b: {id:string;name:string}) => ({id:b.id,name:b.name}))))
-
-  // Combina contas pessoais + contas das BMs (busca separada por business)
   let allAccounts: { id: string; name: string; account_id: string }[] = personalData.data || []
 
   for (const biz of (businessesData.data || [])) {
-    // Busca owned_ad_accounts para cada BM separadamente
-    const bizAccountsRes = await fetch(
-      `https://graph.facebook.com/v21.0/${biz.id}/owned_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`
-    )
-    const bizAccountsData = await bizAccountsRes.json()
-    console.log(`[meta/callback] BM ${biz.id} (${biz.name}) accounts:`, JSON.stringify(bizAccountsData?.data?.map((a: {id:string;name:string}) => ({id:a.id,name:a.name}))))
-    const bizAccounts: { id: string; name: string; account_id: string }[] = bizAccountsData.data || []
-    allAccounts = [...allAccounts, ...bizAccounts]
-
-    // Também tenta client_ad_accounts (contas que a BM gerencia mas não é dona)
-    const clientAccountsRes = await fetch(
-      `https://graph.facebook.com/v21.0/${biz.id}/client_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`
-    )
-    const clientAccountsData = await clientAccountsRes.json()
-    const clientAccounts: { id: string; name: string; account_id: string }[] = clientAccountsData.data || []
-    allAccounts = [...allAccounts, ...clientAccounts]
+    const [ownedRes, clientRes] = await Promise.all([
+      fetch(`https://graph.facebook.com/v21.0/${biz.id}/owned_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`),
+      fetch(`https://graph.facebook.com/v21.0/${biz.id}/client_ad_accounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`),
+    ])
+    const ownedData = await ownedRes.json()
+    const clientData = await clientRes.json()
+    allAccounts = [...allAccounts, ...(ownedData.data || []), ...(clientData.data || [])]
   }
 
-  console.log("[meta/callback] total accounts before dedup:", allAccounts.length)
-
-  // Remove duplicatas pelo account_id
+  // Remove duplicatas
   const seen = new Set<string>()
   const accounts = allAccounts.filter((a) => {
     const id = a.account_id || a.id.replace("act_", "")
@@ -107,30 +91,30 @@ export async function GET(request: NextRequest) {
     return true
   })
 
-  console.log("[meta/callback] final unique accounts:", accounts.map(a => ({ id: a.account_id || a.id, name: a.name })))
+  console.log("[meta/callback] saving", accounts.length, "accounts to Supabase")
 
-  // Monta payload para salvar via cookie (a sessão do usuário está no browser)
-  const payload = accounts.length > 0
-    ? accounts.map((a) => ({
-        workspace_id: state.workspace_id,
-        platform: "meta",
-        account_id: a.account_id || a.id.replace("act_", ""),
-        account_name: a.name,
-        access_token: finalToken,
-        token_expires_at: expiresAt,
-        is_active: true,
-      }))
-    : [{
-        workspace_id: state.workspace_id,
-        platform: "meta",
-        account_id: meData.id || "personal",
-        account_name: meData.name || "Conta Meta conectada",
-        access_token: finalToken,
-        token_expires_at: expiresAt,
-        is_active: true,
-      }]
+  // Salva direto no Supabase server-side (sem passar pela URL)
+  const supabase = createAdminClient()
+  let savedCount = 0
+  for (const a of accounts) {
+    const accountId = a.account_id || a.id.replace("act_", "")
+    const { error } = await supabase.rpc("upsert_ad_account", {
+      p_workspace_id: state.workspace_id,
+      p_platform: "meta",
+      p_account_id: accountId,
+      p_account_name: a.name,
+      p_access_token: finalToken,
+      p_token_expires_at: expiresAt,
+      p_is_active: true,
+    })
+    if (error) {
+      console.error("[meta/callback] upsert error for", accountId, error.message)
+    } else {
+      savedCount++
+    }
+  }
 
-  // Passa dados via URL para o client-side salvar com a sessão autenticada
-  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url")
-  return NextResponse.redirect(new URL(`/dashboard/configuracoes?meta_data=${encoded}`, request.url))
+  console.log("[meta/callback] saved", savedCount, "/", accounts.length, "accounts")
+
+  return NextResponse.redirect(new URL("/dashboard/configuracoes?success=meta_connected", request.url))
 }
