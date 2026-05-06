@@ -472,8 +472,8 @@ export default function OtimizacaoPage() {
             {config.is_enabled && <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0d0d14] animate-pulse" />}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Piloto Automático</h1>
-            <p className="text-sm text-[#71717a] mt-0.5">Agente de IA que otimiza suas campanhas a cada hora</p>
+            <h1 className="text-2xl font-bold text-white">Otimizador de Campanha</h1>
+            <p className="text-sm text-[#71717a] mt-0.5">IA analisa cada campanha a cada 1 hora — pause, escala ou mantém automaticamente</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -725,7 +725,7 @@ export default function OtimizacaoPage() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white font-semibold text-base">Ativar Piloto Automático</p>
+                    <p className="text-white font-semibold text-base">Ativar Otimizador Automático</p>
                     <p className="text-xs text-[#71717a] mt-1">O agente analisará suas campanhas a cada hora automaticamente</p>
                   </div>
                   <button onClick={() => setConfig(c => ({ ...c, is_enabled: !c.is_enabled }))}
@@ -934,7 +934,7 @@ export default function OtimizacaoPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <p className="text-white font-bold text-lg">Relatório do Piloto Automático</p>
+                        <p className="text-white font-bold text-lg">Relatório do Otimizador</p>
                         <span className="text-xs text-[#71717a]">{new Date(report.report_date).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</span>
                       </div>
                       <p className="text-sm text-[#a1a1aa] mt-2 leading-relaxed">{report.summary}</p>
