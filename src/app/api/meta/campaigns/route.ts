@@ -32,10 +32,15 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const since = searchParams.get("since") || getDateDaysAgo(30)
   const until = searchParams.get("until") || getDateDaysAgo(0)
+  const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
+
+  const filteredAccounts = filterAccountIds.length > 0
+    ? accounts.filter((a: AdAccountRow) => filterAccountIds.includes(a.account_id))
+    : accounts
 
   const allCampaigns: Campaign[] = []
 
-  for (const account of accounts) {
+  for (const account of filteredAccounts) {
     if (isTokenExpired(account.token_expires_at)) continue
 
     // Busca status da conta (para detectar falta de pagamento, etc.)

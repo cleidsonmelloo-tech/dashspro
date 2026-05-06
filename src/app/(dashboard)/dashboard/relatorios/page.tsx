@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 interface Campaign {
   id: string; name: string; platform: string; account_name?: string
@@ -104,6 +106,7 @@ function exportCSV(campaigns: Campaign[], metrics: DashMetrics | null, period: s
 }
 
 export default function RelatoriosPage() {
+  const { filterParam } = useFilter()
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(false)
   const [connected, setConnected] = useState(false)
@@ -116,9 +119,9 @@ export default function RelatoriosPage() {
     try {
       const { since, until } = getDateRange(period)
       const [metricsRes, metaCRes, googleCRes] = await Promise.all([
-        fetch(`/api/dashboard/metrics?since=${since}&until=${until}`),
-        fetch(`/api/meta/campaigns?since=${since}&until=${until}`),
-        fetch(`/api/google/campaigns?since=${since}&until=${until}`),
+        fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`),
+        fetch(`/api/meta/campaigns?since=${since}&until=${until}${filterParam}`),
+        fetch(`/api/google/campaigns?since=${since}&until=${until}${filterParam}`),
       ])
 
       const md = metricsRes.ok ? await metricsRes.json() : { connected: false }
@@ -134,7 +137,7 @@ export default function RelatoriosPage() {
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [period, filterParam])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -169,6 +172,7 @@ export default function RelatoriosPage() {
               {connected ? "Dados reais" : "Sem contas"}
             </span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchData}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />

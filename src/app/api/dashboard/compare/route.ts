@@ -5,8 +5,9 @@ const GOOGLE_DEVELOPER_TOKEN = process.env.GOOGLE_DEVELOPER_TOKEN!
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!
 
-// GET /api/dashboard/compare?since=...&until=...
-// Retorna métricas do período atual E do período anterior (para calcular variação %)
+type Acc = { id: string; platform: string; account_id: string; access_token: string; refresh_token: string | null; token_expires_at: string | null }
+
+// GET /api/dashboard/compare?since=...&until=...&account_ids=...&campaign_ids=...
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -17,21 +18,26 @@ export async function GET(request: NextRequest) {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: accounts } = await supabase
+  const { data: allAccounts } = await supabase
     .from("ad_accounts")
     .select("id, platform, account_id, access_token, refresh_token, token_expires_at")
     .eq("workspace_id", workspace.id)
     .eq("is_active", true)
 
-  if (!accounts || accounts.length === 0) {
+  if (!allAccounts || allAccounts.length === 0) {
     return NextResponse.json({ connected: false, current: null, previous: null })
   }
 
   const { searchParams } = new URL(request.url)
   const since = searchParams.get("since") || getDateDaysAgo(30)
   const until = searchParams.get("until") || getDateDaysAgo(0)
+  const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
+  const filterCampaignIds = (searchParams.get("campaign_ids") || "").split(",").filter(Boolean)
 
-  // Calcula o período anterior com o mesmo tamanho
+  const accounts: Acc[] = filterAccountIds.length > 0
+    ? allAccounts.filter(a => filterAccountIds.includes(a.account_id))
+    : allAccounts
+
   const sinceDate = new Date(since)
   const untilDate = new Date(until)
   const diffMs = untilDate.getTime() - sinceDate.getTime()
@@ -39,67 +45,55 @@ export async function GET(request: NextRequest) {
   const prevSince = new Date(sinceDate.getTime() - diffMs - 86400000).toISOString().split("T")[0]
 
   const [current, previous] = await Promise.all([
-    fetchPeriodMetrics(accounts, since, until, supabase),
-    fetchPeriodMetrics(accounts, prevSince, prevUntil, supabase),
+    fetchPeriodMetrics(accounts, since, until, filterCampaignIds, supabase),
+    fetchPeriodMetrics(accounts, prevSince, prevUntil, filterCampaignIds, supabase),
   ])
 
   return NextResponse.json({ connected: true, current, previous })
 }
 
 async function fetchPeriodMetrics(
-  accounts: Array<{ id: string; platform: string; account_id: string; access_token: string; refresh_token: string | null; token_expires_at: string | null }>,
-  since: string,
-  until: string,
+  accounts: Acc[], since: string, until: string,
+  filterCampaignIds: string[],
   supabase: Awaited<ReturnType<typeof createClient>>
 ) {
   const totals = { spend: 0, impressions: 0, clicks: 0, conversions: 0 }
 
-  // Meta
   for (const acc of accounts.filter(a => a.platform === "meta")) {
     if (isTokenExpired(acc.token_expires_at)) continue
-    const res = await fetch(
-      `https://graph.facebook.com/v21.0/act_${acc.account_id}/insights?` +
-      new URLSearchParams({
-        fields: "spend,impressions,clicks,actions",
-        time_range: JSON.stringify({ since, until }),
-        access_token: acc.access_token,
-      })
-    )
+    const params: Record<string, string> = {
+      fields: "spend,impressions,clicks,actions",
+      time_range: JSON.stringify({ since, until }),
+      access_token: acc.access_token,
+    }
+    if (filterCampaignIds.length > 0) {
+      params.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: filterCampaignIds }])
+      params.level = "campaign"
+    }
+    const res = await fetch(`https://graph.facebook.com/v21.0/act_${acc.account_id}/insights?` + new URLSearchParams(params))
     if (!res.ok) continue
     const { data: insights = [] } = await res.json()
     for (const ins of insights as MetaInsight[]) {
       totals.spend += parseFloat(ins.spend || "0")
       totals.impressions += parseInt(ins.impressions || "0")
       totals.clicks += parseInt(ins.clicks || "0")
-      const conv = (ins.actions || []).find(a =>
-        ["purchase", "lead", "complete_registration"].includes(a.action_type))
+      const conv = (ins.actions || []).find(a => ["purchase", "lead", "complete_registration"].includes(a.action_type))
       totals.conversions += conv ? parseInt(conv.value || "0") : 0
     }
   }
 
-  // Google
   for (const acc of accounts.filter(a => a.platform === "google")) {
     let token = acc.access_token
     if (isTokenExpired(acc.token_expires_at) && acc.refresh_token) {
       token = await refreshGoogleToken(acc.id, acc.refresh_token, supabase) ?? token
     }
+    let query = `SELECT metrics.cost_micros,metrics.impressions,metrics.clicks,metrics.conversions
+      FROM campaign WHERE segments.date BETWEEN '${since}' AND '${until}' AND campaign.status != 'REMOVED'`
+    if (filterCampaignIds.length > 0) query += ` AND campaign.id IN (${filterCampaignIds.join(",")})`
 
     const res = await fetch(
       `https://googleads.googleapis.com/v17/customers/${acc.account_id}/googleAds:search`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "developer-token": GOOGLE_DEVELOPER_TOKEN,
-          "login-customer-id": acc.account_id,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: `SELECT metrics.cost_micros,metrics.impressions,metrics.clicks,metrics.conversions
-            FROM campaign WHERE segments.date BETWEEN '${since}' AND '${until}'
-            AND campaign.status != 'REMOVED'`
-        }),
-      }
+      { method: "POST", headers: { Authorization: `Bearer ${token}`, "developer-token": GOOGLE_DEVELOPER_TOKEN, "login-customer-id": acc.account_id, "Content-Type": "application/json" }, body: JSON.stringify({ query }) }
     )
     if (!res.ok) continue
     const { results = [] } = await res.json()
@@ -119,18 +113,12 @@ async function fetchPeriodMetrics(
   }
 }
 
-interface MetaInsight {
-  spend: string; impressions: string; clicks: string
-  actions?: { action_type: string; value: string }[]
-}
-interface GoogleRow {
-  metrics: { cost_micros: string; impressions: string; clicks: string; conversions: string }
-}
+interface MetaInsight { spend: string; impressions: string; clicks: string; actions?: { action_type: string; value: string }[] }
+interface GoogleRow { metrics: { cost_micros: string; impressions: string; clicks: string; conversions: string } }
 
 async function refreshGoogleToken(id: string, refreshToken: string, supabase: Awaited<ReturnType<typeof createClient>>) {
   const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET, refresh_token: refreshToken, grant_type: "refresh_token" }),
   })
   if (!res.ok) return null
@@ -139,8 +127,5 @@ async function refreshGoogleToken(id: string, refreshToken: string, supabase: Aw
   await supabase.from("ad_accounts").update({ access_token, token_expires_at: expiresAt }).eq("id", id)
   return access_token
 }
-
-function getDateDaysAgo(days: number) {
-  const d = new Date(); d.setDate(d.getDate() - days); return d.toISOString().split("T")[0]
-}
+function getDateDaysAgo(days: number) { const d = new Date(); d.setDate(d.getDate() - days); return d.toISOString().split("T")[0] }
 function isTokenExpired(e: string | null) { return e ? new Date(e) < new Date() : false }

@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 interface Creative {
   id: string; name: string; thumbnail_url?: string | null
@@ -127,6 +129,7 @@ function CreativeCard({ creative, rank, loading }: { creative: Creative; rank: n
 }
 
 export default function CriativosPage() {
+  const { filterParam } = useFilter()
   const [search, setSearch] = useState("")
   const [platform, setPlatform] = useState<"all" | "meta" | "google">("all")
   const [sortBy, setSortBy] = useState<"ctr" | "conversions" | "spend">("ctr")
@@ -139,7 +142,7 @@ export default function CriativosPage() {
     setLoading(true)
     try {
       const { since, until } = getDateRange(period)
-      const res = await fetch(`/api/meta/creatives?since=${since}&until=${until}`)
+      const res = await fetch(`/api/meta/creatives?since=${since}&until=${until}${filterParam}`)
       const data = res.ok ? await res.json() : { creatives: [], connected: false }
       if (data.connected && data.creatives?.length > 0) {
         setCreatives(data.creatives)
@@ -154,7 +157,7 @@ export default function CriativosPage() {
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [period, filterParam])
 
   useEffect(() => { fetchCreatives() }, [fetchCreatives])
 
@@ -179,6 +182,7 @@ export default function CriativosPage() {
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchCreatives} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>

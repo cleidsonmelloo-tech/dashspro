@@ -31,10 +31,15 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const since = (searchParams.get("since") || getDateDaysAgo(30)).replace(/-/g, "")
   const until = (searchParams.get("until") || getDateDaysAgo(0)).replace(/-/g, "")
+  const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
+
+  const filteredAccounts = filterAccountIds.length > 0
+    ? accounts.filter(a => filterAccountIds.includes(a.account_id))
+    : accounts
 
   const allCampaigns: Campaign[] = []
 
-  for (const account of accounts) {
+  for (const account of filteredAccounts) {
     let token = account.access_token
 
     // Refresh token if expired

@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { Navbar } from "@/components/layout/navbar"
 import { MainContent } from "@/components/layout/main-content"
+import { FilterProvider } from "@/lib/filter-context"
 
 const isSupabaseConfigured =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -49,10 +50,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
-      <Sidebar workspaceName={workspaceName} workspaceLogo={workspaceLogo} brandColor={brandColor} />
-      <Navbar userName={userName} userEmail={userEmail} workspaceName={workspaceName} workspaceColor={brandColor} />
-      <MainContent>{children}</MainContent>
-    </div>
+    <FilterProvider>
+      <div className="min-h-screen bg-[#0a0a0f]">
+        <Sidebar workspaceName={workspaceName} workspaceLogo={workspaceLogo} brandColor={brandColor} />
+        <Navbar userName={userName} userEmail={userEmail} workspaceName={workspaceName} workspaceColor={brandColor} />
+        <MainContent>{children}</MainContent>
+      </div>
+    </FilterProvider>
   )
 }

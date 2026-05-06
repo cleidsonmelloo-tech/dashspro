@@ -8,6 +8,8 @@ import {
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type MetricKey = "spend" | "clicks" | "impressions" | "conversions" | "ctr" | "cpc" | "cpa" | "roas"
@@ -268,6 +270,7 @@ function GoalCard({
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function MetasPage() {
+  const { filterParam } = useFilter()
   const [goals, setGoals]         = useState<Goal[]>([])
   const [metrics, setMetrics]     = useState<LiveMetrics>(DEMO_METRICS)
   const [connected, setConnected] = useState(false)
@@ -283,7 +286,7 @@ export default function MetasPage() {
       const since = new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]
 
       const [metricsRes, goalsRes] = await Promise.all([
-        fetch(`/api/dashboard/metrics?since=${since}&until=${today}`),
+        fetch(`/api/dashboard/metrics?since=${since}&until=${today}${filterParam}`),
         fetch("/api/goals"),
       ])
 
@@ -336,7 +339,7 @@ export default function MetasPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [filterParam])
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
@@ -389,6 +392,7 @@ export default function MetasPage() {
               {connected ? "Dados reais" : "Demo"}
             </span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchAll}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />

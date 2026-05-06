@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, formatNumber, formatPercent, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 interface Campaign {
   id: string; name: string; platform: "meta" | "google"; account_name?: string
@@ -52,6 +54,7 @@ function getDateRange(period: string) {
 }
 
 export default function CampanhasPage() {
+  const { filterParam, selectedCampaignIds } = useFilter()
   const [search, setSearch] = useState("")
   const [platform, setPlatform] = useState<"all" | "meta" | "google">("all")
   const [selectedBM, setSelectedBM] = useState<string>("all")
@@ -65,8 +68,8 @@ export default function CampanhasPage() {
     try {
       const { since, until } = getDateRange(period)
       const [metaRes, googleRes] = await Promise.all([
-        fetch(`/api/meta/campaigns?since=${since}&until=${until}`),
-        fetch(`/api/google/campaigns?since=${since}&until=${until}`),
+        fetch(`/api/meta/campaigns?since=${since}&until=${until}${filterParam}`),
+        fetch(`/api/google/campaigns?since=${since}&until=${until}${filterParam}`),
       ])
       const meta = metaRes.ok ? await metaRes.json() : { campaigns: [], connected: false }
       const google = googleRes.ok ? await googleRes.json() : { campaigns: [], connected: false }
@@ -84,7 +87,7 @@ export default function CampanhasPage() {
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [period, filterParam])
 
   useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
 
@@ -93,6 +96,7 @@ export default function CampanhasPage() {
   const filtered = campaigns
     .filter((c) => platform === "all" || c.platform === platform)
     .filter((c) => selectedBM === "all" || c.account_name === selectedBM)
+    .filter((c) => selectedCampaignIds.length === 0 || selectedCampaignIds.includes(c.id))
     .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
 
   const totals = filtered.reduce((acc, c) => ({
@@ -114,6 +118,7 @@ export default function CampanhasPage() {
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchCampaigns} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>

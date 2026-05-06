@@ -30,10 +30,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const since = searchParams.get("since") || getDateDaysAgo(30)
   const until = searchParams.get("until") || getDateDaysAgo(0)
+  const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
+  const filterCampaignIds = (searchParams.get("campaign_ids") || "").split(",").filter(Boolean)
+
+  const filteredAccounts = filterAccountIds.length > 0
+    ? accounts.filter(a => filterAccountIds.includes(a.account_id))
+    : accounts
 
   const allKeywords: Keyword[] = []
 
-  for (const account of accounts) {
+  for (const account of filteredAccounts) {
     let token = account.access_token
 
     if (isTokenExpired(account.token_expires_at) && account.refresh_token) {
@@ -41,7 +47,7 @@ export async function GET(request: NextRequest) {
       if (!token) continue
     }
 
-    const query = `
+    let query = `
       SELECT
         ad_group_criterion.keyword.text,
         ad_group_criterion.keyword.match_type,
@@ -55,10 +61,11 @@ export async function GET(request: NextRequest) {
         campaign.name
       FROM keyword_view
       WHERE segments.date BETWEEN '${since}' AND '${until}'
-        AND ad_group_criterion.status != 'REMOVED'
-      ORDER BY metrics.cost_micros DESC
-      LIMIT 100
-    `
+        AND ad_group_criterion.status != 'REMOVED'`
+    if (filterCampaignIds.length > 0) {
+      query += ` AND campaign.id IN (${filterCampaignIds.join(",")})`
+    }
+    query += ` ORDER BY metrics.cost_micros DESC LIMIT 100`
 
     const res = await fetch(
       `https://googleads.googleapis.com/v17/customers/${account.account_id}/googleAds:search`,

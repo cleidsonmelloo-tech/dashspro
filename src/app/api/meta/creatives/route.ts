@@ -26,22 +26,32 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const since = searchParams.get("since") || getDateDaysAgo(30)
   const until = searchParams.get("until") || getDateDaysAgo(0)
+  const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
+  const filterCampaignIds = (searchParams.get("campaign_ids") || "").split(",").filter(Boolean)
+
+  const filteredAccounts = filterAccountIds.length > 0
+    ? accounts.filter(a => filterAccountIds.includes(a.account_id))
+    : accounts
 
   const allCreatives: Creative[] = []
 
-  for (const account of accounts) {
+  for (const account of filteredAccounts) {
     if (isTokenExpired(account.token_expires_at)) continue
 
     const fields = "ad_name,adset_name,campaign_name,spend,impressions,clicks,actions,ctr,cpc,reach,thumbnail_url,creative"
+    const fetchParams: Record<string, string> = {
+      fields,
+      time_range: JSON.stringify({ since, until }),
+      level: "ad",
+      limit: "50",
+      access_token: account.access_token,
+    }
+    if (filterCampaignIds.length > 0) {
+      fetchParams.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: filterCampaignIds }])
+    }
     const res = await fetch(
       `https://graph.facebook.com/v21.0/act_${account.account_id}/insights?` +
-      new URLSearchParams({
-        fields,
-        time_range: JSON.stringify({ since, until }),
-        level: "ad",
-        limit: "50",
-        access_token: account.access_token,
-      })
+      new URLSearchParams(fetchParams)
     )
 
     if (!res.ok) continue

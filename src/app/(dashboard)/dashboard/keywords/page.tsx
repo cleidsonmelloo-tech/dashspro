@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { formatCurrency, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 interface Keyword {
   id: string; keyword: string; matchType: string; campaign?: string
@@ -62,6 +64,7 @@ function getDateRange(period: string) {
 }
 
 export default function KeywordsPage() {
+  const { filterParam } = useFilter()
   const [search, setSearch] = useState("")
   const [matchFilter, setMatchFilter] = useState<"all" | "EXACT" | "PHRASE" | "BROAD">("all")
   const [sortBy, setSortBy] = useState<"conversions" | "ctr" | "spend" | "cpa">("conversions")
@@ -74,7 +77,7 @@ export default function KeywordsPage() {
     setLoading(true)
     try {
       const { since, until } = getDateRange(period)
-      const res = await fetch(`/api/google/keywords?since=${since}&until=${until}`)
+      const res = await fetch(`/api/google/keywords?since=${since}&until=${until}${filterParam}`)
       const data = res.ok ? await res.json() : { keywords: [], connected: false }
       if (data.connected && data.keywords?.length > 0) {
         setKeywords(data.keywords)
@@ -89,7 +92,7 @@ export default function KeywordsPage() {
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [period, filterParam])
 
   useEffect(() => { fetchKeywords() }, [fetchKeywords])
 
@@ -118,6 +121,7 @@ export default function KeywordsPage() {
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchKeywords} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>

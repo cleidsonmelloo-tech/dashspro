@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react"
 import { ArrowRight, TrendingDown, DollarSign, Users, ShoppingCart, MessageCircle, GraduationCap, ClipboardList, Pizza, RefreshCw } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { formatCurrency, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 type FunnelType = "ecommerce" | "mensagens" | "infoproduto" | "cadastro" | "delivery"
 
@@ -136,6 +138,7 @@ function getDateRange(period: string) {
 }
 
 export default function FunilPage() {
+  const { filterParam } = useFilter()
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("ecommerce")
   const [period, setPeriod] = useState("30d")
   const [loading, setLoading] = useState(false)
@@ -146,7 +149,7 @@ export default function FunilPage() {
     setLoading(true)
     try {
       const { since, until } = getDateRange(period)
-      const res = await fetch(`/api/dashboard/metrics?since=${since}&until=${until}`)
+      const res = await fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`)
       if (res.ok) {
         const data = await res.json()
         if (data.connected && data.metrics) {
@@ -168,7 +171,7 @@ export default function FunilPage() {
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [period, filterParam])
 
   useEffect(() => { fetchMetrics() }, [fetchMetrics])
 
@@ -212,6 +215,7 @@ export default function FunilPage() {
             <div className={`w-1.5 h-1.5 rounded-full ${isRealData ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
             <span className={`text-xs font-medium ${isRealData ? "text-emerald-400" : "text-amber-400"}`}>{isRealData ? "Dados reais" : "Demo"}</span>
           </div>
+          <BmCampaignFilter />
           <button onClick={fetchMetrics} className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={`w-3.5 h-3.5 text-[#71717a] ${loading ? "animate-spin" : ""}`} />
           </button>
