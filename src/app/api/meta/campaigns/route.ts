@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
       new URLSearchParams({
         fields,
         limit: "500",
+        // Exclui campanhas deletadas/arquivadas
+        filtering: JSON.stringify([{ field: "effective_status", operator: "IN", value: ["ACTIVE", "PAUSED", "IN_PROCESS", "WITH_ISSUES"] }]),
         access_token: account.access_token,
       })
     )
@@ -53,7 +55,9 @@ export async function GET(request: NextRequest) {
 
     for (const c of campaigns) {
       const insight = c.insights?.data?.[0]
-      const spend = parseFloat(insight?.spend || "0")
+      // Pula campanhas sem gasto no período (não rodaram)
+      if (!insight || parseFloat(insight.spend || "0") === 0) continue
+      const spend = parseFloat(insight.spend || "0")
       const impressions = parseInt(insight?.impressions || "0")
       const clicks = parseInt(insight?.clicks || "0")
       const conv = (insight?.actions || []).find((a: MetaAction) =>
