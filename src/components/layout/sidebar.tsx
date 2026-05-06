@@ -13,7 +13,6 @@ import { useUIStore } from "@/store/ui"
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/dashboard/funil", icon: TrendingUp, label: "Funil" },
   { href: "/dashboard/campanhas", icon: Target, label: "Campanhas" },
   { href: "/dashboard/otimizacao", icon: Bot, label: "Otimizador de Campanha" },
   { href: "/dashboard/criativos", icon: Image, label: "Criativos" },
