@@ -8,6 +8,8 @@ import {
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatCurrency, formatNumber, cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
+import { useFilter } from "@/lib/filter-context"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PeriodMetrics {
@@ -113,6 +115,7 @@ function CompareBar({ valA, valB, higherIsBetter }: { valA: number; valB: number
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ComparativoPage() {
+  const { filterParam } = useFilter()
   const [preset, setPreset]       = useState(0)
   const [useCustom, setUseCustom] = useState(false)
   const [customA, setCustomA]     = useState({ since: "", until: "" })
@@ -129,8 +132,8 @@ export default function ComparativoPage() {
   const fetchPeriod = useCallback(async (since: string, until: string): Promise<PeriodMetrics | null> => {
     try {
       const [metricsRes, compareRes] = await Promise.all([
-        fetch(`/api/dashboard/metrics?since=${since}&until=${until}`),
-        fetch(`/api/dashboard/compare?since=${since}&until=${until}`),
+        fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`),
+        fetch(`/api/dashboard/compare?since=${since}&until=${until}${filterParam}`),
       ])
       if (!metricsRes.ok) return null
       const data = await metricsRes.json()
@@ -147,7 +150,7 @@ export default function ComparativoPage() {
         roas:        m.roas        ?? (m.spend > 0 && m.conversions > 0 ? (m.conversions * 50) / m.spend : 0),
       }
     } catch { return null }
-  }, [])
+  }, [filterParam])
 
   const run = useCallback(async () => {
     setLoading(true)
@@ -215,6 +218,7 @@ export default function ComparativoPage() {
               {connected ? "Dados reais" : "Demo"}
             </span>
           </div>
+          <BmCampaignFilter />
           <button onClick={run}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#111118] hover:bg-[#1e1e2e] transition-colors">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
