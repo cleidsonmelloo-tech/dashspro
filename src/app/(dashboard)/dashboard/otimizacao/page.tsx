@@ -962,12 +962,18 @@ export default function OtimizacaoPage() {
                   </Card>
                 ))}
               </div>
-              {report.highlights?.length > 0 && (
+              {(() => {
+                const highlights = Array.isArray(report.highlights)
+                  ? report.highlights
+                  : (typeof report.highlights === "string"
+                      ? (() => { try { return JSON.parse(report.highlights as unknown as string) } catch { return [] } })()
+                      : [])
+                return highlights.length > 0 && (
                 <Card>
                   <CardContent className="p-5 flex flex-col gap-4">
                     <p className="text-white font-semibold">Principais ações do dia</p>
                     <div className="flex flex-col gap-2">
-                      {report.highlights.map((h, i) => {
+                      {highlights.map((h: { action: string; campaign: string; reason: string }, i: number) => {
                         const meta = ACTION_META[h.action] || ACTION_META.no_action
                         const Icon = meta.icon
                         return (
@@ -985,7 +991,8 @@ export default function OtimizacaoPage() {
                     </div>
                   </CardContent>
                 </Card>
-              )}
+                )
+              })()}
             </>
           )}
         </div>
