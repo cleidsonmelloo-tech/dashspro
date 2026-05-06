@@ -16,11 +16,9 @@ export async function GET(request: NextRequest) {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: allAccounts } = await supabase
-    .from("ad_accounts")
-    .select("id, platform, account_id, access_token, refresh_token, token_expires_at")
-    .eq("workspace_id", workspace.id)
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspace.id })
+  const allAccounts = (rawAccounts || []).filter((a: AdAccountRow) => a.is_active)
 
   if (!allAccounts || allAccounts.length === 0) {
     return NextResponse.json({ connected: false, metrics: defaultMetrics(), daily: [] })
@@ -34,16 +32,23 @@ export async function GET(request: NextRequest) {
   const filterAccountIds = (searchParams.get("account_ids") || "").split(",").filter(Boolean)
   const filterCampaignIds = (searchParams.get("campaign_ids") || "").split(",").filter(Boolean)
 
-  const accounts = filterAccountIds.length > 0
-    ? allAccounts.filter(a => filterAccountIds.includes(a.account_id))
+  const accounts: AdAccountRow[] = filterAccountIds.length > 0
+    ? allAccounts.filter((a: AdAccountRow) => filterAccountIds.includes(a.account_id))
     : allAccounts
 
   const totals = { spend: 0, impressions: 0, clicks: 0, conversions: 0, meta_spend: 0, google_spend: 0 }
   const dailyMap: Record<string, DailyPoint> = {}
 
   // ── Meta ────────────────────────────────────────────────────────────────────
-  for (const acc of accounts.filter(a => a.platform === "meta")) {
+  for (const acc of accounts.filter((a: AdAccountRow) => a.platform === "meta")) {
     if (isTokenExpired(acc.token_expires_at)) continue
+
+    // Extract raw campaign IDs for this specific account
+    const rawCampaignIds = filterCampaignIds
+      .filter(id => id.startsWith(`meta_${acc.account_id}_`))
+      .map(id => id.slice(`meta_${acc.account_id}_`.length))
+    // If campaigns are filtered but none belong to this account, skip it
+    if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
 
     const params: Record<string, string> = {
       fields: "spend,impressions,clicks,actions",
@@ -51,8 +56,8 @@ export async function GET(request: NextRequest) {
       time_increment: "1",
       access_token: acc.access_token,
     }
-    if (filterCampaignIds.length > 0) {
-      params.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: filterCampaignIds }])
+    if (rawCampaignIds.length > 0) {
+      params.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: rawCampaignIds }])
       params.level = "campaign"
     }
 
@@ -80,16 +85,22 @@ export async function GET(request: NextRequest) {
   }
 
   // ── Google ──────────────────────────────────────────────────────────────────
-  for (const acc of accounts.filter(a => a.platform === "google")) {
+  for (const acc of accounts.filter((a: AdAccountRow) => a.platform === "google")) {
     let token = acc.access_token
     if (isTokenExpired(acc.token_expires_at) && acc.refresh_token) {
       token = await refreshGoogleToken(acc.id, acc.refresh_token, supabase) ?? token
     }
 
+    // Extract raw campaign IDs for this specific account
+    const rawCampaignIds = filterCampaignIds
+      .filter(id => id.startsWith(`google_${acc.account_id}_`))
+      .map(id => id.slice(`google_${acc.account_id}_`.length))
+    if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
+
     let query = `SELECT segments.date, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.conversions
       FROM campaign WHERE segments.date BETWEEN '${since}' AND '${until}' AND campaign.status != 'REMOVED'`
-    if (filterCampaignIds.length > 0) {
-      query += ` AND campaign.id IN (${filterCampaignIds.join(",")})`
+    if (rawCampaignIds.length > 0) {
+      query += ` AND campaign.id IN (${rawCampaignIds.join(",")})`
     }
 
     const res = await fetch(
@@ -139,6 +150,10 @@ function defaultMetrics() {
   return { spend: 0, impressions: 0, clicks: 0, conversions: 0, ctr: 0, cpc: 0, cpa: 0, meta_spend: 0, google_spend: 0 }
 }
 
+interface AdAccountRow {
+  id: string; platform: string; account_id: string; access_token: string
+  refresh_token: string | null; token_expires_at: string | null; is_active: boolean
+}
 interface MetaInsight {
   spend: string; impressions: string; clicks: string; date_start: string
   actions?: { action_type: string; value: string }[]

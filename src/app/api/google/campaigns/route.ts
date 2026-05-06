@@ -17,12 +17,9 @@ export async function GET(request: NextRequest) {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("id, account_id, access_token, refresh_token, token_expires_at, account_name")
-    .eq("workspace_id", workspace.id)
-    .eq("platform", "google")
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspace.id })
+  const accounts = (rawAccounts || []).filter((a: { platform: string; is_active: boolean }) => a.platform === "google" && a.is_active)
 
   if (!accounts || accounts.length === 0) {
     return NextResponse.json({ campaigns: [], connected: false })

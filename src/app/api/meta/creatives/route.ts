@@ -12,12 +12,9 @@ export async function GET(request: NextRequest) {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: accounts } = await supabase
-    .from("ad_accounts")
-    .select("account_id, access_token, token_expires_at, account_name")
-    .eq("workspace_id", workspace.id)
-    .eq("platform", "meta")
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspace.id })
+  const accounts = (rawAccounts || []).filter((a: { platform: string; is_active: boolean }) => a.platform === "meta" && a.is_active)
 
   if (!accounts || accounts.length === 0) {
     return NextResponse.json({ creatives: [], connected: false })
@@ -46,8 +43,12 @@ export async function GET(request: NextRequest) {
       limit: "50",
       access_token: account.access_token,
     }
-    if (filterCampaignIds.length > 0) {
-      fetchParams.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: filterCampaignIds }])
+    const rawCampaignIds = filterCampaignIds
+      .filter(id => id.startsWith(`meta_${account.account_id}_`))
+      .map(id => id.slice(`meta_${account.account_id}_`.length))
+    if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
+    if (rawCampaignIds.length > 0) {
+      fetchParams.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: rawCampaignIds }])
     }
     const res = await fetch(
       `https://graph.facebook.com/v21.0/act_${account.account_id}/insights?` +

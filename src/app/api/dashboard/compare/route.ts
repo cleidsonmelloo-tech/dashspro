@@ -5,7 +5,7 @@ const GOOGLE_DEVELOPER_TOKEN = process.env.GOOGLE_DEVELOPER_TOKEN!
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!
 
-type Acc = { id: string; platform: string; account_id: string; access_token: string; refresh_token: string | null; token_expires_at: string | null }
+type Acc = { id: string; platform: string; account_id: string; access_token: string; refresh_token: string | null; token_expires_at: string | null; is_active: boolean }
 
 // GET /api/dashboard/compare?since=...&until=...&account_ids=...&campaign_ids=...
 export async function GET(request: NextRequest) {
@@ -18,11 +18,9 @@ export async function GET(request: NextRequest) {
   const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
-  const { data: allAccounts } = await supabase
-    .from("ad_accounts")
-    .select("id, platform, account_id, access_token, refresh_token, token_expires_at")
-    .eq("workspace_id", workspace.id)
-    .eq("is_active", true)
+  // Use RPC (SECURITY DEFINER) to bypass RLS
+  const { data: rawAccounts } = await supabase.rpc("get_workspace_ad_accounts", { p_workspace_id: workspace.id })
+  const allAccounts = (rawAccounts || []).filter((a: Acc) => a.is_active)
 
   if (!allAccounts || allAccounts.length === 0) {
     return NextResponse.json({ connected: false, current: null, previous: null })
@@ -35,7 +33,7 @@ export async function GET(request: NextRequest) {
   const filterCampaignIds = (searchParams.get("campaign_ids") || "").split(",").filter(Boolean)
 
   const accounts: Acc[] = filterAccountIds.length > 0
-    ? allAccounts.filter(a => filterAccountIds.includes(a.account_id))
+    ? allAccounts.filter((a: Acc) => filterAccountIds.includes(a.account_id))
     : allAccounts
 
   const sinceDate = new Date(since)
@@ -61,13 +59,19 @@ async function fetchPeriodMetrics(
 
   for (const acc of accounts.filter(a => a.platform === "meta")) {
     if (isTokenExpired(acc.token_expires_at)) continue
+
+    const rawCampaignIds = filterCampaignIds
+      .filter(id => id.startsWith(`meta_${acc.account_id}_`))
+      .map(id => id.slice(`meta_${acc.account_id}_`.length))
+    if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
+
     const params: Record<string, string> = {
       fields: "spend,impressions,clicks,actions",
       time_range: JSON.stringify({ since, until }),
       access_token: acc.access_token,
     }
-    if (filterCampaignIds.length > 0) {
-      params.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: filterCampaignIds }])
+    if (rawCampaignIds.length > 0) {
+      params.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: rawCampaignIds }])
       params.level = "campaign"
     }
     const res = await fetch(`https://graph.facebook.com/v21.0/act_${acc.account_id}/insights?` + new URLSearchParams(params))
@@ -87,9 +91,15 @@ async function fetchPeriodMetrics(
     if (isTokenExpired(acc.token_expires_at) && acc.refresh_token) {
       token = await refreshGoogleToken(acc.id, acc.refresh_token, supabase) ?? token
     }
+
+    const rawCampaignIds = filterCampaignIds
+      .filter(id => id.startsWith(`google_${acc.account_id}_`))
+      .map(id => id.slice(`google_${acc.account_id}_`.length))
+    if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
+
     let query = `SELECT metrics.cost_micros,metrics.impressions,metrics.clicks,metrics.conversions
       FROM campaign WHERE segments.date BETWEEN '${since}' AND '${until}' AND campaign.status != 'REMOVED'`
-    if (filterCampaignIds.length > 0) query += ` AND campaign.id IN (${filterCampaignIds.join(",")})`
+    if (rawCampaignIds.length > 0) query += ` AND campaign.id IN (${rawCampaignIds.join(",")})`
 
     const res = await fetch(
       `https://googleads.googleapis.com/v17/customers/${acc.account_id}/googleAds:search`,
