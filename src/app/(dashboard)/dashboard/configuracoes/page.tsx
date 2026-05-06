@@ -79,6 +79,23 @@ export default function ConfiguracoesPage() {
             })
             if (error) throw error
           }
+          // Reload accounts immediately after save
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.user) {
+            const { data: ws } = await supabase
+              .from("workspaces")
+              .select("id")
+              .eq("owner_id", session.user.id)
+              .single()
+            if (ws) {
+              const { data: accs } = await supabase
+                .from("ad_accounts")
+                .select("id, platform, account_id, account_name, is_active, token_expires_at, created_at")
+                .eq("workspace_id", ws.id)
+                .order("created_at", { ascending: false })
+              setAccounts(accs || [])
+            }
+          }
           setFeedback({ type: "success", msg: "Meta Ads conectado com sucesso!" })
           setTimeout(() => setFeedback(null), 5000)
         } catch (err: unknown) {
@@ -106,7 +123,8 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     async function loadData() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user
       if (!user) return
 
       const { data: ws } = await supabase
