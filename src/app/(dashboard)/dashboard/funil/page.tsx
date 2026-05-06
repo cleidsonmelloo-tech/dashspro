@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { ArrowRight, TrendingDown, DollarSign, Users, ShoppingCart, MessageCircle, GraduationCap, ClipboardList, Pizza, RefreshCw } from "lucide-react"
+import { TrendingDown, DollarSign, Users, ShoppingCart, MessageCircle, GraduationCap, ClipboardList, Pizza, RefreshCw } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { formatCurrency, cn } from "@/lib/utils"
 import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
@@ -27,48 +27,51 @@ function buildFunnelSteps(type: FunnelType, impressions: number, clicks: number,
   const cpa = conversions > 0 ? spend / conversions : 0
 
   switch (type) {
+    // Paleta laranja unificada
+    const C = ["#FF5F1A", "#FF7A33", "#FF8C42", "#FFA66B", "#FFBC8E", "#10b981"]
+    switch (type) {
     case "ecommerce":
       return [
-        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
-        { label: "Visitas à Loja", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: "#FFA66B", icon: Users },
-        { label: "Adicionou ao Carrinho", value: Math.round(clicks * 0.19), rate: 23, cost: cpc * 4.3, color: "#c4b5fd", icon: ShoppingCart },
-        { label: "Iniciou Checkout", value: Math.round(clicks * 0.09), rate: 47, cost: cpc * 9.2, color: "#ddd6fe", icon: ShoppingCart },
-        { label: "Compras", value: conversions, rate: conversions > 0 ? (conversions / Math.round(clicks * 0.09)) * 100 : 0, cost: cpa, color: "#10b981", icon: DollarSign },
+        { label: "Impressões", value: impressions, color: C[0], icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: C[1], icon: Users },
+        { label: "Visitas à Loja", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: C[2], icon: Users },
+        { label: "Adicionou ao Carrinho", value: Math.round(clicks * 0.19), rate: 23, cost: cpc * 4.3, color: C[3], icon: ShoppingCart },
+        { label: "Iniciou Checkout", value: Math.round(clicks * 0.09), rate: 47, cost: cpc * 9.2, color: C[4], icon: ShoppingCart },
+        { label: "Compras", value: conversions, rate: conversions > 0 ? (conversions / Math.round(clicks * 0.09)) * 100 : 0, cost: cpa, color: C[5], icon: DollarSign },
       ]
     case "mensagens":
       return [
-        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
-        { label: "Conversas Iniciadas", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: "#06b6d4", icon: MessageCircle },
-        { label: "Responderam", value: Math.round(clicks * 0.59), rate: 72, cost: cpc * 1.69, color: "#22d3ee", icon: MessageCircle },
-        { label: "Proposta Enviada", value: Math.round(clicks * 0.22), rate: 38, cost: cpc * 4.55, color: "#67e8f9", icon: MessageCircle },
-        { label: "Vendas Fechadas", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: DollarSign },
+        { label: "Impressões", value: impressions, color: C[0], icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: C[1], icon: Users },
+        { label: "Conversas Iniciadas", value: Math.round(clicks * 0.82), rate: 82, cost: cpc * 1.22, color: C[2], icon: MessageCircle },
+        { label: "Responderam", value: Math.round(clicks * 0.59), rate: 72, cost: cpc * 1.69, color: C[3], icon: MessageCircle },
+        { label: "Proposta Enviada", value: Math.round(clicks * 0.22), rate: 38, cost: cpc * 4.55, color: C[4], icon: MessageCircle },
+        { label: "Vendas Fechadas", value: conversions, rate: 0, cost: cpa, color: C[5], icon: DollarSign },
       ]
     case "infoproduto":
       return [
-        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
-        { label: "Visitas à Página", value: Math.round(clicks * 0.87), rate: 87, cost: cpc * 1.15, color: "#FFA66B", icon: Users },
-        { label: "Leads Capturados", value: Math.round(clicks * 0.22), rate: 25, cost: cpc * 4.55, color: "#f59e0b", icon: ClipboardList },
-        { label: "Foram ao Checkout", value: Math.round(clicks * 0.095), rate: 43, cost: cpc * 10.5, color: "#fbbf24", icon: ShoppingCart },
-        { label: "Compraram", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: DollarSign },
+        { label: "Impressões", value: impressions, color: C[0], icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: C[1], icon: Users },
+        { label: "Visitas à Página", value: Math.round(clicks * 0.87), rate: 87, cost: cpc * 1.15, color: C[2], icon: Users },
+        { label: "Leads Capturados", value: Math.round(clicks * 0.22), rate: 25, cost: cpc * 4.55, color: C[3], icon: ClipboardList },
+        { label: "Foram ao Checkout", value: Math.round(clicks * 0.095), rate: 43, cost: cpc * 10.5, color: C[4], icon: ShoppingCart },
+        { label: "Compraram", value: conversions, rate: 0, cost: cpa, color: C[5], icon: DollarSign },
       ]
     case "cadastro":
       return [
-        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
-        { label: "Visitas à Landing Page", value: Math.round(clicks * 0.86), rate: 86, cost: cpc * 1.16, color: "#FFA66B", icon: Users },
-        { label: "Iniciou Formulário", value: Math.round(clicks * 0.34), rate: 40, cost: cpc * 2.94, color: "#f97316", icon: ClipboardList },
-        { label: "Leads Qualificados", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: ClipboardList },
+        { label: "Impressões", value: impressions, color: C[0], icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: C[1], icon: Users },
+        { label: "Visitas à Landing Page", value: Math.round(clicks * 0.86), rate: 86, cost: cpc * 1.16, color: C[2], icon: Users },
+        { label: "Iniciou Formulário", value: Math.round(clicks * 0.34), rate: 40, cost: cpc * 2.94, color: C[3], icon: ClipboardList },
+        { label: "Leads Qualificados", value: conversions, rate: 0, cost: cpa, color: C[5], icon: ClipboardList },
       ]
     case "delivery":
       return [
-        { label: "Impressões", value: impressions, color: "#FF5F1A", icon: Users },
-        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: "#FF7A33", icon: Users },
-        { label: "Acessou Cardápio", value: Math.round(clicks * 0.78), rate: 78, cost: cpc * 1.28, color: "#ef4444", icon: Pizza },
-        { label: "Adicionou Item", value: Math.round(clicks * 0.5), rate: 65, cost: cpc * 2.0, color: "#f87171", icon: Pizza },
-        { label: "Pedidos Finalizados", value: conversions, rate: 0, cost: cpa, color: "#10b981", icon: DollarSign },
+        { label: "Impressões", value: impressions, color: C[0], icon: Users },
+        { label: "Cliques no Anúncio", value: clicks, rate: ctr, cost: cpc, color: C[1], icon: Users },
+        { label: "Acessou Cardápio", value: Math.round(clicks * 0.78), rate: 78, cost: cpc * 1.28, color: C[2], icon: Pizza },
+        { label: "Adicionou Item", value: Math.round(clicks * 0.5), rate: 65, cost: cpc * 2.0, color: C[3], icon: Pizza },
+        { label: "Pedidos Finalizados", value: conversions, rate: 0, cost: cpa, color: C[5], icon: DollarSign },
       ]
   }
 }
@@ -90,37 +93,69 @@ const DEMO_VALUES: Record<FunnelType, { impressions: number; clicks: number; con
   delivery:    { impressions: 98400,  clicks: 2840, conversions: 892, spend: 5000 },
 }
 
-function FunnelBar({ step, maxValue }: { step: FunnelStep; maxValue: number }) {
-  const width = Math.max((step.value / maxValue) * 100, 3)
+function FunnelBar({ step, maxValue, prevValue, isLast }: { step: FunnelStep; maxValue: number; prevValue?: number; isLast?: boolean }) {
+  const width = Math.max((step.value / maxValue) * 100, 8)
+  const dropPct = prevValue !== undefined && prevValue > 0
+    ? ((prevValue - step.value) / prevValue) * 100
+    : 0
+  const Icon = step.icon
+
   return (
-    <div className="flex items-center gap-4 group">
-      <div className="w-40 text-right flex-shrink-0">
-        <p className="text-xs font-medium text-[#a1a1aa] leading-tight">{step.label}</p>
-        <p className="text-lg font-bold text-white">{step.value.toLocaleString("pt-BR")}</p>
-      </div>
-      <div className="flex-1 relative h-10 flex items-center">
-        <div className="absolute inset-y-0 left-0 right-0 bg-[#1a1410] rounded-lg" />
+    <div className="flex flex-col items-center group">
+      {/* Linha de queda entre etapas */}
+      {prevValue !== undefined && dropPct > 0 && (
+        <div className="flex items-center gap-2 -mt-1 mb-1 text-[10px] text-[#71717a]">
+          <TrendingDown className="w-3 h-3 text-red-400" />
+          <span>Perdeu <span className="text-red-400 font-semibold">{dropPct.toFixed(1)}%</span> nesta etapa</span>
+        </div>
+      )}
+
+      {/* Bloco do funil — formato trapézio centrado */}
+      <div className="relative w-full flex items-center justify-center" style={{ height: "72px" }}>
+        {/* Barra centralizada com gradiente */}
         <div
-          className="relative h-8 rounded-lg transition-all duration-700 flex items-center px-3"
-          style={{ width: `${width}%`, backgroundColor: step.color, minWidth: "52px" }}
+          className="relative h-full rounded-lg flex items-center justify-between px-5 transition-all duration-700 shadow-lg"
+          style={{
+            width: `${width}%`,
+            minWidth: "240px",
+            background: `linear-gradient(135deg, ${step.color} 0%, ${step.color}cc 100%)`,
+            boxShadow: `0 4px 20px ${step.color}40`,
+          }}
         >
-          <span className="text-xs font-bold text-white/90 whitespace-nowrap">{width.toFixed(0)}%</span>
+          {/* Lado esquerdo: ícone + label */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+              <Icon className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-medium text-white/80 uppercase tracking-wider">{step.label}</p>
+              <p className="text-xl font-bold text-white leading-tight">{step.value.toLocaleString("pt-BR")}</p>
+            </div>
+          </div>
+
+          {/* Lado direito: % + métricas */}
+          <div className="flex flex-col items-end gap-0.5">
+            <span className="text-2xl font-black text-white tracking-tight">
+              {((step.value / maxValue) * 100).toFixed(1)}%
+            </span>
+            <div className="flex items-center gap-2 text-[10px] text-white/80">
+              {step.rate !== undefined && step.rate > 0 && (
+                <span>Taxa: <strong className="text-white">{step.rate.toFixed(1)}%</strong></span>
+              )}
+              {step.cost !== undefined && step.cost > 0 && (
+                <span>Custo: <strong className="text-white">{formatCurrency(step.cost)}</strong></span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      <div className="w-36 flex-shrink-0 flex flex-col gap-0.5">
-        {step.rate !== undefined && step.rate > 0 && (
-          <div className="flex items-center gap-1.5">
-            <TrendingDown className="w-3 h-3 text-[#71717a]" />
-            <span className="text-xs text-[#71717a]">Taxa: <span className="text-[#a1a1aa] font-medium">{step.rate.toFixed(2)}%</span></span>
-          </div>
-        )}
-        {step.cost !== undefined && step.cost > 0 && (
-          <div className="flex items-center gap-1.5">
-            <DollarSign className="w-3 h-3 text-[#71717a]" />
-            <span className="text-xs text-[#71717a]">Custo: <span className="text-[#a1a1aa] font-medium">{formatCurrency(step.cost)}</span></span>
-          </div>
-        )}
-      </div>
+
+      {/* Conector seta para baixo entre etapas */}
+      {!isLast && (
+        <div className="my-1 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px]"
+          style={{ borderTopColor: step.color, opacity: 0.5 }}
+        />
+      )}
     </div>
   )
 }
@@ -281,14 +316,13 @@ export default function FunilPage() {
               ))
             ) : (
               steps.map((step, i) => (
-                <div key={i}>
-                  <FunnelBar step={step} maxValue={maxValue} />
-                  {i < steps.length - 1 && (
-                    <div className="flex items-center justify-center my-1">
-                      <ArrowRight className="w-4 h-4 text-[#3f3f46] rotate-90" />
-                    </div>
-                  )}
-                </div>
+                <FunnelBar
+                  key={i}
+                  step={step}
+                  maxValue={maxValue}
+                  prevValue={i > 0 ? steps[i - 1].value : undefined}
+                  isLast={i === steps.length - 1}
+                />
               ))
             )}
           </div>
