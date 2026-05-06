@@ -179,7 +179,7 @@ export default function CampanhasPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[#0d0d14]">
-                {["Campanha", "Status", "Motivo", "Investimento", "Impressões", "CTR", "CPC", "Conversões", "CPA", "ROAS"].map((h) => (
+                {["Campanha", "Status", "Investimento", "Impressões", "CTR", "CPC", "Conversões", "CPA", "ROAS"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#71717a] uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -188,7 +188,7 @@ export default function CampanhasPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b border-[var(--border)]">
-                    {Array.from({ length: 10 }).map((_, j) => (
+                    {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-4 bg-[#1e1e2e] rounded animate-pulse" />
                       </td>
@@ -197,7 +197,7 @@ export default function CampanhasPage() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#52525b]">
+                  <td colSpan={9} className="px-4 py-10 text-center text-sm text-[#52525b]">
                     Nenhuma campanha encontrada.
                   </td>
                 </tr>
@@ -220,13 +220,6 @@ export default function CampanhasPage() {
                       </td>
                       <td className="px-4 py-3">
                         <Badge variant={status.variant}>{status.label}</Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        {c.stop_reason ? (
-                          <span className="text-xs text-red-400 font-medium">{c.stop_reason}</span>
-                        ) : (
-                          <span className="text-xs text-[#52525b]">—</span>
-                        )}
                       </td>
                       <td className="px-4 py-3 font-semibold text-white">{formatCurrency(c.spend)}</td>
                       <td className="px-4 py-3 text-[#a1a1aa]">{c.impressions >= 1000 ? `${(c.impressions / 1000).toFixed(1)}k` : c.impressions}</td>
