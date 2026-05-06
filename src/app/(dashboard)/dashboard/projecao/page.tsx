@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { BmCampaignFilter } from "@/components/ui/bm-campaign-filter"
 
 interface PlatformBudget {
   id: string
@@ -31,10 +32,19 @@ export default function ProjecaoPage() {
   const [totalBudget, setTotalBudget] = useState("10000")
   const [startDay, setStartDay] = useState("1")
   const [endDay, setEndDay] = useState(String(getDaysInMonth(today.getFullYear(), today.getMonth())))
+  const [activePlatforms, setActivePlatforms] = useState<Set<string>>(new Set(["meta", "google"]))
   const [platforms, setPlatforms] = useState<PlatformBudget[]>([
     { id: "1", platform: "meta", name: "Meta Ads", percentage: 70, color: "#1877f2" },
     { id: "2", platform: "google", name: "Google Ads", percentage: 30, color: "#34a853" },
   ])
+
+  function togglePlatform(p: string) {
+    setActivePlatforms(prev => {
+      const next = new Set(prev)
+      if (next.has(p)) { if (next.size > 1) next.delete(p) } else next.add(p)
+      return next
+    })
+  }
 
   const budget = parseFloat(totalBudget) || 0
   const start = parseInt(startDay) || 1
@@ -43,17 +53,20 @@ export default function ProjecaoPage() {
   const daysInMonth = getDaysInMonth(today.getFullYear(), today.getMonth())
   const daysRemaining = Math.max(daysInMonth - today.getDate() + 1, 1)
 
-  const totalPercentage = platforms.reduce((s, p) => s + p.percentage, 0)
+  const filteredPlatforms = platforms.filter(p => activePlatforms.has(p.platform))
+
+  const totalPercentage = filteredPlatforms.reduce((s, p) => s + p.percentage, 0)
 
   const projections = useMemo(() => {
-    return platforms.map((p) => {
+    return filteredPlatforms.map((p) => {
       const share = (p.percentage / 100) * budget
       const dailyBudget = share / daysInPeriod
       const monthlyProjection = dailyBudget * daysInMonth
       const remainingBudget = dailyBudget * daysRemaining
       return { ...p, share, dailyBudget, monthlyProjection, remainingBudget }
     })
-  }, [platforms, budget, daysInPeriod, daysInMonth, daysRemaining])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredPlatforms, budget, daysInPeriod, daysInMonth, daysRemaining])
 
   function addPlatform() {
     const available = platformOptions.find(o => !platforms.find(p => p.platform === o.value))
@@ -78,9 +91,36 @@ export default function ProjecaoPage() {
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Projeção de Verba</h1>
-        <p className="text-sm text-[#71717a] mt-0.5">Calcule e distribua seu orçamento de mídia automaticamente</p>
+      {/* Header */}
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Projeção de Verba</h1>
+          <p className="text-sm text-[#71717a] mt-0.5">Calcule e distribua seu orçamento de mídia automaticamente</p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Platform toggles */}
+          {[
+            { value: "meta",   label: "Meta Ads",   color: "#1877f2" },
+            { value: "google", label: "Google Ads", color: "#34a853" },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => togglePlatform(opt.value)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 h-8 rounded-full border text-xs font-medium transition-all cursor-pointer",
+                activePlatforms.has(opt.value)
+                  ? "border-transparent text-white"
+                  : "border-[var(--border)] bg-[#111118] text-[#71717a] hover:text-white"
+              )}
+              style={activePlatforms.has(opt.value) ? { backgroundColor: `${opt.color}25`, borderColor: `${opt.color}60`, color: opt.color } : {}}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: activePlatforms.has(opt.value) ? opt.color : "#52525b" }} />
+              {opt.label}
+            </button>
+          ))}
+          {/* BM / Campaign filter */}
+          <BmCampaignFilter />
+        </div>
       </div>
 
       {/* Configuração do período */}
@@ -151,7 +191,7 @@ export default function ProjecaoPage() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          {platforms.map((p) => (
+          {filteredPlatforms.map((p) => (
             <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] bg-[#0d0d14]">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
               <span className="text-sm font-medium text-white w-28">{p.name}</span>
