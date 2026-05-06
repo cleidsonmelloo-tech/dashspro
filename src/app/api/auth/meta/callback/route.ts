@@ -58,15 +58,32 @@ export async function GET(request: NextRequest) {
   const expiresIn = longTokenData.expires_in || 5184000
   const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
-  // Busca contas de anúncio e info do usuário
-  const [accountsRes, meRes] = await Promise.all([
-    fetch(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id&access_token=${finalToken}`),
+  // Busca contas de anúncio pessoais + via Business Manager + info do usuário
+  const [personalAccountsRes, businessesRes, meRes] = await Promise.all([
+    fetch(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_id&limit=200&access_token=${finalToken}`),
+    fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id,name,owned_ad_accounts{id,name,account_id}&limit=50&access_token=${finalToken}`),
     fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${finalToken}`),
   ])
 
-  const accountsData = await accountsRes.json()
+  const personalData = await personalAccountsRes.json()
+  const businessesData = await businessesRes.json()
   const meData = await meRes.json()
-  const accounts: { id: string; name: string; account_id: string }[] = accountsData.data || []
+
+  // Combina contas pessoais + contas das BMs
+  let allAccounts: { id: string; name: string; account_id: string }[] = personalData.data || []
+  for (const biz of (businessesData.data || [])) {
+    const bizAccounts: { id: string; name: string; account_id: string }[] = biz.owned_ad_accounts?.data || []
+    allAccounts = [...allAccounts, ...bizAccounts]
+  }
+
+  // Remove duplicatas pelo account_id
+  const seen = new Set<string>()
+  const accounts = allAccounts.filter((a) => {
+    const id = a.account_id || a.id.replace("act_", "")
+    if (seen.has(id)) return false
+    seen.add(id)
+    return true
+  })
 
   // Monta payload para salvar via cookie (a sessão do usuário está no browser)
   const payload = accounts.length > 0
