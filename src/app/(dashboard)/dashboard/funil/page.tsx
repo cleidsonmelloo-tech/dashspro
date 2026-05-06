@@ -26,10 +26,10 @@ function buildFunnelSteps(type: FunnelType, impressions: number, clicks: number,
   const cpc = clicks > 0 ? spend / clicks : 0
   const cpa = conversions > 0 ? spend / conversions : 0
 
+  // Paleta laranja unificada
+  const C = ["#FF5F1A", "#FF7A33", "#FF8C42", "#FFA66B", "#FFBC8E", "#10b981"]
+
   switch (type) {
-    // Paleta laranja unificada
-    const C = ["#FF5F1A", "#FF7A33", "#FF8C42", "#FFA66B", "#FFBC8E", "#10b981"]
-    switch (type) {
     case "ecommerce":
       return [
         { label: "Impressões", value: impressions, color: C[0], icon: Users },
