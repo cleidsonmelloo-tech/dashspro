@@ -20,11 +20,12 @@ export async function GET() {
 
   const accounts = (allAccounts || [])
     .filter((a: { is_active: boolean }) => a.is_active)
-    .map((a: { id: string; account_id: string; account_name: string; platform: string }) => ({
+    .map((a: { id: string; account_id: string; account_name: string; platform: string; business_manager_name?: string }) => ({
       id: a.id,
       account_id: a.account_id,
       account_name: a.account_name,
       platform: a.platform,
+      business_manager_name: a.business_manager_name || null,
     }))
     .sort((a: { platform: string; account_name: string }, b: { platform: string; account_name: string }) => {
       if (a.platform !== b.platform) return a.platform.localeCompare(b.platform)

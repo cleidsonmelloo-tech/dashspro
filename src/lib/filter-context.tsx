@@ -7,6 +7,7 @@ export interface AdAccount {
   account_id: string
   account_name: string
   platform: "meta" | "google"
+  business_manager_name?: string | null
 }
 
 export interface FilterCampaign {

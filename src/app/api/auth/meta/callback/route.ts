@@ -70,7 +70,13 @@ export async function GET(request: NextRequest) {
   const personalData = await personalAccountsRes.json()
   const businessesData = await businessesRes.json()
 
-  let allAccounts: { id: string; name: string; account_id: string }[] = personalData.data || []
+  // Personal accounts belong to "Conta Pessoal" (no parent BM)
+  type RawAccount = { id: string; name: string; account_id: string; _bm_name?: string }
+  const personalAccounts: RawAccount[] = (personalData.data || []).map(
+    (a: { id: string; name: string; account_id: string }) => ({ ...a, _bm_name: "Conta Pessoal" })
+  )
+
+  let allAccounts: RawAccount[] = personalAccounts
 
   for (const biz of (businessesData.data || [])) {
     const [ownedRes, clientRes] = await Promise.all([
@@ -79,17 +85,22 @@ export async function GET(request: NextRequest) {
     ])
     const ownedData = await ownedRes.json()
     const clientData = await clientRes.json()
-    allAccounts = [...allAccounts, ...(ownedData.data || []), ...(clientData.data || [])]
+    // Tag every account with its parent Business Manager name
+    const tagged = [...(ownedData.data || []), ...(clientData.data || [])].map(
+      (a: { id: string; name: string; account_id: string }) => ({ ...a, _bm_name: biz.name as string })
+    )
+    allAccounts = [...allAccounts, ...tagged]
   }
 
-  // Remove duplicatas
-  const seen = new Set<string>()
-  const accounts = allAccounts.filter((a) => {
+  // Remove duplicatas (prefer BM-tagged over personal if same account_id appears twice)
+  const seen = new Map<string, RawAccount>()
+  for (const a of allAccounts) {
     const id = a.account_id || a.id.replace("act_", "")
-    if (seen.has(id)) return false
-    seen.add(id)
-    return true
-  })
+    if (!seen.has(id) || a._bm_name !== "Conta Pessoal") {
+      seen.set(id, a)
+    }
+  }
+  const accounts = Array.from(seen.values())
 
   console.log("[meta/callback] saving", accounts.length, "accounts to Supabase")
 
@@ -106,6 +117,7 @@ export async function GET(request: NextRequest) {
       p_access_token: finalToken,
       p_token_expires_at: expiresAt,
       p_is_active: true,
+      p_business_manager_name: a._bm_name || null,
     })
     if (error) {
       console.error("[meta/callback] upsert error for", accountId, error.message)
