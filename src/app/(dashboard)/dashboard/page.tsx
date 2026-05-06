@@ -17,7 +17,7 @@ interface DashMetrics {
 }
 
 // ── All available KPI metrics ────────────────────────────────────────────────
-type MetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpa" | "conversions" | "roas" | "revenue" | "cpm" | "reach" | "frequency"
+type MetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpa" | "conversions" | "roas" | "revenue" | "cpm" | "reach" | "frequency" | "kiwify_sales" | "kiwify_revenue" | "kiwify_ticket"
 
 interface MetricDef {
   key: MetricKey
@@ -40,8 +40,12 @@ const ALL_METRICS: MetricDef[] = [
   { key: "ctr",         label: "CTR",                  icon: TrendingUp,   color: "#10b981", format: (v) => `${v.toFixed(2)}%`, description: "Taxa de cliques" },
   { key: "cpc",         label: "CPC Médio",            icon: BarChart3,    color: "#f59e0b", format: formatCurrency, description: "Custo por clique", invertChange: true },
   { key: "cpm",         label: "CPM",                  icon: Eye,          color: "#a78bfa", format: formatCurrency, description: "Custo por mil impressões", invertChange: true },
-  { key: "reach",       label: "Alcance",              icon: Eye,          color: "#fb923c", format: formatNumber,   description: "Pessoas alcançadas" },
-  { key: "frequency",   label: "Frequência",           icon: BarChart3,    color: "#94a3b8", format: (v) => v.toFixed(2), description: "Média de vezes que cada pessoa viu" },
+  { key: "reach",          label: "Alcance",              icon: Eye,          color: "#fb923c", format: formatNumber,   description: "Pessoas alcançadas" },
+  { key: "frequency",      label: "Frequência",           icon: BarChart3,    color: "#94a3b8", format: (v) => v.toFixed(2), description: "Média de vezes que cada pessoa viu" },
+  // ── Kiwify ──
+  { key: "kiwify_sales",   label: "Compras (Kiwify)",     icon: Target,       color: "#10b981", format: formatNumber,   description: "Vendas aprovadas na Kiwify" },
+  { key: "kiwify_revenue", label: "Receita Kiwify",       icon: DollarSign,   color: "#059669", format: formatCurrency, description: "Receita total aprovada na Kiwify" },
+  { key: "kiwify_ticket",  label: "Ticket Médio Kiwify",  icon: BarChart3,    color: "#34d399", format: formatCurrency, description: "Ticket médio por venda Kiwify" },
 ]
 
 const DEFAULT_METRICS: MetricKey[] = ["spend", "conversions", "cpa", "revenue", "ctr", "cpc"]
@@ -218,6 +222,7 @@ export default function DashboardPage() {
   const [prevMetrics, setPrevMetrics] = useState<Partial<DashMetrics> | null>(null)
   const [dailyData, setDailyData] = useState<DailyPoint[]>([])
   const [topCampaigns, setTopCampaigns] = useState(DEMO_CAMPAIGNS)
+  const [kiwifyStats, setKiwifyStats] = useState<{ total_sales: number; total_revenue: number; avg_ticket: number } | null>(null)
   const [selectedKpis, setSelectedKpis] = useState<MetricKey[]>(() => {
     if (typeof window === "undefined") return DEFAULT_METRICS
     try {
@@ -256,6 +261,13 @@ export default function DashboardPage() {
         setDailyData([])
       }
 
+      // Kiwify stats
+      const kiwifyRes = await fetch(`/api/kiwify/stats?since=${since}&until=${until}`)
+      if (kiwifyRes.ok) {
+        const kd = await kiwifyRes.json()
+        setKiwifyStats(kd.stats || null)
+      }
+
       const metaCampaigns = (campaignsResM.ok ? await campaignsResM.json() : { campaigns: [] }).campaigns || []
       const googleCampaigns = (campaignsResG.ok ? await campaignsResG.json() : { campaigns: [] }).campaigns || []
       const all = [...metaCampaigns, ...googleCampaigns]
@@ -289,8 +301,11 @@ export default function DashboardPage() {
     roas:        m.roas ?? (m.spend > 0 ? (m.conversions * m.cpa) / m.spend : 0),
     revenue:     m.roas ? m.roas * m.spend : (m.conversions * m.cpa),
     cpm:         m.cpm ?? (m.impressions > 0 ? (m.spend / m.impressions) * 1000 : 0),
-    reach:       m.reach ?? 0,
-    frequency:   m.frequency ?? 0,
+    reach:          m.reach ?? 0,
+    frequency:      m.frequency ?? 0,
+    kiwify_sales:   kiwifyStats?.total_sales ?? 0,
+    kiwify_revenue: kiwifyStats?.total_revenue ?? 0,
+    kiwify_ticket:  kiwifyStats?.avg_ticket ?? 0,
   }
   const fullPrev: Partial<Record<MetricKey, number>> = {
     spend:       p?.spend,
