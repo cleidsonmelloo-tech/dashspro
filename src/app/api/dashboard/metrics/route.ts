@@ -43,11 +43,15 @@ export async function GET(request: NextRequest) {
   for (const acc of accounts.filter((a: AdAccountRow) => a.platform === "meta")) {
     if (isTokenExpired(acc.token_expires_at)) continue
 
-    // Extract raw campaign IDs for this specific account
+    // Extract raw campaign IDs — supports both prefixed ("meta_accId_campId") and raw ("campId") formats
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`meta_${acc.account_id}_`))
-      .map(id => id.slice(`meta_${acc.account_id}_`.length))
-    // If campaigns are filtered but none belong to this account, skip it
+      .map(id => {
+        const prefix = `meta_${acc.account_id}_`
+        if (id.startsWith(prefix)) return id.slice(prefix.length)          // new prefixed format
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null // different account/platform
+        return id                                                            // raw numeric format (legacy)
+      })
+      .filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
 
     const params: Record<string, string> = {
@@ -91,10 +95,15 @@ export async function GET(request: NextRequest) {
       token = await refreshGoogleToken(acc.id, acc.refresh_token, supabase) ?? token
     }
 
-    // Extract raw campaign IDs for this specific account
+    // Extract raw campaign IDs — supports both prefixed and raw formats
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`google_${acc.account_id}_`))
-      .map(id => id.slice(`google_${acc.account_id}_`.length))
+      .map(id => {
+        const prefix = `google_${acc.account_id}_`
+        if (id.startsWith(prefix)) return id.slice(prefix.length)
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null
+        return id
+      })
+      .filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
 
     let query = `SELECT segments.date, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.conversions

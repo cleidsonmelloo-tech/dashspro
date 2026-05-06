@@ -44,8 +44,12 @@ export async function GET(request: NextRequest) {
       access_token: account.access_token,
     }
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`meta_${account.account_id}_`))
-      .map(id => id.slice(`meta_${account.account_id}_`.length))
+      .map(id => {
+        const p = `meta_${account.account_id}_`
+        if (id.startsWith(p)) return id.slice(p.length)
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null
+        return id
+      }).filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
     if (rawCampaignIds.length > 0) {
       fetchParams.filtering = JSON.stringify([{ field: "campaign.id", operator: "IN", value: rawCampaignIds }])

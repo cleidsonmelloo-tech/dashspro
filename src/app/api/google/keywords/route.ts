@@ -60,8 +60,12 @@ export async function GET(request: NextRequest) {
       WHERE segments.date BETWEEN '${since}' AND '${until}'
         AND ad_group_criterion.status != 'REMOVED'`
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`google_${account.account_id}_`))
-      .map(id => id.slice(`google_${account.account_id}_`.length))
+      .map(id => {
+        const p = `google_${account.account_id}_`
+        if (id.startsWith(p)) return id.slice(p.length)
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null
+        return id
+      }).filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
     if (rawCampaignIds.length > 0) {
       query += ` AND campaign.id IN (${rawCampaignIds.join(",")})`

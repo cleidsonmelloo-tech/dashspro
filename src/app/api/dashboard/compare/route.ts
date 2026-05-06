@@ -61,8 +61,12 @@ async function fetchPeriodMetrics(
     if (isTokenExpired(acc.token_expires_at)) continue
 
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`meta_${acc.account_id}_`))
-      .map(id => id.slice(`meta_${acc.account_id}_`.length))
+      .map(id => {
+        const p = `meta_${acc.account_id}_`
+        if (id.startsWith(p)) return id.slice(p.length)
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null
+        return id
+      }).filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
 
     const params: Record<string, string> = {
@@ -93,8 +97,12 @@ async function fetchPeriodMetrics(
     }
 
     const rawCampaignIds = filterCampaignIds
-      .filter(id => id.startsWith(`google_${acc.account_id}_`))
-      .map(id => id.slice(`google_${acc.account_id}_`.length))
+      .map(id => {
+        const p = `google_${acc.account_id}_`
+        if (id.startsWith(p)) return id.slice(p.length)
+        if (id.startsWith("meta_") || id.startsWith("google_")) return null
+        return id
+      }).filter((id): id is string => id !== null && id.length > 0)
     if (filterCampaignIds.length > 0 && rawCampaignIds.length === 0) continue
 
     let query = `SELECT metrics.cost_micros,metrics.impressions,metrics.clicks,metrics.conversions
