@@ -4,11 +4,13 @@ import { createClient } from "@/lib/supabase/server"
 // GET /api/alerts — list alerts for current workspace
 export async function GET() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
-  const { data: workspace } = await supabase
-    .from("workspaces").select("id").eq("owner_id", user.id).single()
+  const { data: wsList } = await supabase
+    .from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ alerts: [] })
 
   const { data: alerts, error } = await supabase
@@ -24,11 +26,13 @@ export async function GET() {
 // POST /api/alerts — create alert
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
-  const { data: workspace } = await supabase
-    .from("workspaces").select("id").eq("owner_id", user.id).single()
+  const { data: wsList } = await supabase
+    .from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
   const body = await request.json()

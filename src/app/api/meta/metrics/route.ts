@@ -4,15 +4,13 @@ import { createClient } from "@/lib/supabase/server"
 // GET /api/meta/metrics?since=2024-01-01&until=2024-01-31
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
-  const { data: workspace } = await supabase
-    .from("workspaces")
-    .select("id")
-    .eq("owner_id", user.id)
-    .single()
-
+  const { data: wsList } = await supabase
+    .from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 })
 
   const { data: accounts } = await supabase

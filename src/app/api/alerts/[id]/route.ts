@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 // PATCH /api/alerts/[id] — toggle active or update
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
   const { id } = await params
@@ -24,7 +25,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 // DELETE /api/alerts/[id] — delete alert
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
   const { id } = await params

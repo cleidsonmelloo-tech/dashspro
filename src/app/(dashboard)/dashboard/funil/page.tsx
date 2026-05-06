@@ -178,9 +178,11 @@ export default function FunilPage() {
       try {
         const { createClient } = await import("@/lib/supabase/client")
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (!user) return
-        const { data: ws } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).single()
+        const { data: wsList } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+        const ws = wsList?.[0]
         if (!ws) return
         const { data: settings } = await supabase.from("workspace_settings").select("funnel_type").eq("workspace_id", ws.id).single()
         if (settings?.funnel_type) setActiveFunnel(settings.funnel_type as FunnelType)

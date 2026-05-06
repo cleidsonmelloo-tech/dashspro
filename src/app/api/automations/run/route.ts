@@ -18,11 +18,13 @@ interface Metrics {
 // POST /api/automations/run — evaluate all active automations against current metrics
 export async function POST() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
 
-  const { data: workspace } = await supabase
-    .from("workspaces").select("id").eq("owner_id", user.id).single()
+  const { data: wsList } = await supabase
+    .from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const workspace = wsList?.[0]
   if (!workspace) return NextResponse.json({ triggered: [] })
 
   // Fetch active automations

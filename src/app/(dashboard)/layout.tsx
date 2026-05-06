@@ -19,16 +19,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
       const { createClient } = await import("@/lib/supabase/server")
       const { redirect } = await import("next/navigation")
       const supabase = await createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user
 
       if (!user) redirect("/login")
 
-      const [{ data: profile }, { data: workspace }] = await Promise.all([
+      const [{ data: profile }, { data: wsList }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user!.id).single(),
-        supabase.from("workspaces").select("*").eq("owner_id", user!.id).single(),
+        supabase.from("workspaces").select("*").eq("owner_id", user!.id).order("created_at", { ascending: true }),
       ])
+      const workspace = (wsList as unknown[])?.[0] as { name: string; logo_url?: string; brand_color?: string } | undefined
 
-      userName = profile?.full_name || user!.email?.split("@")[0] || "Usuário"
+      userName = (profile as { full_name?: string } | null)?.full_name || user!.email?.split("@")[0] || "Usuário"
       userEmail = user!.email || ""
 
       if (!workspace) {

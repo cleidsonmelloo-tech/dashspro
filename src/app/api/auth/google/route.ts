@@ -7,15 +7,13 @@ const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callbac
 // GET /api/auth/google — inicia o fluxo OAuth
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return NextResponse.redirect(new URL("/login", request.url))
 
-  const { data: workspace } = await supabase
-    .from("workspaces")
-    .select("id")
-    .eq("owner_id", user.id)
-    .single()
-
+  const { data: wsList } = await supabase
+    .from("workspaces").select("id").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const workspace = wsList?.[0]
   if (!workspace) return NextResponse.redirect(new URL("/onboarding", request.url))
 
   const state = Buffer.from(JSON.stringify({ workspace_id: workspace.id, user_id: user.id })).toString("base64url")
