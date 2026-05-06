@@ -409,7 +409,7 @@ export default function DashboardPage() {
             type={activeFunnel}
             impressions={m.impressions}
             clicks={m.clicks}
-            conversions={m.conversions}
+            conversions={kiwifyStats?.total_sales ?? m.conversions}
             spend={m.spend}
           />
         </CardContent>

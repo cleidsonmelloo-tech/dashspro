@@ -182,14 +182,18 @@ export default function FunilPage() {
   const [loading, setLoading] = useState(false)
   const [isRealData, setIsRealData] = useState(false)
   const [liveMetrics, setLiveMetrics] = useState<{ impressions: number; clicks: number; conversions: number; spend: number } | null>(null)
+  const [kiwifySales, setKiwifySales] = useState<number | null>(null)
 
   const fetchMetrics = useCallback(async () => {
     setLoading(true)
     try {
       const { since, until } = dateRange
-      const res = await fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`)
-      if (res.ok) {
-        const data = await res.json()
+      const [metricsRes, kiwifyRes] = await Promise.all([
+        fetch(`/api/dashboard/metrics?since=${since}&until=${until}${filterParam}`),
+        fetch(`/api/kiwify/stats?since=${since}&until=${until}`),
+      ])
+      if (metricsRes.ok) {
+        const data = await metricsRes.json()
         if (data.connected && data.metrics) {
           setLiveMetrics({
             impressions: data.metrics.impressions,
@@ -202,6 +206,10 @@ export default function FunilPage() {
           setLiveMetrics(null)
           setIsRealData(false)
         }
+      }
+      if (kiwifyRes.ok) {
+        const k = await kiwifyRes.json()
+        setKiwifySales(k.connected && k.stats ? k.stats.total_sales : null)
       }
     } catch {
       setLiveMetrics(null)
@@ -233,11 +241,13 @@ export default function FunilPage() {
   }, [])
 
   const values = liveMetrics || DEMO_VALUES[activeFunnel]
-  const steps = buildFunnelSteps(activeFunnel, values.impressions, values.clicks, values.conversions, values.spend)
+  // Se houver vendas reais Kiwify, usar como conversão real
+  const realConversions = kiwifySales !== null && kiwifySales > 0 ? kiwifySales : values.conversions
+  const steps = buildFunnelSteps(activeFunnel, values.impressions, values.clicks, realConversions, values.spend)
   const maxValue = steps[0].value
   const lastStep = steps[steps.length - 1]
-  const conversionRate = values.impressions > 0 ? (values.conversions / values.impressions) * 100 : 0
-  const cpa = values.conversions > 0 ? values.spend / values.conversions : 0
+  const conversionRate = values.impressions > 0 ? (realConversions / values.impressions) * 100 : 0
+  const cpa = realConversions > 0 ? values.spend / realConversions : 0
   const meta = FUNNEL_META[activeFunnel]
 
   return (
