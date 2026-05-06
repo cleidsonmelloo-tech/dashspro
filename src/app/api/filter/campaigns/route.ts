@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const campaigns = (data.data || [])
       .filter((c: MetaCampaign) => c.status !== "DELETED" && c.status !== "ARCHIVED")
       .map((c: MetaCampaign) => ({
-        id: c.id,
+        id: `meta_${accountId}_${c.id}`,   // mesmo formato da /api/meta/campaigns
         name: c.name,
         account_id: accountId,
         platform: "meta" as const,
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     if (!res.ok) return NextResponse.json({ campaigns: [] })
     const data = await res.json()
     const campaigns = (data.results || []).map((r: GoogleRow) => ({
-      id: String(r.campaign.id),
+      id: `google_${accountId}_${r.campaign.id}`,   // mesmo formato da /api/google/campaigns
       name: r.campaign.name,
       account_id: accountId,
       platform: "google" as const,
