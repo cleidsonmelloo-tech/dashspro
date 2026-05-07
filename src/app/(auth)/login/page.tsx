@@ -1,16 +1,26 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { Mail, Lock, Eye, EyeOff, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/app/actions/auth"
 
+const LS_LAST_USER = "dashspro_last_user"
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isPending, startTransition] = useTransition()
+  const [lastUser, setLastUser] = useState<{ name?: string; avatar?: string; email?: string } | null>(null)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LS_LAST_USER)
+      if (saved) setLastUser(JSON.parse(saved))
+    } catch {}
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -25,11 +35,22 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Logo */}
+      {/* Logo / Foto do usuário (se já logou alguma vez) */}
       <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF5F1A]">
-          <BarChart3 className="w-6 h-6 text-white" />
-        </div>
+        {lastUser?.avatar ? (
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-[#FF5F1A] shadow-lg shadow-[#FF5F1A]/30">
+              <img src={lastUser.avatar} alt={lastUser.name || "Usuário"} className="w-full h-full object-cover" />
+            </div>
+            {lastUser.name && (
+              <p className="text-sm text-[#FF8C42] font-semibold">Bem-vindo de volta, {lastUser.name.split(" ")[0]}!</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF5F1A]">
+            <BarChart3 className="w-6 h-6 text-white" />
+          </div>
+        )}
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Sistema do Meta e Google Ads</h1>
           <p className="text-sm text-[#71717a] mt-1">Faça login na sua conta</p>

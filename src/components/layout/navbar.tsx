@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Bell, Search, ChevronDown, User, Settings, LogOut, Menu, Zap, CheckCircle2 } from "lucide-react"
 import { cn, getInitials } from "@/lib/utils"
 import { signOut } from "@/app/actions/auth"
@@ -25,6 +25,17 @@ export function Navbar({
   const [runningAuto, setRunningAuto]       = useState(false)
   const [autoResult, setAutoResult]         = useState<string | null>(null)
   const { sidebarCollapsed, toggleMobileSidebar } = useUIStore()
+
+  // Salva dados do usuário em localStorage para mostrar foto na próxima visita ao login
+  useEffect(() => {
+    try {
+      localStorage.setItem("dashspro_last_user", JSON.stringify({
+        name: userName,
+        avatar: userAvatar,
+        email: userEmail,
+      }))
+    } catch {}
+  }, [userName, userAvatar, userEmail])
 
   async function runAutomations() {
     setRunningAuto(true)
