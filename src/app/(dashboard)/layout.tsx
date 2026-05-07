@@ -10,6 +10,7 @@ const isSupabaseConfigured =
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   let userName = "Usuário Demo"
   let userEmail = "demo@dashspro.com"
+  let userAvatar: string | undefined
   let workspaceName = "DashsPro"
   let workspaceLogo: string | undefined
   let brandColor = "#FF5F1A"
@@ -30,9 +31,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
         supabase.from("workspaces").select("*").eq("owner_id", user!.id).order("created_at", { ascending: true }),
       ])
       const workspace = (wsList as unknown[])?.[0] as { name: string; logo_url?: string; brand_color?: string } | undefined
+      const prof = profile as { full_name?: string; avatar_url?: string } | null
 
-      userName = (profile as { full_name?: string } | null)?.full_name || user!.email?.split("@")[0] || "Usuário"
+      userName = prof?.full_name || user!.email?.split("@")[0] || "Usuário"
       userEmail = user!.email || ""
+      userAvatar = prof?.avatar_url
 
       if (!workspace) {
         needsOnboarding = true
@@ -52,8 +55,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <FilterProvider>
       <div className="min-h-screen bg-[#0a0a0a]">
-        <Sidebar workspaceName={workspaceName} workspaceLogo={workspaceLogo} brandColor={brandColor} />
-        <Navbar userName={userName} userEmail={userEmail} workspaceName={workspaceName} workspaceColor={brandColor} />
+        <Sidebar workspaceName={workspaceName} workspaceLogo={workspaceLogo || userAvatar} brandColor={brandColor} />
+        <Navbar userName={userName} userEmail={userEmail} userAvatar={userAvatar} workspaceName={workspaceName} workspaceColor={brandColor} />
         <MainContent>{children}</MainContent>
       </div>
     </FilterProvider>

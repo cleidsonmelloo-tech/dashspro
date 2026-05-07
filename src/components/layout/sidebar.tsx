@@ -53,11 +53,11 @@ function SidebarContent({
         collapsed && "justify-center px-0"
       )}>
         <div
-          className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
-          style={{ backgroundColor: brandColor }}
+          className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0 overflow-hidden border-2"
+          style={{ backgroundColor: brandColor, borderColor: `${brandColor}80` }}
         >
           {workspaceLogo
-            ? <img src={workspaceLogo} alt={workspaceName} className="w-5 h-5 object-contain rounded" />
+            ? <img src={workspaceLogo} alt={workspaceName} className="w-full h-full object-cover" />
             : <BarChart3 className="w-4 h-4 text-white" />
           }
         </div>
