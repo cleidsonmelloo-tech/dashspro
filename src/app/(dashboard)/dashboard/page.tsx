@@ -338,31 +338,32 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6">
-      {/* Header */}
-      <div className="flex items-start sm:items-center justify-between flex-wrap gap-3">
-        <div className="min-w-0 flex-1">
+    <div className="flex flex-col gap-3 sm:gap-4 lg:gap-6 w-full max-w-full">
+      {/* Header — Title sozinho na 1ª linha do mobile, controles na 2ª */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-xs sm:text-sm text-[#71717a] mt-0.5">Visão geral consolidada — Meta Ads + Google Ads</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        {/* Controls — scroll horizontal no mobile, sem quebrar layout */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-3 px-3 lg:mx-0 lg:px-0 lg:flex-wrap lg:overflow-visible scrollbar-hide">
           <div className={cn(
-            "flex items-center gap-1.5 px-3 h-7 rounded-full border",
+            "flex items-center gap-1.5 px-3 h-7 rounded-full border flex-shrink-0",
             connected ? "bg-emerald-500/10 border-emerald-500/20" : "bg-amber-500/10 border-amber-500/20"
           )}>
             <div className={cn("w-1.5 h-1.5 rounded-full", connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400")} />
-            <span className={cn("text-xs font-medium", connected ? "text-emerald-400" : "text-amber-400")}>
+            <span className={cn("text-xs font-medium whitespace-nowrap", connected ? "text-emerald-400" : "text-amber-400")}>
               {connected ? "Dados reais" : "Demo"}
             </span>
           </div>
-          <PlatformPills value={platformFilter} onChange={setPlatformFilter} />
-          <BmCampaignFilter />
-          <KpiSelector selected={selectedKpis} onChange={setSelectedKpis} />
+          <div className="flex-shrink-0"><PlatformPills value={platformFilter} onChange={setPlatformFilter} /></div>
+          <div className="flex-shrink-0"><BmCampaignFilter /></div>
+          <div className="flex-shrink-0"><KpiSelector selected={selectedKpis} onChange={setSelectedKpis} /></div>
           <button onClick={fetchData}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] transition-colors flex-shrink-0">
             <RefreshCw className={cn("w-3.5 h-3.5 text-[#71717a]", loading && "animate-spin")} />
           </button>
-          <DateRangePicker value={dateRange} onChange={setDateRange} />
+          <div className="flex-shrink-0"><DateRangePicker value={dateRange} onChange={setDateRange} /></div>
         </div>
       </div>
 

@@ -60,3 +60,18 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Hide scrollbar para filter rows horizontais no mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome/Safari */
+}
+
+/* Mobile: previne overflow horizontal indesejado */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
