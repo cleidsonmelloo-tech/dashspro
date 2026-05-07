@@ -82,7 +82,7 @@ function MetricCard({
         </div>
 
         {/* Label — tem todo o espaço horizontal */}
-        <p className="text-[10px] sm:text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-wider leading-[1.25] line-clamp-2">
+        <p className="text-[10px] sm:text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-wide leading-[1.25] line-clamp-2 break-words">
           {label}
         </p>
 
@@ -92,7 +92,8 @@ function MetricCard({
             <div className="h-7 w-24 bg-[#1a1410] rounded animate-pulse" />
           ) : (
             <p
-              className="font-black text-white leading-none tracking-tight truncate w-full text-[20px] sm:text-[22px] lg:text-[24px]"
+              className="font-black text-white leading-none tracking-tight truncate w-full"
+              style={{ fontSize: "clamp(15px, 2.4vw, 22px)" }}
               title={value}
             >
               {value}
@@ -365,8 +366,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards — responsivos: 1 col em smartphones bem pequenos, 2 cols em phones grandes, 3 em tablet, 6 em desktop */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+      {/* KPI Cards — responsivos: phone(2) → tablet(3) → notebook(4) → desktop wide(6) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
         {selectedKpis.map(key => {
           const def = ALL_METRICS.find(d => d.key === key)!
           const val = fullMetrics[key]
