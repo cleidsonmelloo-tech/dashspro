@@ -22,7 +22,7 @@ export function MainContent({ children }: { children: React.ReactNode }) {
       <footer className="border-t border-[var(--border)] bg-[#0a0a0a] py-4 px-3 sm:px-4 lg:px-6 mt-6">
         <div className="flex items-center justify-center gap-2 text-xs text-[#71717a]">
           <span>Sistema criado por</span>
-          <span className="font-bold text-[#FF8C42]">CLEIDSON DE MELO</span>
+          <span className="font-bold text-[#FF8C42]">CMA</span>
           <span className="hidden sm:inline text-[#52525b]">•</span>
           <span className="hidden sm:inline text-[#52525b]">© {new Date().getFullYear()}</span>
         </div>

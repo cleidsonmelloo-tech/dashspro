@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Rodapé */}
       <footer className="relative z-10 py-4 px-4 text-center">
         <p className="text-xs text-[#71717a]">
-          Sistema criado por <span className="font-bold text-[#FF8C42]">CLEIDSON DE MELO</span>
+          Sistema criado por <span className="font-bold text-[#FF8C42]">CMA</span>
           <span className="hidden sm:inline text-[#52525b]"> • © {new Date().getFullYear()}</span>
         </p>
       </footer>
