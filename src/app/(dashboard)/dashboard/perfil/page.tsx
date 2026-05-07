@@ -1,7 +1,7 @@
 ﻿"use client"
 
-import { useState, useEffect, useTransition } from "react"
-import { User, Mail, Lock, Shield, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
+import { useState, useEffect, useTransition, useRef } from "react"
+import { User, Lock, Shield, CheckCircle2, AlertTriangle, Loader2, Camera, Upload, Trash2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +21,8 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function loadProfile() {
@@ -44,6 +46,89 @@ export default function PerfilPage() {
   function showFeedback(type: "success" | "error", msg: string) {
     setFeedback({ type, msg })
     setTimeout(() => setFeedback(null), 4000)
+  }
+
+  async function handleAvatarUpload(file: File) {
+    if (!profile) return
+    if (file.size > 2 * 1024 * 1024) {
+      showFeedback("error", "Imagem muito grande. Máximo 2MB.")
+      return
+    }
+    if (!file.type.startsWith("image/")) {
+      showFeedback("error", "Arquivo inválido. Selecione uma imagem.")
+      return
+    }
+
+    setUploadingAvatar(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split(".").pop() || "png"
+      const path = `${profile.id}/avatar-${Date.now()}.${ext}`
+
+      // Upload para o bucket "avatars" (precisa estar criado no Supabase Storage)
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type })
+
+      if (uploadError) {
+        // Bucket pode não existir — fallback: salvar como base64 no avatar_url (até 2MB cabe na coluna)
+        const reader = new FileReader()
+        reader.onloadend = async () => {
+          const base64 = reader.result as string
+          const { error: updateErr } = await supabase
+            .from("profiles")
+            .update({ avatar_url: base64 })
+            .eq("id", profile.id)
+          if (updateErr) {
+            showFeedback("error", "Erro ao salvar foto: " + updateErr.message)
+          } else {
+            setProfile(p => p ? { ...p, avatar_url: base64 } : p)
+            showFeedback("success", "Foto atualizada com sucesso!")
+          }
+          setUploadingAvatar(false)
+        }
+        reader.readAsDataURL(file)
+        return
+      }
+
+      // Pega URL pública e salva na tabela
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path)
+      const publicUrl = urlData.publicUrl
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", profile.id)
+
+      if (updateError) {
+        showFeedback("error", "Erro ao salvar URL da foto.")
+      } else {
+        setProfile(p => p ? { ...p, avatar_url: publicUrl } : p)
+        showFeedback("success", "Foto atualizada com sucesso!")
+      }
+    } catch (e) {
+      showFeedback("error", "Erro inesperado ao fazer upload.")
+      console.error(e)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    if (!profile) return
+    setUploadingAvatar(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: null })
+      .eq("id", profile.id)
+    if (error) {
+      showFeedback("error", "Erro ao remover foto.")
+    } else {
+      setProfile(p => p ? { ...p, avatar_url: null } : p)
+      showFeedback("success", "Foto removida.")
+    }
+    setUploadingAvatar(false)
   }
 
   function handleSaveProfile() {
@@ -130,18 +215,70 @@ export default function PerfilPage() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#FF5F1A] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover rounded-2xl" />
-              ) : (
-                initials
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Avatar com botão flutuante de câmera */}
+            <div className="relative group">
+              <div className="w-20 h-20 rounded-2xl bg-[#FF5F1A] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 overflow-hidden border-2 border-[#FF5F1A]/30">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+              {uploadingAvatar && (
+                <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                </div>
               )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                title="Alterar foto"
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#FF5F1A] border-2 border-[#0a0a0a] flex items-center justify-center hover:bg-[#E54E0B] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Camera className="w-3.5 h-3.5 text-white" />
+              </button>
             </div>
-            <div>
-              <p className="font-semibold text-white">{displayName}</p>
-              <p className="text-sm text-[#71717a]">{profile?.email}</p>
+
+            {/* Info + botões */}
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-white truncate">{displayName}</p>
+              <p className="text-sm text-[#71717a] truncate">{profile?.email}</p>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="flex items-center gap-1.5 px-3 h-8 rounded-lg border border-[var(--border)] bg-[#131313] hover:bg-[#1a1410] text-xs text-white font-medium transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <Upload className="w-3 h-3" />
+                  {profile?.avatar_url ? "Trocar foto" : "Enviar foto"}
+                </button>
+                {profile?.avatar_url && (
+                  <button
+                    onClick={handleRemoveAvatar}
+                    disabled={uploadingAvatar}
+                    className="flex items-center gap-1.5 px-3 h-8 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 font-medium transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    Remover
+                  </button>
+                )}
+              </div>
+              <p className="text-[10px] text-[#52525b] mt-1.5">JPG, PNG ou GIF. Máximo 2MB.</p>
             </div>
+
+            {/* Input de arquivo escondido */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleAvatarUpload(file)
+                e.target.value = ""
+              }}
+            />
           </div>
 
           <Input

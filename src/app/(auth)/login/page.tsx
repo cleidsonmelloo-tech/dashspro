@@ -31,7 +31,7 @@ export default function LoginPage() {
           <BarChart3 className="w-6 h-6 text-white" />
         </div>
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">DashsPro</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Sistema do Meta e Google Ads</h1>
           <p className="text-sm text-[#71717a] mt-1">Faça login na sua conta</p>
         </div>
       </div>

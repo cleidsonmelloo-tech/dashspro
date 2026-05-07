@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DashsPro — Gestão de Tráfego Pago",
+  title: "Sistema do Meta e Google Ads",
   description: "Dashboard profissional para gestores de tráfego, agências e infoprodutores",
 };
 
